@@ -5,10 +5,9 @@
 	Name="BoltThrower"
 	ProjectGUID="{F98950B8-68AB-494C-B726-F888C5CEC0F7}"
 	RootNamespace="HighOctane"
-	SccProjectName="SAK"
-	SccAuxPath="SAK"
-	SccLocalPath="SAK"
-	SccProvider="SAK"
+	SccProjectName="&quot;$/BoltThrowerProject.root/BoltThrowerProject&quot;, OYAAAAAA"
+	SccLocalPath=".."
+	SccProvider="MSSCCI:Microsoft Visual SourceSafe"
 	Keyword="MakeFileProj"
 	TargetFrameworkVersion="196613"
 	>
@@ -501,6 +500,22 @@
 			>
 			<File
 				RelativePath=".\Makefile"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Data"
+			>
+			<File
+				RelativePath="..\Data\BoltThrower Ver0.59\GameConfiguration.xml"
+				>
+			</File>
+			<File
+				RelativePath="..\Data\BoltThrower Ver0.59\icon.png"
+				>
+			</File>
+			<File
+				RelativePath="..\Data\BoltThrower Ver0.59\meta.xml"
 				>
 			</File>
 		</Filter>
