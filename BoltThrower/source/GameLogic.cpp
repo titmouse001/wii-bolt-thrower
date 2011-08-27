@@ -1525,8 +1525,8 @@ void GameLogic::InitialiseSmallGunTurret(int Amount, float Dist, float x1, float
 	//	int index( rand()%GetSmallEnemiesContainerSize()  );
 		Item.SetLockOntoVesselIndex( 0 );
 
-		Item.m_Pitch = 1.1f;//-M_PI/2;
-		Item.m_Roll =1.1f;// M_PI;
+//		Item.m_Pitch = 1.1f;//-M_PI/2;
+	//	Item.m_Roll =1.1f;// M_PI;
 
 
 		Item.WorkingTarget = {0,0,0};
