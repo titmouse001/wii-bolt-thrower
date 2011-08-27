@@ -178,7 +178,7 @@ void GameLogic::StillAlive()
 	if ( pMissionManager->IsCurrentMissionObjectiveComplete() )
 	{
 
-		printf( "MissionObjectiveComplete" );
+	//	printf( "MissionObjectiveComplete" );
 
 		if ( (MissionData.GetCompleted()>0) && (!m_pWii->GetMessageBox()->IsEnabled()) )
 		{
@@ -195,8 +195,7 @@ void GameLogic::StillAlive()
 				GetPlrVessel()->SetVel(0,0,0);
 				m_ProbeMineContainer->clear();
 				m_ExhaustContainer->clear();
-				//InitialiseShieldGenerators(3);
-				InitialiseShieldGenerators(1);
+				InitialiseShieldGenerators(3);
 
 				GetPlrVessel()->SetShieldLevel( m_pWii->GetXmlVariable(HashString::PlayerMaxShieldLevel) );
 				break;
@@ -233,7 +232,7 @@ void GameLogic::StillAlive()
 				m_ProbeMineContainer->clear();
 				//InitialiseSmallGunTurret(5,300);
 
-				InitialiseSmallGunTurret(5,700, 0,0,300);
+				InitialiseSmallGunTurret(4,700, 0,120,600, 3.14/3.0f );
 				GetPlrVessel()->SetShieldLevel( m_pWii->GetXmlVariable(HashString::PlayerMaxShieldLevel) );
 				break;
 			case 6:
@@ -391,6 +390,7 @@ void GameLogic::InGameLogic()
 				AmountOfexplosionsToAddEachFrame = 20;
 			}
 
+			// Eject loads of mines on death as a final death throw to the enemy
 			Vessel ProbeMine = *GetPlrVessel();
 			ProbeMine.SetGravity(0.995f);
 			ProbeMine.SetFrameGroup( HashString::ProbeMineFrames);
@@ -433,8 +433,8 @@ void GameLogic::InGameLogic()
 
 		GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
 
-		GetPlrVessel()->SetVel(0,0,0.85f);
-		GetPlrVessel()->SetGravity(0.99f);
+	//	GetPlrVessel()->SetVel(0,0,0.85f);
+	//	GetPlrVessel()->SetGravity(0.99f);
 
 		static const HashLabel names[] = { HashString::Boom3Frames , HashString::Boom5Frames };
 
@@ -1208,8 +1208,8 @@ void GameLogic::AddEnemyVessels(int OriginX, int OriginY, int Amount, HashLabel 
 		Ship.SetSpeedFactor( SpeedFactor );
 		Ship.SetShieldLevel( m_pWii->GetXmlVariable(HashString::BadShipType2MaxShieldLevel) ); 
 	}
-	else
-		ExitPrintf("AddEnemyVessels nothing found");
+//	else
+//		ExitPrintf("AddEnemyVessels nothing found");
 
 	for (int i=0; i<Amount; ++i)
 	{
@@ -1331,7 +1331,11 @@ void GameLogic::GunTurretLogic()
 				guVecScale(&ShotVelocity, &ShotVelocity, 12.0f);
 				pShot.SetVel(ShotVelocity);
 
+
+				pShot.InitTimer();
+				pShot.SetTimerMillisecs( 8500 );
 				m_ShotForGunTurretContainer->push_back(pShot); // fire shot
+
 
 				{
 					Vessel Boom(&pShot, 0.8f);
@@ -1345,8 +1349,17 @@ void GameLogic::GunTurretLogic()
 
 void GameLogic::GunTurretShotsLogic()
 {
-	for (std::vector<Item3D>::iterator iter(m_ShotForGunTurretContainer->begin()); iter!= m_ShotForGunTurretContainer->end(); ++iter  )
+	for (std::vector<Item3D>::iterator iter(m_ShotForGunTurretContainer->begin()); iter!= m_ShotForGunTurretContainer->end(); /*NOP*/  )
 	{
+		if ( iter->IsTimerDone() )
+		{
+			// remove shot from list
+			iter = m_ShotForGunTurretContainer->erase(iter); 
+			continue;
+		}
+		
+		bool hit=false;
+
 		iter->AddVelToPos();
 		for (std::vector<Vessel>::iterator GunShipIter(m_SmallEnemiesContainer->begin()); GunShipIter!=m_SmallEnemiesContainer->end(); ++GunShipIter)
 		{	
@@ -1380,8 +1393,14 @@ void GameLogic::GunTurretShotsLogic()
 						Guniter->SetLockOntoVesselIndex( rand()%( GetSmallEnemiesContainerSize() ) );
 					}
 				}
-				return;
+				hit=true;
+				break;
 			}
+		}
+
+		if (!hit)
+		{
+			++iter;
 		}
 	}
 }
@@ -1513,21 +1532,16 @@ void GameLogic::InitialiseSmallGunTurret(int Amount, float Dist, float x1, float
 		float y = + y1;
 		float z = cos(ang)* Dist + z1;
 		Item.SetPos( x, y, z );
-		//Item.SetScale( 0.1,0.1,0.1); 
-		Item.SetScale( 1,1,1); 
+		Item.SetScale( 0.8,0.8,0.8); 
+//		Item.SetScale( 1,1,1); 
 		Item.SetRotate(0,ang-(M_PI/2),M_PI);
 		Item.SetRotateAmount(0,0,0);
 
 		Item.InitTimer();
 		Item.SetTimerMillisecs( rand()%5000 );
 
-
-	//	int index( rand()%GetSmallEnemiesContainerSize()  );
+		//int index( rand()%GetSmallEnemiesContainerSize()  );
 		Item.SetLockOntoVesselIndex( 0 );
-
-//		Item.m_Pitch = 1.1f;//-M_PI/2;
-	//	Item.m_Roll =1.1f;// M_PI;
-
 
 		Item.WorkingTarget = {0,0,0};
 		Item.CurrentTarget = {0,0,0};
@@ -1840,7 +1854,7 @@ void GameLogic::InitialiseGame()
 		"Your base's defensive perimeter is now complete.");
 
 	pMissionManager->AddMissionData("Mission Four",
-		"Protect your moon base while the terraforming process creates a habitable atmosphere. \n",
+		"Protect your moon base while the terraforming process creates a habitable atmosphere. \n  THIS LEVEL IS STILL IN DEVELOPMENT - IT CURRENTLY DOES NOT END!",
 		"Your base's terraforming is now complete.");
 
 	Item3D Moon;
@@ -1865,14 +1879,16 @@ void GameLogic::InitialiseGame()
 	//InitialiseSmallGunTurret(	4,500, 
 	//							0,0,600, 3.14/3.0f);
 
-	static int Amount = 3;
-	static float Distance = 800.0f;
-	static float x = 0.0f;
-	static float y = 220.0f;
-	static float z = 600.0f;
-	InitialiseSmallGunTurret( Amount, Distance, x, y, z, 3.14/3.0f );
+	//static int Amount = 3;
+	//static float Distance = 800.0f;
+	//static float x = 0.0f;
+	//static float y = 220.0f;
+	//static float z = 600.0f;
+	//InitialiseSmallGunTurret( Amount, Distance, x, y, z, 3.14/3.0f );
 
 	//InitialiseShieldGenerators(3);
+
+//	InitialiseSmallGunTurret(4,700, 0,120,600, 3.14/4.0f );
 
 
 }

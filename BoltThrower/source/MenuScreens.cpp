@@ -282,7 +282,7 @@ void MenuScreens::DoCreditsScreen()
 	y+=20;
 	m_pWii->GetFontManager()->DisplaySmallTextCentre("-= Testers=- Tom, Harry, Mr C",0,y+=19,200);
 	y+=20;
-	m_pWii->GetFontManager()->DisplaySmallTextCentre("Release v0.59 | July 2011",0,y+=19,200);
+	m_pWii->GetFontManager()->DisplaySmallTextCentre("Release v0.60 | August 2011",0,y+=19,200);
 	m_pWii->GetFontManager()->DisplaySmallTextCentre("Built using libs: -lfat -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm ",0,y+=19,160);
 
 	{

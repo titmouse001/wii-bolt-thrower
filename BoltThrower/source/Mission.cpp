@@ -41,11 +41,11 @@ bool MissionManager::IsCurrentMissionObjectiveComplete()
 			//PickUpsNeeded = Wii.GetGameLogic()->GetPlrVessel()->GetPickUpTotal();
 			break;
 		case 4: 
-			if (Wii.GetGameLogic()->GetPlrVessel()->GetPickUpTotal() > 85)
+			if (Wii.GetGameLogic()->GetPlrVessel()->GetPickUpTotal() >= 85)
 				return (true);
 			break;
 		case 5:
-			if (Wii.GetGameLogic()->GetPlrVessel()->GetPickUpTotal() > 155)
+			if (Wii.GetGameLogic()->GetPlrVessel()->GetPickUpTotal() >= 155)
 				return (true);
 			break;
 		case 6:

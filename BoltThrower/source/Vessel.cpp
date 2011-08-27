@@ -165,6 +165,11 @@ f32 Vessel::GetTurnDirectionForTurret(guVector* Vec)
 	return diff;
 }
 
+void Item3D::InitTimer() 	{ m_pTimer = new Timer;  }
+void Item3D::SetTimerMillisecs(u32 t) { m_pTimer->SetTimerMillisecs(t); }
+bool Item3D::IsTimerDone() { return m_pTimer->IsTimerDone(); }
+
+//TODO - REMOVE THESE
 void TurretItem3D::InitTimer() 	{ m_pTimer = new Timer;  }
 void TurretItem3D::SetTimerMillisecs(u32 t) { m_pTimer->SetTimerMillisecs(t); }
 bool TurretItem3D::IsTimerDone() { return m_pTimer->IsTimerDone(); }

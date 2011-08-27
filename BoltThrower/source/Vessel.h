@@ -109,6 +109,11 @@ public:
 	int GetLockOntoVesselIndex() { return m_LockOntoVesselIndex; }
 	void SetLockOntoVesselIndex(int Value) { m_LockOntoVesselIndex = Value;}
 
+	// timer section
+	void InitTimer();
+	void SetTimerMillisecs(u32 t);
+	bool IsTimerDone();
+
 private:
 	guVector	m_Pos;
 	guVector	m_Vel;
@@ -118,10 +123,12 @@ private:
 	bool		m_Enable;
 	int			m_LockOntoVesselIndex;
 
+	Timer*		m_pTimer;
+
 };
 
-
-
+// TODO - REMOVE
+// get rid of this class... Item3D to use a 'has-a' timer
 class  TurretItem3D : public Item3D
 {
 private:

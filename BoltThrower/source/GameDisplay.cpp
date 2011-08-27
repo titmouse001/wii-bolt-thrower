@@ -35,7 +35,6 @@ void GameDisplay::DisplayAllForIntro()
 	static float bbb(0);
 	m_pWii->GetSpaceBackground()->DrawImageXYZ(0,0, 9400,255,bbb*0.025,25.0f );
 	bbb+=0.005f;
-
 	GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
 	m_pWii->GetCamera()->SetLightOn2();
 
@@ -43,18 +42,14 @@ void GameDisplay::DisplayAllForIntro()
 		// Viper
 		Mtx Model,mat;
 		guMtxIdentity(Model);
-
 		Util3D::MatrixRotateX(Model, bbb*4.33);
 		Util3D::MatrixRotateY(mat, bbb*2.33);
-//		guMtxRotRad(Model,'z', bbb*4.33); 
-//		guMtxRotRad(mat,'y',bbb*2.33 );
 		guMtxConcat(mat,Model,Model);
-		guMtxScaleApply(Model,Model,0.15f,0.15f,0.15f);
-		guMtxTrans(mat, 0, 75, -500 );
-		guMtxConcat(mat,Model,Model);
-//		guMtxRotRad(mat,'y', bbb) ;  // spin around moon axis
+		guMtxScaleApply(Model,Model,0.35f,0.35f,0.35f);
+		guMtxTransApply(Model,Model, 0, 0, 900.0f );
 		Util3D::MatrixRotateY(mat, bbb);
 		guMtxConcat(mat,Model,Model);
+		guMtxTransApply(Model,Model, 0, -140, 475.0f );
 		guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
 		m_pWii->Render.RenderModelHardNorms(HashString::Viper, Model);
 	}
@@ -75,7 +70,9 @@ void GameDisplay::DisplayAllForIntro()
 //	DisplayGunShips();
 //	DisplaySporeThings();
 //	DisplayRadar();
+
 	DisplayProbMines();
+
 	DisplayProjectile();
 //	DisplayMissile();
 	DisplayExhaust();
@@ -83,16 +80,16 @@ void GameDisplay::DisplayAllForIntro()
 	DisplayBadShips();
 
 
-	//m_pWii->GetCamera()->SetCameraView(0,0);
-	//Util3D::TransRot(-204,-128,-3.14f/4.0f);
-	//m_pWii->GetFontManager()->DisplayLargeTextCentre("attract mode",0,0,fabs(sin(bbb)*80));
+	m_pWii->GetCamera()->SetCameraView(0,0);
+	Util3D::TransRot(-204,-128,-3.14f/4.0f);
+	m_pWii->GetFontManager()->DisplayLargeTextCentre("attract mode",0,0,fabs(sin(bbb)*80));
 
-	//Util3D::Identity();
-	//static float wobble	(0);
-	//wobble+=0.05;
-	//m_pWii->GetFontManager()->DisplayLargeTextCentre("PRESS A TO CONTINUE",0, 145 + exp((sin(wobble)*2.8f)),110);
+	Util3D::Identity();
+	static float wobble	(0);
+	wobble+=0.05;
+	m_pWii->GetFontManager()->DisplayLargeTextCentre("PRESS A TO CONTINUE",0, 145 + exp((sin(wobble)*2.8f)),110);
 
-	//DebugInformation();
+	DebugInformation();
 
 	GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
 	m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
@@ -123,14 +120,17 @@ void GameDisplay::DisplayAllForIngame()
 	m_pWii->GetCamera()->SetLightOff();
 	GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
 
-	// 2D section
-	//our ship
-	m_pImageManager->GetImage(m_pGameLogic->GetPlrVessel()->GetFrame())->DrawImageXYZ( 
-		m_pGameLogic->GetPlrVessel()->GetX(), m_pGameLogic->GetPlrVessel()->GetY(), m_pGameLogic->GetPlrVessel()->GetZ(), 255, m_pGameLogic->GetPlrVessel()->GetFacingDirection(), 1.25f );
+	if ( !m_pGameLogic->GetPlrVessel()->HasShieldFailed() )  
+	{
+		// 2D section
+		//our ship
+		m_pImageManager->GetImage(m_pGameLogic->GetPlrVessel()->GetFrame())->DrawImageXYZ( 
+			m_pGameLogic->GetPlrVessel()->GetX(), m_pGameLogic->GetPlrVessel()->GetY(), m_pGameLogic->GetPlrVessel()->GetZ(), 255, m_pGameLogic->GetPlrVessel()->GetFacingDirection(), 1.25f );
 
-	//red overloading shiled
-	m_pImageManager->GetImage(m_pWii->m_FrameEndStartConstainer[HashString::ShieldRed].StartFrame)->DrawImageXYZ( m_pGameLogic->GetPlrVessel()->GetX(),
-		m_pGameLogic->GetPlrVessel()->GetY(), m_pGameLogic->GetPlrVessel()->GetZ(), 128 - (m_pGameLogic->GetPlrVessel()->GetShieldLevel()*2), (rand()%(314*2)) * 0.01  );
+		//red overloading shiled
+		m_pImageManager->GetImage(m_pWii->m_FrameEndStartConstainer[HashString::ShieldRed].StartFrame)->DrawImageXYZ( m_pGameLogic->GetPlrVessel()->GetX(),
+			m_pGameLogic->GetPlrVessel()->GetY(), m_pGameLogic->GetPlrVessel()->GetZ(), 128 - (m_pGameLogic->GetPlrVessel()->GetShieldLevel()*2), (rand()%(314*2)) * 0.01  );
+	}
 
 
 	DisplayBadShips();
@@ -294,6 +294,7 @@ void GameDisplay::DisplayMoon(float Dist)
 
 			Util3D::MatrixRotateY(Model, MoonIter->GetRotateY());
 //			guMtxRotRad( Model,'y', MoonIter->GetRotateY() ) ;
+			
 			guMtxTrans( mat, MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ() );  // distance back
 			guMtxConcat(mat,Model,Model);
 			guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
@@ -342,7 +343,7 @@ void GameDisplay::DisplayMoon(float Dist)
 				guMtxTransApply(Model,Model, MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ());
 				guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
 
-				if (( fabs(iter->GetZ()) > 575)  ||( fabs(iter->GetX()) > 575))
+				if (( fabs(iter->GetZ()) > 750)  ||( fabs(iter->GetX()) > 750))
 					m_pWii->Render.RenderModelMinimal(HashString::Rock1, Model);
 				else
 					m_pWii->Render.RenderModelMinimal(HashString::Rock2, Model);
@@ -400,27 +401,20 @@ void GameDisplay::DisplayInformationPanels()
 
 void GameDisplay::DisplaySkull()
 {
-	static const float dist = -65;
+	static const float dist = -45;
 	static float bbb = 0;
 	bbb+=0.025f;
 
 	Mtx Model,mat;
-
-	Util3D::MatrixRotateZ(mat, cos(bbb)*0.45);
+	Util3D::MatrixRotateZ(Model, cos(bbb)*0.45);
 	Util3D::MatrixRotateX(mat, (M_PI/10.0f) + sin(-bbb*4)*0.35);
-
-//	guMtxRotRad(Model,'z', cos(bbb)*0.45);
-//	guMtxRotRad(mat,'x', (M_PI/10.0f) + sin(-bbb*4)*0.35);
-
 	guMtxConcat(mat,Model,Model);
-
 	Util3D::MatrixRotateY(mat, sin(bbb)*0.95);
-//	guMtxRotRad(mat,'y', sin(bbb)*0.95);
-
 	guMtxConcat(mat,Model,Model);
 	guMtxTransApply(Model,Model, 
 		m_pGameLogic->GetPlrVessel()->GetX(), 
 		m_pGameLogic->GetPlrVessel()->GetY(),dist);
+
 	guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
 	m_pWii->Render.RenderModelHardNorms(HashString::Skull, Model);
 }
@@ -541,7 +535,7 @@ void GameDisplay::DisplayRadar() // big and messy...needs a refactor
 		// with any luck the hardware might just optimise this out and not even bother drawing it
 		int Alpha = 0;  // No point being cleaver here as we still have the worst case, so just make it invisable
 		if ( Iter->InsideRadius(fCamX, fCamY, (128*128)*scale2 ) )
-			Alpha=200;   // its inside the radar scope
+			Alpha=100;   // its inside the radar scope
 
 		GX_Position3f32(Iter->GetX()*scale, Iter->GetY()*scale, 0);		
 		GX_Color4u8(250,100,0,Alpha);        
@@ -555,10 +549,10 @@ void GameDisplay::DisplayRadar() // big and messy...needs a refactor
 		// with any luck the hardware might just optimise this out and not even bother drawing it
 		int Alpha = 0;  // No point being cleaver here as we still have the worst case, so just make it invisable
 		if ( Iter->InsideRadius(fCamX, fCamY, (128*128)*scale2 ) )
-			Alpha=200;   // its inside the radar scope
+			Alpha=100;   // its inside the radar scope
 
 		GX_Position3f32(Iter->GetX()*scale, Iter->GetY()*scale, 0);		
-		GX_Color4u8(250,200,100,Alpha);        
+		GX_Color4u8(250,20,10,Alpha);        
 	}
 	GX_End();
 
@@ -612,12 +606,24 @@ void GameDisplay::DisplaySporeThings()
 	Rad*=Rad;
 
 //	Image* pRed = m_pImageManager->GetImage(HashString::ShieldRed);
+	
+	static float size;
+	size+=0.0085f;
+	if (size>1.0f)
+		size=0;
+
 
 	for (std::vector<Vessel>::iterator iter(m_pGameLogic->GetSporesContainerBegin()); 
 		iter!= m_pGameLogic->GetSporesContainerEnd(); ++iter)
 	{
 		if ( iter->InsideRadius(fCamX, fCamY, Rad) )
 		{
+
+			m_pWii->GetImageManager()->GetImage(HashString::YellowCircleWithHole)
+				->DrawImageXYZ( (iter->GetX()), (iter->GetY()), 0,(200)-(size*200),0,size *10.0F );
+
+
+
 			iter->AddFrame(iter->GetFrameSpeed());
 			if (iter->GetFrame() >= iter->GetEndFrame())
 				iter->SetFrame(iter->GetFrameStart());
