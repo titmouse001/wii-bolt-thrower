@@ -82,12 +82,12 @@ void GameDisplay::DisplayAllForIntro()
 
 	m_pWii->GetCamera()->SetCameraView(0,0);
 	Util3D::TransRot(-204,-128,-3.14f/4.0f);
-	m_pWii->GetFontManager()->DisplayLargeTextCentre("attract mode",0,0,fabs(sin(bbb)*80));
+	m_pWii->GetFontManager()->DisplayLargeTextCentre(m_pWii->GetText("attract_mode"),0,0,fabs(sin(bbb)*80));
 
 	Util3D::Identity();
 	static float wobble	(0);
 	wobble+=0.05;
-	m_pWii->GetFontManager()->DisplayLargeTextCentre("PRESS A TO CONTINUE",0, 145 + exp((sin(wobble)*2.8f)),110);
+	m_pWii->GetFontManager()->DisplayLargeTextCentre(m_pWii->GetText("PressButtonAToContinueMessage"),0, 145 + exp((sin(wobble)*2.8f)),110);
 
 	DebugInformation();
 
@@ -170,8 +170,8 @@ void GameDisplay::DisplayAllForIngame()
 		ccc+=0.015;
 		Util3D::TransRot(m_pGameLogic->GetPlrVessel()->GetX(),m_pGameLogic->GetPlrVessel()->GetY(),0,(sin(ccc) - cos(ccc))*0.025f);
 		m_pWii->DrawRectangle( -160, -60, 320,  75, 112, 0,0,50 );
-		m_pWii->GetFontManager()->DisplayLargeTextCentre("GAME PAUSED",		0,-20,160+(cos(ccc*4)*44.0f));
-		m_pWii->GetFontManager()->DisplaySmallTextCentre("Press (+) To Play",	0,+40, 230);
+		m_pWii->GetFontManager()->DisplayLargeTextCentre(m_pWii->GetText("GAME_PAUSED"),		0,-20,160+(cos(ccc*4)*44.0f));
+		m_pWii->GetFontManager()->DisplaySmallTextCentre(m_pWii->GetText("Press_PLUS_To_Play"),	0,+40, 230);
 	}
 	DebugInformation();
 }
@@ -200,7 +200,7 @@ void GameDisplay::DisplayShieldGenerators()
 					if (MissionData.GetCompleted() == 1)
 					{
 						MissionData.SetCompleted(2); 
-						m_pWii->GetMessageBox()->SetUpMessageBox("!","You need to remove the any enemy gunships before recovering this last satellite");
+						m_pWii->GetMessageBox()->SetUpMessageBox(m_pWii->GetText("ExplanationMark"),m_pWii->GetText("RemoveGunshipsBeforeRecoveringMessage"));
 					}
 				}
 				else
@@ -384,8 +384,8 @@ void GameDisplay::DisplayInformationPanels()
 	if (m_pGameLogic->IsGamePausedByPopUp() && 
 		(m_pWii->GetMissionManager()->GetCurrentMission()==1) )
 	{
-		m_pWii->GetFontManager()->DisplaySmallText("<-- Your Score",100,0,200);  // relative coords to last trans
-		m_pWii->GetFontManager()->DisplaySmallText("Press (+) To Pause Game",100,-100,200);  // relative coords to last trans
+		m_pWii->GetFontManager()->DisplaySmallText(m_pWii->GetText("Your_Score"),100,0,200);  // relative coords to last trans
+		m_pWii->GetFontManager()->DisplaySmallText(m_pWii->GetText("Press_PLUS_To_Pause_Game"),100,-100,200);  // relative coords to last trans
 	}
 
 	// Scrap parts
@@ -394,7 +394,7 @@ void GameDisplay::DisplayInformationPanels()
 	m_pWii->TextBox( x, y ,BoxWidth,BoxHeight,WiiManager::eCentre, "%06d", m_pGameLogic->GetPlrVessel()->GetPickUpTotal() );
 
 	if (m_pGameLogic->IsGamePausedByPopUp() && (m_pWii->GetMissionManager()->GetCurrentMission()==1) )
-		m_pWii->GetFontManager()->DisplaySmallText("<-- Amount of scrap parts collected",100,0,200);
+		m_pWii->GetFontManager()->DisplaySmallText(m_pWii->GetText("ScrapPartsCollected"),100,0,200);
 }
 
 

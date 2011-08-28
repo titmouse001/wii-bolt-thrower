@@ -95,7 +95,9 @@ void MenuScreens::DoMenuScreen()
 	m_pWii->DrawRectangle( -320, -200-4,  640,  4,	 112, 0,0,0 );
 	m_pWii->DrawRectangle( -320, -200,	  640, 42,	  88, 0,0,0 );
 	m_pWii->DrawRectangle( -320, -200+42, 640,  4,	 112, 0,0,0 );
-	m_pWii->GetFontManager()->DisplayLargeTextCentre("B O L T    T H R O W E R",0,-180,190);
+
+	// "B O L T    T H R O W E R"
+	m_pWii->GetFontManager()->DisplayLargeTextCentre( m_pWii->GetText("MainMenuScreenTopTitle") ,0,-180,190); 
 
 	//----------------------------------------------------------
 	Util3D::TransRot(320-50,240-50,-3.14f/4.0f);
@@ -179,12 +181,14 @@ void MenuScreens::DoControlsScreen()
 
 	m_pWii->GetCamera()->SetLightOff();
 	GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
-//=====================
+	//=====================
 	Util3D::Identity();
 	m_pWii->DrawRectangle( -320, -200-4,  640,  4,	 112, 0,0,0 );
 	m_pWii->DrawRectangle( -320, -200,	  640, 42,	  88, 0,0,0 );
 	m_pWii->DrawRectangle( -320, -200+42, 640,  4,	 112, 0,0,0 );
-	m_pWii->GetFontManager()->DisplayLargeTextCentre("C O N T R O L S",0,-180,190);
+
+	// "C O N T R O L S"
+	m_pWii->GetFontManager()->DisplayLargeTextCentre( m_pWii->GetText("ControlsMenuScreenTopTitle"),0,-180,190);
 
 
 	ImageManager* pImageManager = m_pWii->GetImageManager();
@@ -198,25 +202,26 @@ void MenuScreens::DoControlsScreen()
 	int step = 55;
 
 	pImageManager->GetImage(HashString::WiiMoteButtonA)->DrawImage(x,y+=step);
-	m_pWii->GetFontManager()->DisplayLargeTextVertCentre("Fire Missile",32,0,200);
+	m_pWii->GetFontManager()->DisplayLargeTextVertCentre(m_pWii->GetText("WiiMoteButtonA"),32,0,200); //"Fire Missile"
 
 	pImageManager->GetImage(HashString::WiiMoteButtonB)->DrawImage(x,y+=step);
-	m_pWii->GetFontManager()->DisplayLargeTextVertCentre("Thrusters",32,0,200);
+	m_pWii->GetFontManager()->DisplayLargeTextVertCentre(m_pWii->GetText("WiiMoteButtonB"),32,0,200);  // "Thrusters"
 
 	pImageManager->GetImage(HashString::WiiMoteDirectionDownMarkedRed)->DrawImage(x,y+=step);
-	m_pWii->GetFontManager()->DisplayLargeTextVertCentre("Drop Mine",32,0,200);
+	m_pWii->GetFontManager()->DisplayLargeTextVertCentre(m_pWii->GetText("WiiMoteDirectionDown"),32,0,200); // "Drop Mine"
 
 	pImageManager->GetImage(HashString::WiiMoteInfraRedPointer)->DrawImage(x,y+=step);
-	m_pWii->GetFontManager()->DisplayLargeTextVertCentre("Aim",32,0,200);
+	m_pWii->GetFontManager()->DisplayLargeTextVertCentre(m_pWii->GetText("WiiMoteInfraRedPointer"),32,0,200); //"Aim"
 
 	pImageManager->GetImage(HashString::WiiMoteButtonHome)->DrawImage(x,y+=step);
-	m_pWii->GetFontManager()->DisplayLargeTextVertCentre("Quit",32,0,200);
+	m_pWii->GetFontManager()->DisplayLargeTextVertCentre(m_pWii->GetText("WiiMoteButtonHome"),32,0,200);  //"Quit"
 
 	Util3D::Identity();
 	{
 		static float wobble	(0);
 		wobble+=0.015;
-		m_pWii->GetFontManager()->DisplayLargeTextCentre("PRESS A TO CONTINUE",0,200.0f,50 + fabs(cos(wobble)*60.0f));
+		// "PRESS A TO CONTINUE" 
+		m_pWii->GetFontManager()->DisplayLargeTextCentre(m_pWii->GetText("PressButtonAToContinueMessage"),0,200.0f,50 + fabs(cos(wobble)*60.0f));
 	}
 	
 	GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
@@ -262,33 +267,40 @@ void MenuScreens::DoCreditsScreen()
 	m_pWii->DrawRectangle( -320, -200-4,  640,  4,	 112, 0,0,0 );
 	m_pWii->DrawRectangle( -320, -200,	  640, 42,	  88, 0,0,0 );
 	m_pWii->DrawRectangle( -320, -200+42, 640,  4,	 112, 0,0,0 );
-	m_pWii->GetFontManager()->DisplayLargeTextCentre("C R E D I T S",0,-180,190);
 
-	Util3D::TransRot(0,-50,0,0);
+	//"C R E D I T S"
+	m_pWii->GetFontManager()->DisplayLargeTextCentre(m_pWii->GetText("CreditsMenuScreenTopTitle"),0,-180,190);
 
-	int y(-90);
-	m_pWii->GetFontManager()->DisplaySmallTextCentre("-=Music=- 'Space Debris' from the Amiga by Captain/Image",0,y+=19,200);
-	m_pWii->GetFontManager()->DisplaySmallTextCentre("Visit http://modarchive.org/ for a distinctive collection of modules",0,y+=19,180);
+	Util3D::TransRot(0,-160,0,0);
+	int y(0);
+	for (int i=0; i<99; ++i)
+	{
+		string Message(m_pWii->GetText( "Credits" + Util::NumberToString(i)) );
+		if (Message != "TAG-END")
+			m_pWii->GetFontManager()->DisplaySmallTextCentre( Message,0,y+=19,200);
+		else
+			break;
+	} 
 
-	y+=20;
-	m_pWii->GetFontManager()->DisplaySmallTextCentre("-=3D Models=  WiiMote by Patrick Grubb",0,y+=19,200);
-	m_pWii->GetFontManager()->DisplaySmallTextCentre("Viper(MK2) by Karl Stocker (UV textures by Titmouse)",0,y+=19,200);
-
-	y+=20;
-	m_pWii->GetFontManager()->DisplaySmallTextCentre("-=2D Art=- Most by Lee Marks / few by Danc - www.lostgarden.com",0,y+=19,200);
-
-	y+=20;
-	m_pWii->GetFontManager()->DisplaySmallTextCentre("-=Programmer=- Paul Overy, alias TitMouse",0,y+=19,200);
-	y+=20;
-	m_pWii->GetFontManager()->DisplaySmallTextCentre("-= Testers=- Tom, Harry, Mr C",0,y+=19,200);
-	y+=20;
-	m_pWii->GetFontManager()->DisplaySmallTextCentre("Release v0.60 | August 2011",0,y+=19,200);
-	m_pWii->GetFontManager()->DisplaySmallTextCentre("Built using libs: -lfat -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm ",0,y+=19,160);
+	////m_pWii->GetFontManager()->DisplaySmallTextCentre("-=Music=- 'Space Debris' from the Amiga by Captain/Image",0,y+=19,200);
+	////m_pWii->GetFontManager()->DisplaySmallTextCentre("Visit http://modarchive.org/ for a distinctive collection of modules",0,y+=19,180);
+	////y+=20;
+	////m_pWii->GetFontManager()->DisplaySmallTextCentre("-=3D Models=  WiiMote by Patrick Grubb",0,y+=19,200);
+	////m_pWii->GetFontManager()->DisplaySmallTextCentre("Viper(MK2) by Karl Stocker (UV textures by Titmouse)",0,y+=19,200);
+	////y+=20;
+	////m_pWii->GetFontManager()->DisplaySmallTextCentre("-=2D Art=- Most by Lee Marks / few by Danc - www.lostgarden.com",0,y+=19,200);
+	////y+=20;
+	////m_pWii->GetFontManager()->DisplaySmallTextCentre("-=Programmer=- Paul Overy, alias TitMouse",0,y+=19,200);
+	////y+=20;
+	////m_pWii->GetFontManager()->DisplaySmallTextCentre("-= Testers=- Tom, Harry, Mr C",0,y+=19,200);
+	////y+=20;
+	////m_pWii->GetFontManager()->DisplaySmallTextCentre("Release v0.60 | August 2011",0,y+=19,200);
+	////m_pWii->GetFontManager()->DisplaySmallTextCentre("Built using libs: -lfat -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm",0,y+=19,160);
 
 	{
 		static float wobble	(0);
 		wobble+=0.05;
-		m_pWii->GetFontManager()->DisplayLargeTextCentre("PRESS A TO CONTINUE",0,exp(sin(wobble)*2.8f)+210.0f,128);
+		m_pWii->GetFontManager()->DisplayLargeTextCentre(m_pWii->GetText("PressButtonAToContinueMessage"),0,exp(sin(wobble)*2.8f)+330.0f,128);
 	
 	}
 
@@ -336,8 +348,9 @@ void MenuScreens::DoOptionsScreen()
 	m_pWii->DrawRectangle( -320, -200-4,  640,  4,	 112, 0,0,0 );
 	m_pWii->DrawRectangle( -320, -200,	  640, 42,	  88, 0,0,0 );
 	m_pWii->DrawRectangle( -320, -200+42, 640,  4,	 112, 0,0,0 );
-	m_pWii->GetFontManager()->DisplayLargeTextCentre("O P T I O N S",0,-180,190);
-	//=========================
+	// "O P T I O N S"
+	m_pWii->GetFontManager()->DisplayLargeTextCentre(m_pWii->GetText("OptionsMenuScreenTopTitle"),0,-180,190);
+		//=========================
 	m_pWii->GetMenuManager()->SetMenuGroup("OptionsMenu");
 	m_pWii->GetMenuManager()->Draw();
 	m_pWii->GetMenuManager()->MenuLogic();

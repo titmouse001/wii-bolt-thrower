@@ -243,6 +243,20 @@ public:
 
 	u32	GetFrameCounter() { return m_uFrameCounter; } 
 
+
+	void SetLanguage(string Language) { m_Language = Language; }
+	string GetText(string Name)
+	{
+		//printf(Name.c_str());
+		map< string, string >* ptr( &m_SupportedLanguages[m_Language] );
+
+	//	printf((*ptr)[Name].c_str());
+		return (*ptr)[Name]; // todo  ... some checking needed here
+	}
+
+
+
+
 private:
 	void SetViewport(s16 x, s16 y) { m_ViewportX = x;m_ViewportY=y; }
 
@@ -277,7 +291,15 @@ private:
 	vector<FileInfo> m_ModinfoContainer;
 	vector<FileInfo> m_RawTgainfoContainer;
 
+
+//	vector<string> m_SupportedLanguages;
+
+	map< string, map< string, string > > m_SupportedLanguages;
+
+
 	map<HashLabel,float> m_VariablesContainer;
+
+	string m_Language;
 
 
 };	

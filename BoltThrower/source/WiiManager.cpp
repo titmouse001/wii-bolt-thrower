@@ -53,7 +53,8 @@ WiiManager::WiiManager() :	m_pGXRMode(NULL), m_gp_fifo(NULL),
 							m_Camera(NULL),						
 							m_ViewportX(0),
 							m_ViewportY(0),
-							m_GameState(eIntro)
+							m_GameState(eIntro),
+							m_Language("English")
 { 
 	m_pFrameBuffer[0] = NULL;
 	m_pFrameBuffer[1] = NULL;
@@ -693,6 +694,48 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 				}
 			}
 
+
+			// *** Languages ***
+			vector<string> WorkingTempLanguagesFoundContainer;
+			TiXmlElement* pLanguages =  Data.FirstChild( "Languages" ).FirstChildElement().ToElement();
+			for( TiXmlElement* pElement(pLanguages); pElement!=NULL; pElement=pElement->NextSiblingElement() )
+			{
+				string Key(pElement->Value());
+				if (Key=="AddLanguage") 
+				{
+					std::string Text(pElement->Attribute("Name"));
+					printf("AddLanguage: %s ", Text.c_str());
+					WorkingTempLanguagesFoundContainer.push_back( Text );
+				}
+			}
+
+			// fill up the different language containers - but only with the those found above 
+			for ( vector<string>::iterator LangIter(WorkingTempLanguagesFoundContainer.begin());LangIter!=WorkingTempLanguagesFoundContainer.end(); ++LangIter )
+			{
+				for ( TiXmlElement* pElement(pLanguages); pElement!=NULL; pElement=pElement->NextSiblingElement() )
+				{
+					if ( pElement->Value() == *LangIter )
+					{
+						for ( TiXmlElement* pAddText(pElement->FirstChildElement()); pAddText!=NULL; pAddText=pAddText->NextSiblingElement() )
+						{
+							string Value( pAddText->Value() );
+							if (  Value == "AddText" )
+							{
+								std::string AttributeText( pAddText->FirstAttribute()->Value() );
+								std::string NameText( pAddText->FirstAttribute()->Name() );
+								
+								map< string, string >*  ptr =  &m_SupportedLanguages[*LangIter];
+								(*ptr)[NameText] = AttributeText;
+
+						//		printf("Add %s Text,%s: %s", LangIter->c_str(),NameText.c_str(),(*ptr)[NameText].c_str() );
+							}
+						}
+					}
+				}
+			}
+			
+			WorkingTempLanguagesFoundContainer.clear();
+
 			printf("XML Setttings complete");
 		}
 		else
@@ -932,18 +975,22 @@ void WiiManager::ProgramStartUp()
 	GetMenuManager()->AddMenu(0, y, width,height,"Quit");
 	//==========================================================
 	// Options Menu - one time setup
-	y=-60;
+	int x=-96;
+	y=-70;
 	GetMenuManager()->SetMenuGroup("OptionsMenu");
-	GetMenuManager()->AddMenu(-80, y, 400, height, "In-game Music");
-	GetMenuManager()->AddMenu(210, y, 1, height, "IngameMusicState",true)->AddTextItem("off")->AddTextItem("on")->SetCurrentItemIndex(1);
+	GetMenuManager()->AddMenu(x, y, 390, height, "In-game Music");
+	GetMenuManager()->AddMenu(x+300, y, 1, height, "IngameMusicState",true)->AddTextItem("off")->AddTextItem("on")->SetCurrentItemIndex(1);
 
 	y+=step;
-	GetMenuManager()->AddMenu(-80, y , 400, height, "Difficulty Level");
-	GetMenuManager()->AddMenu(210, y, 1, height, "DifficultySetting",true)->AddTextItem("easy")->AddTextItem("medium")->AddTextItem("hard")->SetCurrentItemIndex(1);
+	GetMenuManager()->AddMenu(x, y , 390, height, "Difficulty Level");
+	GetMenuManager()->AddMenu(x+300, y, 1, height, "DifficultySetting",true)->AddTextItem("easy")->AddTextItem("medium")->AddTextItem("hard")->SetCurrentItemIndex(1);
 
 	y+=step;
-	y+=step;
-	GetMenuManager()->AddMenu(0, y , 600, height, "Done");
+	GetMenuManager()->AddMenu(x, y , 390, height, "Set Language");
+	GetMenuManager()->AddMenu(x+300, y, 1, height, "LanguageSetting",true)->AddTextItem("English")->AddTextItem("Italian")->AddTextItem("Esperanto")->SetCurrentItemIndex(0);
+
+	y+=step+30;
+	GetMenuManager()->AddMenu(0, y , 600, height, "Back");
 
 
 	//Get the tracker module into memory

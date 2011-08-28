@@ -13,7 +13,7 @@ const HashLabel HashString::Options("Options");
 // Option menu buttons
 const HashLabel HashString::IngameMusicState("IngameMusicState");
 const HashLabel HashString::DifficultySetting("DifficultySetting");
-
+const HashLabel HashString::LanguageSetting("LanguageSetting");
 
 //fonts
 const HashLabel HashString::LargeFont("LargeFont");

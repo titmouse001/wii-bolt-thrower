@@ -237,7 +237,14 @@ int main(int argc, char **argv)
 						{
 							rWiiManager.GetMenuManager()->AdvanceMenuItemText(HashString::DifficultySetting);
 						}
-						else if ((Name == (HashLabel)"Done") || ( WPAD_ButtonsUp(0)&WPAD_BUTTON_B ))
+						else if (Name == (HashLabel)"Set Language")
+						{
+							rWiiManager.GetMenuManager()->AdvanceMenuItemText(HashString::LanguageSetting);
+
+							rWiiManager.SetLanguage( rWiiManager.GetMenuManager()->GetMenuItemText(HashString::LanguageSetting) );
+
+						}
+						else if ((Name == (HashLabel)"Back") || ( WPAD_ButtonsUp(0)&WPAD_BUTTON_B ))
 						{
 							rWiiManager.GetMenuScreens()->SetTimeOutInSeconds();
 							rWiiManager.SetGameState(WiiManager::eMenu);

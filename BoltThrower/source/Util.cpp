@@ -7,6 +7,8 @@
 #include "ogc\system.h"
 #include "ogcsys.h"
 #include <sstream>
+#include <iomanip>
+
 //#include <stdlib.h>
 
 // Reset / Power off 
@@ -103,7 +105,7 @@ u32 Util::ENDIAN32(u32 Value)
 std::string Util::NumberToString(int Value)
 {
 	std::stringstream stream; 
-	stream << Value;
+	stream << std::setw( 2 ) << std::setfill( '0' )  << Value;
 	return stream.str();
 }
 

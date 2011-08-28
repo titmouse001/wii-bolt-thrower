@@ -91,7 +91,7 @@
 		<AddRawTga Name="TinyLogoForMineIntroLayout" FileName="Graphics/TinyLogo.tga" />			
 	</RawTga>
 	
-   	<Graphics FileName="Graphics/Sprites.png">
+  <Graphics FileName="Graphics/Sprites.png">
 		<AddImage Name="ShipFrames"  StartX="0" StartY="0" ItemWidth="32" ItemHeight="32" NumberItems="4"/>
 		<AddImage Name="AimingPointer"  StartX="32" StartY="0" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
 		<AddImage Name="MissileFrames"  StartX="0" StartY="32" ItemWidth="16" ItemHeight="16" NumberItems="1"/>
@@ -162,5 +162,98 @@
 		<AddFont Name="LargeFont" FileName="fonts/Bauhaus93-latin"/>	
 		<AddFont Name="SmallFont" FileName="fonts/Arial-latin"/>
 	</Fonts>
+
+  <Languages>
+    
+    <AddLanguage Name="English" />
+    <AddLanguage Name="Italian" />
+    <AddLanguage Name="Esperanto" />
+    
+    <English>
+      <AddText MainMenuScreenTopTitle = "B O L T    T H R O W E R" />
+      <AddText OptionsMenuScreenTopTitle = "O P T I O N S" />
+      <AddText CreditsMenuScreenTopTitle = "C R E D I T S" />
+      <AddText ControlsMenuScreenTopTitle = "C O N T R O L S" />
+      <AddText WiiMoteButtonA = "Fire Missile" />
+      <AddText WiiMoteButtonB = "Thrusters" />
+      <AddText WiiMoteDirectionDown = "Drop Mine" />
+      <AddText WiiMoteInfraRedPointer = "Aim" />
+      <AddText WiiMoteButtonHome = "Quit" />
+      <AddText PressButtonAToContinueMessage = "PRESS A TO CONTINUE" />
+
+      <AddText attract_mode = "attract mode" />
+      <AddText GAME_PAUSED = "GAME PAUSED" />
+      <AddText Press_PLUS_To_Play =  "Press (+) To Play" />
+      <AddText Press_PLUS_To_Pause_Game = "Press (+) To Pause Game" />
+      <AddText ExplanationMark = "!" />
+      <AddText RemoveGunshipsBeforeRecoveringMessage = "You need to remove the any enemy gunships before recovering this last satellite" />
+      <AddText Your_Score = "&lt;-- Your Score" />
+      <AddText ScrapPartsCollected = "&lt;-- Amount of scrap parts collected" />
+
+      <AddText Credits01 = "-=Music=- 'Space Debris' from the Amiga by Captain/Image" />
+      <AddText Credits02 = "Visit http://modarchive.org/ for a distinctive collection of modules" />
+      <AddText Credits03 = "" />
+      <AddText Credits04 = "-=3D Models=  WiiMote by Patrick Grubb" />
+      <AddText Credits05 =  "Viper(MK2) by Karl Stocker (UV textures by Titmouse)" />
+      <AddText Credits06 = "" />
+      <AddText Credits07 = "-=2D Art=- Most by Lee Marks / few by Danc - www.lostgarden.com" />
+      <AddText Credits08 = "" />
+      <AddText Credits09 = "-=Programmer=- Paul Overy, alias TitMouse" />
+      <AddText Credits10 = ""  />
+      <AddText Credits11 = "-=Testers=- Tom, Harry, Mr C" />
+      <AddText Credits12 = "" />
+      <AddText Credits13 = "Release v0.60 | August 2011" />
+      <AddText Credits14 = "Built using libs: -lfat -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm " />
+      <AddText Credits15 = "TAG-END" />
+    </English>
+
+    <Italian>
+      <AddText MainMenuScreenTopTitle = "B O L T    T H R O W E R" />
+      <AddText OptionsMenuScreenTopTitle = "O P T I O N S" />
+      <AddText CreditsMenuScreenTopTitle = "C R E D I T S" />
+      <AddText ControlsMenuScreenTopTitle = "C O N T R O L S" />
+      <AddText WiiMoteButtonA = "Fire Missile" />
+      <AddText WiiMoteButtonB = "Thrusters" />
+      <AddText WiiMoteDirectionDown = "Drop Mine" />
+      <AddText WiiMoteInfraRedPointer = "Aim" />
+      <AddText WiiMoteButtonHome = "Quit" />
+      <AddText PressButtonAToContinueMessage = "STAMPA PER CONTINUARE A" />
+
+      <AddText attract_mode = "attract mode" />
+      <AddText GAME_PAUSED = "GAME PAUSED" />
+      <AddText Press_PLUS_To_Play =  "Press (+) To Play" />
+      <AddText Press_PLUS_To_Pause_Game = "Press (+) To Pause Game" />
+      <AddText ExplanationMark = "!" />
+      <AddText RemoveGunshipsBeforeRecoveringMessage = "È necessario rimuovere le eventuali elicotteri nemici prima di recuperare questo satellite ultima" />
+      <AddText Your_Score = "&lt;-- Your Score" />
+      <AddText ScrapPartsCollected = "&lt;-- Amount of scrap parts collected" />
+
+      <AddText Credits01 = "-=Music=- 'Space Debris' from the Amiga by Captain/Image" />
+      <AddText Credits02 = "Visit http://modarchive.org/ for a distinctive collection of modules" />
+      <AddText Credits03 = "" />
+      <AddText Credits04 = "-=3D Models=  WiiMote by Patrick Grubb" />
+      <AddText Credits05 =  "Viper(MK2) by Karl Stocker (UV textures by Titmouse)" />
+      <AddText Credits06 = "" />
+      <AddText Credits07 = "-=2D Art=- Most by Lee Marks / few by Danc - www.lostgarden.com" />
+      <AddText Credits08 = "" />
+      <AddText Credits09 = "-=Programmer=- Paul Overy, alias TitMouse" />
+      <AddText Credits10 = ""  />
+      <AddText Credits11 = "-=Testers=- Tom, Harry, Mr C" />
+      <AddText Credits12 = "" />
+      <AddText Credits13 = "Release v0.60 | August 2011" />
+      <AddText Credits14 = "Built using libs: -lfat -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm " />
+      <AddText Credits15 = "TAG-END" />
+    </Italian>
+
+    <Esperanto>
+    </Esperanto>
+
+    <!-- character set net yet supported-->
+    <Japanese>
+      <AddText RemoveGunshipsBeforeRecoveringMessage = "この最後の衛星を回収する前に、敵の武装を削除する必要があります" />
+    </Japanese>
+
+
+  </Languages>
 	
 </Data>

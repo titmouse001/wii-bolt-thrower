@@ -19,6 +19,7 @@ public:
 	// Option menu buttons
 	const static HashLabel IngameMusicState;
 	const static HashLabel DifficultySetting;
+	const static HashLabel LanguageSetting;
 
 	// fonts names
 	const static HashLabel LargeFont;
