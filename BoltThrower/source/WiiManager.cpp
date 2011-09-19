@@ -36,8 +36,9 @@
 #include "Mission.h"
 #include "MessageBox.h"
 #include "GameDisplay.h"
+//#include "HTTP/HTTP_Util.h"
+#include "URIManager.h"
 
-#include "Vessel.h"
 //#include "profiler/timer.h"
 
 #define DEBUGCONSOLESTATE	( eDebugConsoleOn )  // its ignored (off) in final release
@@ -50,7 +51,8 @@ WiiManager::WiiManager() :	m_pGXRMode(NULL), m_gp_fifo(NULL),
 							m_ImageManager(NULL), 
 							m_MapManager(NULL), 
 							m_SoundManager(NULL),
-							m_Camera(NULL),						
+							m_Camera(NULL),		
+							m_URLManager(NULL),
 							m_ViewportX(0),
 							m_ViewportY(0),
 							m_GameState(eIntro),
@@ -70,14 +72,12 @@ WiiManager::WiiManager() :	m_pGXRMode(NULL), m_gp_fifo(NULL),
 	m_pMenuScreens			= new MenuScreens;
 	m_MissionManager		= new MissionManager;
 	m_MessageBox			= new MessageBox;
-
+	m_URLManager			= new URLManager;
 
 }
 
 WiiManager::~WiiManager()
 {
-	//	UnInitScreen();
-
 	// note: manager's do their own housekeeping
 	delete m_ImageManager;		
 	delete m_FontManager;	
@@ -89,6 +89,7 @@ WiiManager::~WiiManager()
 	delete m_pMenuScreens;		
 	delete m_MissionManager;
 	delete m_MessageBox;
+	delete m_URLManager;
 }
 
 void WiiManager::UnInitWii()
@@ -119,11 +120,6 @@ void WiiManager::UnInitWii()
 
 void WiiManager::InitWii()
 {
-//	Vessel::m_pWii = Singleton<WiiManager>::GetInstanceByPtr();
-
-//	Vessel v;
-//	v.Init();
-
 	m_pGameLogic->Init();
 	m_pGameDisplay->Init();
 	m_pMenuScreens->Init();
@@ -131,7 +127,6 @@ void WiiManager::InitWii()
 
 	WiiFile::InitFileSystem();
 
-	////InitScreen();  
 	// try to do everything after this - that way we get to see the debug console
 	//maybe my ExitPrintf() should check is the display is up and running - creating one when needed for user error messages???
 	// do this after the display is setup - its a debug dependancy thing
@@ -168,13 +163,14 @@ GXRModeObj* WiiManager::GetBestVideoMode()
 
 	if (CONF_GetAspectRatio() == CONF_ASPECT_16_9)
 	{
-		vmode->viWidth = 678;
-		//vmode->viWidth = 720;
+	      vmode->viWidth = 678;  // probably top limit for stretching the display onto your TV
+    //    vmode->viWidth = 720;  //Not a good idea as this will crop badly on most TV’s if not all
+
 	}
-	//	else
-	//	{
-	//		vmode->viWidth = 678;
-	//	}
+	//else
+	//{
+	//		vmode->viWidth = 672;  // not tested...this may work ok
+	//}
 
 
 	if (pal)
@@ -954,43 +950,10 @@ void WiiManager::ProgramStartUp()
 		}
 	}
 
-	//========================================
-	// Main Menu - one time setup
-	int y=-92;
-	static const int step=68;
-	float width=400;
-	static const int height=60;
-	width*=0.65f;
-	GetMenuManager()->SetMenuGroup("MainMenu");
-	GetMenuManager()->AddMenu((-width*0.5)-4, y, width,height,"Options");
-	GetMenuManager()->AddMenu((+width*0.5)+4, y, width,height,"Controls");
-	y+=step;
-	GetMenuManager()->AddMenu((-width*0.5)-4, y, width,height,"Credits");
-	GetMenuManager()->AddMenu((+width*0.5)+4, y, width,height,"Intro");
-	y+=step*1.5f;
-	width*=1.50f;
-	GetMenuManager()->AddMenu(0, y, width,height,"Start Game");
-	y+=step*1.5;
-	width*=0.65f;
-	GetMenuManager()->AddMenu(0, y, width,height,"Quit");
-	//==========================================================
-	// Options Menu - one time setup
-	int x=-96;
-	y=-70;
-	GetMenuManager()->SetMenuGroup("OptionsMenu");
-	GetMenuManager()->AddMenu(x, y, 390, height, "In-game Music");
-	GetMenuManager()->AddMenu(x+300, y, 1, height, "IngameMusicState",true)->AddTextItem("off")->AddTextItem("on")->SetCurrentItemIndex(1);
 
-	y+=step;
-	GetMenuManager()->AddMenu(x, y , 390, height, "Difficulty Level");
-	GetMenuManager()->AddMenu(x+300, y, 1, height, "DifficultySetting",true)->AddTextItem("easy")->AddTextItem("medium")->AddTextItem("hard")->SetCurrentItemIndex(1);
+	BuildMenus();
 
-	y+=step;
-	GetMenuManager()->AddMenu(x, y , 390, height, "Set Language");
-	GetMenuManager()->AddMenu(x+300, y, 1, height, "LanguageSetting",true)->AddTextItem("English")->AddTextItem("Italian")->AddTextItem("Esperanto")->SetCurrentItemIndex(0);
 
-	y+=step+30;
-	GetMenuManager()->AddMenu(0, y , 600, height, "Back");
 
 
 	//Get the tracker module into memory
@@ -1010,6 +973,82 @@ void WiiManager::ProgramStartUp()
 
 		break; // TODO - store more then one - just for now take the first one we find
 	}
+}
+
+void WiiManager::BuildMenus(bool KeepSettings)
+{
+	int Music = 1;
+	int Difficulty = 1;
+	int Language = 0;
+	string Group = GetMenuManager()->GetMenuGroup(); 
+
+	if ( KeepSettings )
+	{
+		Music = GetMenuManager()->GetMenuItemIndex(HashString::IngameMusicState);
+		Difficulty = GetMenuManager()->GetMenuItemIndex(HashString::DifficultySetting);
+		Language = GetMenuManager()->GetMenuItemIndex(HashString::LanguageSetting);
+	}
+
+	GetMenuManager()->ClearMenus();
+
+	//========================================
+	// Main Menu - one time setup
+	int y=-92;
+	static const int step=68;
+	float width=400;
+	static const int height=60;
+	width*=0.65f;
+	GetMenuManager()->SetMenuGroup("MainMenu");
+	GetMenuManager()->AddMenu((-width*0.5)-4, y, width,height,"Options");
+	GetMenuManager()->AddMenu((+width*0.5)+4, y, width,height,"Controls");
+	y+=step;
+	GetMenuManager()->AddMenu((-width*0.5)-4, y, width,height,"Credits");
+	GetMenuManager()->AddMenu((+width*0.5)+4, y, width,height,"Intro");
+	y+=step*1.5f;
+	width*=1.50f;
+	GetMenuManager()->AddMenu(0, y, width,height,"Start_Game");
+	y+=step*1.5;
+	width*=0.65f;
+	GetMenuManager()->AddMenu(0, y, width,height,"Quit");
+	//==========================================================
+	// Options Menu - one time setup
+	//int x=-96;
+	int x=0; // centre of screen
+	y=-70;
+	GetMenuManager()->SetMenuGroup("OptionsMenu");
+	GetMenuManager()->AddMenu(x, y, 600, height, "Ingame_Music",false,true);
+	GetMenuManager()->AddMenu(x+222, y, 1, height, "IngameMusicState",true)->
+		AddTextItem(GetText("off"))->AddTextItem(GetText("on"))->SetCurrentItemIndex(Music);
+
+	y+=step;
+	GetMenuManager()->AddMenu(x, y , 600, height, "Difficulty_Level",false,true );
+	GetMenuManager()->AddMenu(x+222, y, 1, height, "DifficultySetting",true)->
+		AddTextItem(GetText("easy"))->AddTextItem(GetText("medium"))->AddTextItem(GetText("hard"))->SetCurrentItemIndex(Difficulty);
+
+	y+=step;
+	GetMenuManager()->AddMenu(x, y , 600, height, "Set_Language",false,true);
+	// GetMenuManager()->AddMenu(x+300, y, 1, height, "LanguageSetting",true)->AddTextItem("English")->AddTextItem("Italian")->AddTextItem("Esperanto")->SetCurrentItemIndex(0);
+	if ( !m_SupportedLanguages.empty() )
+	{
+		Menu* NextItem = NULL; 
+		//TODO - typedef this !!!
+		for (map<string, map<string,string> >::iterator IterSupportedLanguages(m_SupportedLanguages.begin()) ;
+			IterSupportedLanguages!=m_SupportedLanguages.end(); ++IterSupportedLanguages)
+		{
+			// (first is the language, second english word we wish to find in that language
+			if (NextItem==NULL)
+				NextItem= GetMenuManager()->AddMenu(x+222, y, 1, height, "LanguageSetting",true)->AddTextItem(IterSupportedLanguages->first) ;
+			else
+				NextItem = NextItem->AddTextItem(IterSupportedLanguages->first) ;
+		}
+		NextItem->SetCurrentItemIndex(Language); // set the fisrt one as the default language
+	}
+
+	y+=step+30;
+	GetMenuManager()->AddMenu(0, y , 600, height, "Back");
+
+	GetMenuManager()->SetMenuGroup( Group );
+
 }
 
 void WiiManager::SetFrustumView(int w, int h) 

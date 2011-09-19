@@ -17,7 +17,7 @@ include $(DEVKITPPC)/wii_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-MODULES     := source source/LWOSource source/libpng source/libpng/pngu source/TinyXML source/CullFrustum
+MODULES     := source source/LWOSource source/libpng source/libpng/pngu source/TinyXML source/CullFrustum source/HTTP source/oggplayer
 SOURCES		:=	$(MODULES)
 DATA		:=	data  
 INCLUDES	:=
@@ -46,6 +46,7 @@ LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map
 # from web LIBS    :=  -lgrrlib -lfreetype -lfat -ljpeg -lpngu -lpng -lz -lmodplay -lmxml -lwiiuse -lbte -lasnd -logc -lm 
 # -logc -lmodplay -laesnd
 #LIBS	:=	-lpng -lz -lwiiuse -lbte -lfat -lasnd -logc -lmad -lm 
+# note to myself: lbte is the bluetooth lib, I think - well it adds things like wpad.c
 LIBS    :=  -lfat -lpng -lz -lmodplay -lwiiuse -lbte -lvorbisidec -lasnd -logc -lm 
 
 #---------------------------------------------------------------------------------

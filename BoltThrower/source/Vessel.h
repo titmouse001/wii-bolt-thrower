@@ -141,6 +141,8 @@ public:
 	void SetTimerMillisecs(u32 t);
 	bool IsTimerDone();
 
+	//todo - class needs to clear these, bad things will happen with floats i.e. 142.300247 1.#QNAN0 112.880287
+
 	guVector WorkingTarget;
 	guVector CurrentTarget;
 };

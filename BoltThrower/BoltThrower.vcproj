@@ -235,22 +235,18 @@
 					RelativePath=".\source\SpriteManager.h"
 					>
 				</File>
+				<File
+					RelativePath=".\source\URIManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\source\URIManager.h"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="Utilities"
 				>
-				<File
-					RelativePath=".\source\HashString.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\source\HashString.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\MersenneTwister.h"
-					>
-				</File>
 				<File
 					RelativePath=".\source\singleton.h"
 					>
@@ -261,14 +257,6 @@
 				</File>
 				<File
 					RelativePath=".\source\Util.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\Util3D.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\source\Util3D.h"
 					>
 				</File>
 				<Filter
@@ -399,6 +387,38 @@
 						>
 					</File>
 				</Filter>
+				<Filter
+					Name="Hash"
+					>
+					<File
+						RelativePath=".\source\HashString.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\source\HashString.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Random"
+					>
+					<File
+						RelativePath=".\source\MersenneTwister.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="3D Utilites"
+					>
+					<File
+						RelativePath=".\source\Util3D.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\source\Util3D.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="CullFrustum"
@@ -492,6 +512,18 @@
 					</File>
 				</Filter>
 			</Filter>
+			<Filter
+				Name="OggPlayer"
+				>
+				<File
+					RelativePath=".\source\oggplayer\oggplayer.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\source\oggplayer\oggplayer.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Build rules"
@@ -507,7 +539,7 @@
 			Name="Data"
 			>
 			<File
-				RelativePath="..\Data\BoltThrower Ver0.59\GameConfiguration.xml"
+				RelativePath="..\Data\GameConfiguration.xml"
 				>
 			</File>
 			<File

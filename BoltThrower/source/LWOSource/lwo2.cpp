@@ -165,7 +165,7 @@ lwObject *lwGetObject( const char* filename, unsigned int *failID, int *failpos 
 
             rlen = get_flen();
             if ( rlen < 0 || rlen > (int)cksize ) goto Fail;
-            if ( rlen <= cksize - 2 )
+            if ( rlen <= (int)cksize - 2 )
                layer->parent = (int)getU2( fp );
             rlen = get_flen();
             if ( rlen < (int)cksize )

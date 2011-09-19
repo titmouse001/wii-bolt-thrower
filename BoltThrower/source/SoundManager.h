@@ -7,6 +7,8 @@
 #include <map>
 #include "HashLabel.h"
 
+#include "tremor/ivorbisfile.h"
+
 class RawSample
 {
 public:
@@ -46,6 +48,8 @@ private:
 
 	void StoreSoundFromOgg(std::string FullFileNameWithPath,std::string LookUpName);
 	void StoreSoundFromWav( std::string FullFileNameWithPath, std::string LookUpName );
+
+	u32 GetOggTotal(OggVorbis_File* vf);
 
 	void Init();
 	void UnInit();

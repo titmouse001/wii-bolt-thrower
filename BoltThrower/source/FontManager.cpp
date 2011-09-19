@@ -40,6 +40,13 @@ void FontManager::DisplaySmallTextCentre(const string& Text, int uXpos, int uYpo
 	DisplaySmallText(Text, uXpos,uYpos,Alpha);
 }
 
+void FontManager::DisplaySmallTextVertCentre(const string& Text, int uXpos, int uYpos, u8 Alpha)
+{
+	//uXpos -= GetTextWidth(Text,HashString::SmallFont)/2;
+	uYpos -= GetFont(HashString::SmallFont)->GetHeight()/2;
+	DisplaySmallText(Text, uXpos,uYpos,Alpha);
+}
+
 void FontManager::DisplayLargeText(const string& Text, int uXpos, int uYpos, u8 Alpha)
 {
 	WiiManager& Wii(Singleton<WiiManager>::GetInstanceByRef());

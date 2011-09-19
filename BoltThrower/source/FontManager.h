@@ -33,6 +33,7 @@ public:
 	void	DisplayLargeTextCentre(const string& Text, int uXpos, int uYpos, u8 Alpha=222);
 	void	DisplaySmallTextCentre(const string& Text, int uXpos, int uYpos, u8 Alpha=222);
 	void	DisplayLargeTextVertCentre(const string& Text, int uXpos, int uYpos, u8 Alpha=222);
+	void	DisplaySmallTextVertCentre(const string& Text, int uXpos, int uYpos, u8 Alpha=222);
 
 private:
 

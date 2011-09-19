@@ -1256,10 +1256,10 @@ void GameLogic::GunTurretLogic()
 //		}
 
 		// Gets the distance squared - no need to use sqrt here
-		float X( TargetIter->GetX() );
-		float Y( TargetIter->GetY() );
-		float square_dist (	((X - iter->WorkingTarget.x)*(X - iter->WorkingTarget.x) ) + 
-							((Y - iter->WorkingTarget.y)*(Y - iter->WorkingTarget.y) ) );
+		float Xpos( TargetIter->GetX() );
+		float Ypos( TargetIter->GetY() );
+		float square_dist (	((Xpos - iter->WorkingTarget.x)*(Xpos - iter->WorkingTarget.x) ) + 
+							((Ypos - iter->WorkingTarget.y)*(Ypos - iter->WorkingTarget.y) ) );
 
 		static float LockOnSpeed( 0.25f );
 		iter->WorkingTarget.x += ( TargetIter->GetPos().x - iter->WorkingTarget.x ) * LockOnSpeed;
@@ -1543,8 +1543,14 @@ void GameLogic::InitialiseSmallGunTurret(int Amount, float Dist, float x1, float
 		//int index( rand()%GetSmallEnemiesContainerSize()  );
 		Item.SetLockOntoVesselIndex( 0 );
 
-		Item.WorkingTarget = {0,0,0};
-		Item.CurrentTarget = {0,0,0};
+		Item.WorkingTarget.x = 0;
+		Item.WorkingTarget.y = 0;
+		Item.WorkingTarget.z = 0;
+		
+		// missing this causes things like 142.300247 1.#QNAN0 112.880287 in calculations later!!!!
+		Item.CurrentTarget.x = 0;  // using shorter ={0,0,0} gives a warning 
+		Item.CurrentTarget.y = 0;
+		Item.CurrentTarget.z = 0;
 
 		m_pGunTurretContainer->push_back(Item);
 	}

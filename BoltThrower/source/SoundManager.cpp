@@ -38,6 +38,8 @@ int SoundManager::PlaySound(HashLabel SoundName, u8 VolumeLeft, u8 VolumeRight, 
 	{
 		return m_SoundContainer[SoundName]->Play( VolumeLeft, VolumeRight, bLoop ); 
 	}
+	else
+		ExitPrintf("PlaySound");
 
 
 	return -1;
@@ -163,6 +165,24 @@ void SoundManager::StoreSoundFromWav( std::string FullFileNameWithPath,std::stri
 	m_SoundContainer[ (HashLabel)LookUpName ] = pRawSample ;
 }
 
+
+u32 SoundManager::GetOggTotal(OggVorbis_File* vf)
+{
+	char PCM_Out[4096];
+	u32 Total=0;
+	int current_section;
+	long ret(0);
+	do
+	{
+		ret = ov_read(vf,PCM_Out,sizeof(PCM_Out),&current_section);
+		Total += ret;
+	}while (ret!=0);
+
+	return Total;
+}
+
+
+
 // StoreSoundFromOgg is a supporting function for LoadSound
 void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::string LookUpName)
 { 
@@ -173,50 +193,72 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 
 	int current_section;
 
-	if(ov_open(  WiiFile::FileOpenForRead( FullFileNameWithPath.c_str() ) , &vf, NULL, 0) < 0) 
+	FILE* pFile = WiiFile::FileOpenForRead( FullFileNameWithPath.c_str() );
+
+	if(ov_open(  pFile , &vf, NULL, 0) < 0) 
 	{
+		fclose(pFile);
 		ExitPrintf("Not a Ogg file\n");
 	}
 
-	//	We're going to pull the channel and bitrate info from the file using ov_info() 
-	//and show them to the user. We also want to pull out and show the user a comment attached to the file using ov_comment(). 
-	
-		char **ptr=ov_comment(&vf,-1)->user_comments;
-		vorbis_info *vi=ov_info(&vf,-1);
-		while(*ptr){
-			fprintf(stderr,"%s\n",*ptr);
-			++ptr;
+
+	char **ptr=ov_comment(&vf,-1)->user_comments;
+	vorbis_info *vi=ov_info(&vf,-1);
+	while (*ptr)
+	{
+		printf("%s\n",*ptr);
+		++ptr;
+	}
+
+	//   !!!!! SHIT - some oggs are unseekable   !!!!
+	// need to fallback to something else, it's going to be slow
+	s32 pcm_total = ov_pcm_total(&vf,-1);  // soulh be 64bits , but I'm not using anything that big!
+	if (pcm_total == OV_EINVAL)	
+	{
+		pcm_total = GetOggTotal(&vf);
+
+		// this next bit is a VERY TEMP fudge - since the GetOggTotal walks the data and breaks things!!!
+		ov_clear(&vf);
+		pFile = WiiFile::FileOpenForRead( FullFileNameWithPath.c_str() );
+		if(ov_open(  pFile , &vf, NULL, 0) < 0) 
+		{
+			fclose(pFile);
+			ExitPrintf("Not a Ogg file\n");
 		}
-		//printf("\nBitstream is %d channel, %ldHz\n",vi->channels,vi->rate);
-		//printf("\nDecoded length: %ld samples\n",(long)ov_pcm_total(&vf,-1));
-		//printf("Encoded by: %s\n\n",ov_comment(&vf,-1)->vendor);
-		//printf("--------");
-		//printf("%ld", ((long)ov_pcm_total(&vf,-1)) * vi->channels * (int)sizeof(u16) );
-		//printf("--------");
-	
+	}
+	else
+	{
+		pcm_total *= vi->channels;
+		pcm_total *= sizeof(u16);
+	}
+
+	printf("\nBitstream is %d channel, %ldHz\n",vi->channels,vi->rate);	
+	printf("\nDecoded length: %d samples\n",pcm_total);
+	printf("Encoded by: %s\n\n",ov_comment(&vf,-1)->vendor);
+	printf("channels: %d\n\n",vi->channels);
+	printf("pcm_total: %d\n\n", pcm_total );
+
 	// Raw sound data
 	RawSample* pRawSample( new RawSample );
-	int RawDataLength = ((long)ov_pcm_total(&vf,-1)) * vi->channels * (int)sizeof(u16);
 
 	int NumberOfChannels = VOICE_STEREO_16BIT;
 	if (vi->channels==1)
 		NumberOfChannels = VOICE_MONO_16BIT;
 
 	int SampleRate = vi->rate;
-	int BitsPerSample = 16; //sizeof(u16);
+	int BitsPerSample = 16;
 
-	RawDataLength/=2;
-
-	u8* pRawData = (u8*)memalign(32, RawDataLength );
+	u8* pRawData = (u8*)memalign(32, pcm_total );
 	if (pRawData==NULL)
 	{
-		ExitPrintf("memalign NULL");
+		ov_clear(&vf);
+		ExitPrintf("fail memalign(32,%d)", pcm_total);
 	}
 
 	u8* pTemp = pRawData;
 
 	int eof=0;
-	int CheckTotal=0;
+	//u32 CheckTotal=0;
 	while(!eof)
 	{
 		long ret=ov_read(&vf,PCM_Out,sizeof(PCM_Out),&current_section);
@@ -224,34 +266,38 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 		{
 			eof=1;
 		} 
-		else if (ret < 0) // error in the stream
-		{
-		} 
+		//else if (ret < 0) // error in the stream
+		//{
+		//} 
 		else // we don't bother dealing with sample rate changes, etc, but you'll have to
 		{
-			if (CheckTotal>=RawDataLength)
-			{
-				//printf("half");
-				break;
-			}
+
 			memcpy(pTemp, PCM_Out, ret) ;//fwrite(PCM_Out,1,ret,pOutFile);
 			pTemp+=ret;
-			CheckTotal += ret;
+
 		}
 	}
+	printf("CheckTotal  %d",pcm_total);
+
+//	if (!ov_seekable(&vf))
+//		ExitPrintf("not seekable");
+//	double length=ov_time_total(&vf,-1);
+
 	ov_clear(&vf);
 
-	//printf("SampleRate  %d",SampleRate);
-	//printf("SampleRate  %d",BitsPerSample);
-	//printf("SampleRate  %d",NumberOfChannels);
-	//printf("SampleRate  %d",RawDataLength);
+	printf("SampleRate  %d",SampleRate);
+	printf("SampleRate  %d",BitsPerSample);
+	printf("SampleRate  %d",NumberOfChannels);
+	printf("SampleRate  %d",pcm_total);
 
+	//-------------------------------------------------------------
 	pRawSample->SetRawData(pRawData);
-	pRawSample->SetRawDataLength(RawDataLength);
+	pRawSample->SetRawDataLength(pcm_total);
 	pRawSample->SetNumberOfChannels(NumberOfChannels);
 	pRawSample->SetSampleRate(SampleRate);
 	pRawSample->SetBitsPerSample(BitsPerSample);
 	//-------------------------------------------------------------
+
 
 	m_SoundContainer[ (HashLabel)LookUpName ] = pRawSample ;
 }
@@ -468,19 +514,19 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 
 
 
-	////-----------------------------------------------------
-	// test for MP3 
-	//string name( Util::GetGamePath() + "Music.MP3");
-	//FILE* pFile( WiiFile::FileOpenForRead(name.c_str() ) );
-	//fseek (pFile , 0 , SEEK_END);
-	//int FileSize( ftell( pFile ) );
-	//rewind( pFile );
-	//u8* sample_mp3( (u8*) malloc (sizeof(u8)*FileSize));
-	////u8* sample_mp3 = new u8[FileSize];
-	////fread ( &sample_mp3, 1,FileSize, pFile );
-	////size_t result = fread (sample_mp3,1,FileSize,pFile);
-	//fread (sample_mp3,1,FileSize,pFile);
-	//fclose (pFile);
-	//MP3Player_Init();
-	//MP3Player_PlayBuffer(sample_mp3, FileSize, NULL);
-	////----------------------------------------------------
+////-----------------------------------------------------
+// test for MP3 
+//string name( Util::GetGamePath() + "Music.MP3");
+//FILE* pFile( WiiFile::FileOpenForRead(name.c_str() ) );
+//fseek (pFile , 0 , SEEK_END);
+//int FileSize( ftell( pFile ) );
+//rewind( pFile );
+//u8* sample_mp3( (u8*) malloc (sizeof(u8)*FileSize));
+////u8* sample_mp3 = new u8[FileSize];
+////fread ( &sample_mp3, 1,FileSize, pFile );
+////size_t result = fread (sample_mp3,1,FileSize,pFile);
+//fread (sample_mp3,1,FileSize,pFile);
+//fclose (pFile);
+//MP3Player_Init();
+//MP3Player_PlayBuffer(sample_mp3, FileSize, NULL);
+////----------------------------------------------------

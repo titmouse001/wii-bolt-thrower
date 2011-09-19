@@ -17,7 +17,7 @@ class MenuManager
 {
 public:
 	MenuManager();
-	Menu*		AddMenu(int x, int y, int w, int h, std::string Name, bool m_bJustText = false);
+	Menu*		AddMenu(int x, int y, int w, int h, std::string Name, bool m_bShowTextOnly = false, bool m_JustifyLeft= false);
 
 	void		Draw();
 	void		MenuLogic();
@@ -27,6 +27,10 @@ public:
 	void		SetMenuItemText(HashLabel Name, std::string Text);
 	std::string GetMenuItemText(HashLabel Name);
 	void		AdvanceMenuItemText(HashLabel Name);
+	Menu*		GetMenuItem(HashLabel Name);
+	int			GetMenuItemIndex(HashLabel Name);
+
+	void		ClearMenus() { m_MenuContainer.clear(); }
 
 private:
 	std::string m_MenuGroupName;
@@ -58,14 +62,18 @@ public:
 	void SetHashLabel(HashLabel Hash) { m_HashLabel = Hash; }
 	HashLabel GetHashLabel() const { return m_HashLabel; }
 
-	void SetJustText(bool Value) { m_bJustText = Value; }
-	bool GetJustText() { return m_bJustText; }
+	void SetShowTextOnly(bool Value) { m_bShowTextOnly = Value; }
+	bool GetShowTextOnly() { return m_bShowTextOnly; }
+	void SetJustifyLeft(bool Value) { m_bJustifyLeft = Value; }
+	bool GetJustifyLeft() { return m_bJustifyLeft; }
 
 	Menu* AddTextItem(std::string Name) { m_TextItems.push_back(Name); return this; }
 	std::string GetCurrentTextItem() { return m_TextItems[m_CurrentItemIndex];  }
 	int  GetCurrentItemIndex() { return m_CurrentItemIndex;  }
 	void SetCurrentItemIndex(int Value) { m_CurrentItemIndex = Value; SetText(GetCurrentTextItem()) ; }
 	void NextItem();
+
+
 
 private:
 	Menu*		m_ChildMenu;
@@ -80,7 +88,9 @@ private:
 	std::vector<std::string> m_TextItems;
 	u32		 m_CurrentItemIndex;
 
-	bool		m_bJustText;
+	bool		m_bShowTextOnly;
+
+	bool		m_bJustifyLeft;
 };
 
 

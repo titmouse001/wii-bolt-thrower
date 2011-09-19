@@ -36,6 +36,7 @@ class FrustumR;
 class MissionManager;
 class MessageBox;
 class GameDisplay;
+class URLManager;
 
 struct FrameInfo
 {
@@ -135,6 +136,8 @@ public:
 	MenuScreens*		GetMenuScreens() const	{ return m_pMenuScreens; }
 	MessageBox*			GetMessageBox() const	{ return m_MessageBox; }
 	GameDisplay*		GetGameDisplay() const	{ return m_pGameDisplay; }
+	URLManager*			GetURLManager() const	{ return m_URLManager; }
+	
 
 	
 
@@ -235,7 +238,8 @@ public:
 	void SetFrustumView(int w, int h);
 	FrustumR m_Frustum;
 
-	
+	void BuildMenus(bool KeepSettings = false);
+
 	void DisplaySimpleMessage(std::string Text);
 	
 	int GetConfigValueWithDifficultyApplied(HashLabel Name);
@@ -272,6 +276,7 @@ private:
 	//SpriteManager*			m_SpriteManager;
 	SoundManager*			m_SoundManager;
 	Camera*					m_Camera;
+	URLManager*				m_URLManager;
 	MenuManager*			m_pMenuManager;
 	MissionManager*			m_MissionManager;
 	GameLogic*				m_pGameLogic;

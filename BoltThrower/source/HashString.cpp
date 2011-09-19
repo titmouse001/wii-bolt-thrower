@@ -4,7 +4,7 @@ const HashLabel HashString::BLANK("");
 
 // Main menu buttons
 const HashLabel HashString::Credits("Credits");
-const HashLabel HashString::Start_Game("Start Game");
+const HashLabel HashString::Start_Game("Start_Game");
 const HashLabel HashString::Quit("Quit");
 const HashLabel HashString::Intro("Intro");
 const HashLabel HashString::Controls("Controls");

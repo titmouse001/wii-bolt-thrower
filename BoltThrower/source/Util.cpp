@@ -1,5 +1,3 @@
-// Colour converting stuff
-
 #include <math.h>
 #include "Util.h"
 #include "config.h"
@@ -9,15 +7,15 @@
 #include <sstream>
 #include <iomanip>
 
-//#include <stdlib.h>
-
-// Reset / Power off 
+//-------------------------------------------------
+// Reset / Power off - ok some globals... I am looking for a nicer way.
 int  g_PowerOffMode(SYS_POWEROFF);  
 bool g_bEnablePowerOffMode(false); 
+//--------------------------------------------------
+
 void Trigger_Reset_Callback(void)			{ g_PowerOffMode = SYS_RESTART;  g_bEnablePowerOffMode=true; } 
 void Trigger_Power_Callback(void)			{ g_PowerOffMode = SYS_POWEROFF; g_bEnablePowerOffMode=true; }  
 void Trigger_PadPower_Callback( s32 chan )	{ g_PowerOffMode = SYS_POWEROFF; g_bEnablePowerOffMode=true; } 
-
 
 bool Util::IsPowerOff()
 {
@@ -26,8 +24,16 @@ bool Util::IsPowerOff()
 
 void Util::StringToLower(std::string& StringValue)
 {
-	for(int i=0; i<(int)StringValue.size();++i)
+
+#warning *** UPDATE THIS LINE ***
+
+//#include <algorithm>
+	// std::transform(data.begin(), data.end(), data.begin(), ::tolower); 
+
+	for (int i=0; i<(int)StringValue.size();++i)
+	{
 		StringValue[i] = tolower(StringValue[i]);
+	}
 }
 
 
@@ -41,10 +47,8 @@ GXColor Util::Colour(u8 r,u8 g,u8 b,u8 a)
 
 	return Colour;
 }
-
-
-
-//MOVE THIS
+ 
+//MOVE THIS  into..  WiiFile
 std::string Util::GetGamePath()
 {
 #ifdef BUILD_FINAL_RELEASE 
@@ -56,8 +60,6 @@ std::string Util::GetGamePath()
 
 	return TempGamePath;
 }
-
-
 
 u8 Util::CalculateFrameRate()
 {
@@ -85,6 +87,8 @@ void Util::SleepForMilisec(unsigned long milisec)
     while (nanosleep(&req) == -1)
         continue;  // keep trying until it really does pause
 }
+
+// The Wii is a "Big-Endian" system
 
 u16 Util::ENDIAN16(u16 Value)
 {

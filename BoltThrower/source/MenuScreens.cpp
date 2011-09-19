@@ -202,19 +202,19 @@ void MenuScreens::DoControlsScreen()
 	int step = 55;
 
 	pImageManager->GetImage(HashString::WiiMoteButtonA)->DrawImage(x,y+=step);
-	m_pWii->GetFontManager()->DisplayLargeTextVertCentre(m_pWii->GetText("WiiMoteButtonA"),32,0,200); //"Fire Missile"
+	m_pWii->GetFontManager()->DisplaySmallTextVertCentre(m_pWii->GetText("WiiMoteButtonA"),32,0,200); //"Fire Missile"
 
 	pImageManager->GetImage(HashString::WiiMoteButtonB)->DrawImage(x,y+=step);
-	m_pWii->GetFontManager()->DisplayLargeTextVertCentre(m_pWii->GetText("WiiMoteButtonB"),32,0,200);  // "Thrusters"
+	m_pWii->GetFontManager()->DisplaySmallTextVertCentre(m_pWii->GetText("WiiMoteButtonB"),32,0,200);  // "Thrusters"
 
 	pImageManager->GetImage(HashString::WiiMoteDirectionDownMarkedRed)->DrawImage(x,y+=step);
-	m_pWii->GetFontManager()->DisplayLargeTextVertCentre(m_pWii->GetText("WiiMoteDirectionDown"),32,0,200); // "Drop Mine"
+	m_pWii->GetFontManager()->DisplaySmallTextVertCentre(m_pWii->GetText("WiiMoteDirectionDown"),32,0,200); // "Drop Mine"
 
 	pImageManager->GetImage(HashString::WiiMoteInfraRedPointer)->DrawImage(x,y+=step);
-	m_pWii->GetFontManager()->DisplayLargeTextVertCentre(m_pWii->GetText("WiiMoteInfraRedPointer"),32,0,200); //"Aim"
+	m_pWii->GetFontManager()->DisplaySmallTextVertCentre(m_pWii->GetText("WiiMoteInfraRedPointer"),32,0,200); //"Aim"
 
 	pImageManager->GetImage(HashString::WiiMoteButtonHome)->DrawImage(x,y+=step);
-	m_pWii->GetFontManager()->DisplayLargeTextVertCentre(m_pWii->GetText("WiiMoteButtonHome"),32,0,200);  //"Quit"
+	m_pWii->GetFontManager()->DisplaySmallTextVertCentre(m_pWii->GetText("WiiMoteButtonHome"),32,0,200);  //"Quit"
 
 	Util3D::Identity();
 	{
@@ -273,8 +273,9 @@ void MenuScreens::DoCreditsScreen()
 
 	Util3D::TransRot(0,-160,0,0);
 	int y(0);
-	for (int i=0; i<99; ++i)
+	for (int i=0; i<99; ++i)  // could use a infinite loop, 99 just to play it safe!
 	{
+		// 'GetText' - all text comes from the GameConfiguration.xml file, i.e get text labeled 'Credits01'
 		string Message(m_pWii->GetText( "Credits" + Util::NumberToString(i)) );
 		if (Message != "TAG-END")
 			m_pWii->GetFontManager()->DisplaySmallTextCentre( Message,0,y+=19,200);
@@ -351,10 +352,15 @@ void MenuScreens::DoOptionsScreen()
 	// "O P T I O N S"
 	m_pWii->GetFontManager()->DisplayLargeTextCentre(m_pWii->GetText("OptionsMenuScreenTopTitle"),0,-180,190);
 		//=========================
-	m_pWii->GetMenuManager()->SetMenuGroup("OptionsMenu");
-	m_pWii->GetMenuManager()->Draw();
-	m_pWii->GetMenuManager()->MenuLogic();
 
+	m_pWii->GetMenuManager()->SetMenuGroup("OptionsMenu");
+	
+	m_pWii->GetMenuManager()->MenuLogic();
+	
+	m_pWii->GetMenuManager()->Draw();
+
+
+	// Draw aim pointer
 	m_pWii->GetImageManager()->GetImage( m_pWii->m_FrameEndStartConstainer[HashString::AimingPointer].StartFrame )
 			->DrawImageXYZ( m_pWii->GetCamera()->GetCamX() + WiiMote->x - (m_pWii->GetScreenWidth()/2), 
 			m_pWii->GetCamera()->GetCamY() + WiiMote->y - (m_pWii->GetScreenHeight()/2),

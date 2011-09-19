@@ -61,6 +61,28 @@ Bolt Thrower - Games design notes
 #include "GameDisplay.h"
 #include "MenuScreens.h"
 
+//#include  "HTTP/HTTP_Util.h"
+
+#include <network.h>
+
+#include  "URIManager.h"
+
+
+#include <ogc/machine/processor.h>
+#include <ogc/lwp_watchdog.h>
+#include "ogc/lwp.h"
+#include <ogcsys.h>
+
+#include <unistd.h>
+//#include <sys/types.h>
+//#include <sys/stat.h>
+#include <fcntl.h>
+
+
+
+#include "oggplayer/oggplayer.h"
+
+
 extern "C" {  extern void __exception_setreload(int t); }
 
 extern void OggTest();
@@ -93,19 +115,58 @@ int main(int argc, char **argv)
 	MODPlay_Init(&rWiiManager.m_ModuleTrackerPlayerInterface);
 	rWiiManager.m_ModuleTrackerPlayerInterface.playing = false;
 
-	bool ModPlaying = false;  // modplay own interface (Interface.playing) does not seem to work, I'ven if I set it
+
+//NOTE
+//pthread_create priority number (last param) must be >0 and <=127, typically 64
+//the stack can be changed to a smaller value but note it is unusually easy to eat up the stack. The define size is recommended
+//please dont change the define as libogc recommends 8k.
+//
+// UNIX has 128 priorites which range from 0 - high to 127 -low.)
+	
+{
+	//static char IP[16]; // i.e. 255.255.255.255 + NULL
+	//s32 result( if_config(IP, NULL, NULL, true) );   // this calls net_init() in a nice way (must provide first param)
+	//if(result < 0) 
+	//	ExitPrintf("if_config failed");
+
+	//pURLManager->SaveURI("http://www.dr-lex.be/software/download/mp3tones.zip", Util::GetGamePath() );
+	//pURLManager->SaveURI("http://vba-wii.googlecode.com/files/Visual%20Boy%20Advance%20GX%202.2.5.zip");
+	//pURLManager->SaveURI("http://www.fnordware.com/superpng/pngtest8rgba.png");
+
+	//MemoryInfo* pMeminfo( pURLManager->NewFromURI("http://wiimc.googlecode.com/files/WiiMC%201.2.0%20%28New%20Install%29.zip") );
+	//pMeminfo->SavePath("c://");
+	//delete pMeminfo;
+
+//	rWiiManager.GetURLManager()->SaveURI("http://he3.magnatune.com/all/09-Faerie%20tale-Indidginus.ogg", Util::GetGamePath());
+//	rWiiManager.GetSoundManager()->LoadSound(Util::GetGamePath() + "09-Faerie tale-Indidginus.ogg", "Indidginus");
+
+
+
+}
+
+
+
+
+	bool ModPlaying = false;  // modplay's own interface (Interface.playing) does not seem to work, even if I set it
 	bool bQuit = false;
 	do
 	{
 		if (!ModPlaying)
 		{
 			ModPlaying = true;
-			// Restart music track after finished 
+
 			rWiiManager.m_ModuleTrackerPlayerInterface.manual_polling=false;  
 			MODPlay_SetMOD(&rWiiManager.m_ModuleTrackerPlayerInterface, rWiiManager.m_pModuleTrackerData);
 			MODPlay_Start(&rWiiManager.m_ModuleTrackerPlayerInterface); 
-			MODPlay_SetVolume( &rWiiManager.m_ModuleTrackerPlayerInterface, 100,100);     
+			MODPlay_SetVolume( &rWiiManager.m_ModuleTrackerPlayerInterface, 10,10);    
+
+	//rWiiManager.SetGameState(WiiManager::eGame);   // this is shit ... disable sounds needed, not this fudge
+	//rWiiManager.GetSoundManager()->PlaySound( (HashLabel)"Indidginus",244,244,true );
+	//rWiiManager.SetGameState(WiiManager::eIntro); 
 		}
+
+
+
 
 		rWiiManager.GetGameLogic()->InitialiseGame();
 		
@@ -118,6 +179,7 @@ int main(int argc, char **argv)
 
 		if (rWiiManager.IsGameStateShowingIntro())
 		{
+
 			//--------------
 			// INTRO
 			do 
@@ -134,6 +196,28 @@ int main(int argc, char **argv)
 					bQuit = true;
 					break;
 				}
+
+			if ( (WPAD_ButtonsUp(0) & WPAD_BUTTON_1)!= 0 )
+			{
+	rWiiManager.SetGameState(WiiManager::eGame);   // this is shit ... disable sounds needed, not this fudge
+
+	{
+		OggPlayer Ogg;
+	string FullFileName = Util::GetGamePath() + "09-Faerie tale-Indidginus.ogg";
+	FILE* pOggFile( WiiFile::FileOpenForRead( FullFileName.c_str() ) );
+	u32 OggSize = WiiFile::GetFileSize(pOggFile);
+	u8* pOggData = (u8*) malloc(OggSize);
+	fread( pOggData, OggSize, 1, pOggFile);
+	Ogg.PlayOgg(pOggData, OggSize, 0, OGG_ONE_TIME);
+
+//	int fd = open (FullFileName.c_str(), O_WRONLY);
+//	PlayOgg(&fd, 0, 0, OGG_ONE_TIME);
+
+	}
+	rWiiManager.SetGameState(WiiManager::eIntro); 
+				
+			}
+
 
 			} while( (WPAD_ButtonsUp(0) & (WPAD_BUTTON_A | WPAD_BUTTON_B) )== 0 );
 		}
@@ -227,28 +311,29 @@ int main(int argc, char **argv)
 					rWiiManager.GetMenuManager()->SetMenuGroup("OptionsMenu");
 					if ( WPAD_ButtonsUp(0) & (WPAD_BUTTON_A|WPAD_BUTTON_B) )
 					{
-						HashLabel Name = rWiiManager.GetMenuManager()->GetSelectedMenu();
+						HashLabel Name = rWiiManager.GetMenuManager()->GetSelectedMenu();		
 
-						if (Name == (HashLabel)"In-game Music")
+						rWiiManager.GetMenuManager()->SetMenuGroup("OptionsMenu");
+
+						if (Name == (HashLabel)"Ingame_Music")
 						{
 							rWiiManager.GetMenuManager()->AdvanceMenuItemText(HashString::IngameMusicState);
 						}
-						else if (Name == (HashLabel)"Difficulty Level")
+						else if (Name == (HashLabel)"Difficulty_Level")
 						{
 							rWiiManager.GetMenuManager()->AdvanceMenuItemText(HashString::DifficultySetting);
 						}
-						else if (Name == (HashLabel)"Set Language")
+						else if (Name == (HashLabel)"Set_Language")
 						{
 							rWiiManager.GetMenuManager()->AdvanceMenuItemText(HashString::LanguageSetting);
-
 							rWiiManager.SetLanguage( rWiiManager.GetMenuManager()->GetMenuItemText(HashString::LanguageSetting) );
-
 						}
 						else if ((Name == (HashLabel)"Back") || ( WPAD_ButtonsUp(0)&WPAD_BUTTON_B ))
 						{
 							rWiiManager.GetMenuScreens()->SetTimeOutInSeconds();
 							rWiiManager.SetGameState(WiiManager::eMenu);
 						}
+						rWiiManager.BuildMenus( true );
 					}
 				}
 
@@ -317,6 +402,89 @@ int main(int argc, char **argv)
 	rWiiManager.UnInitWii();
 	return 0;
 }
+static lwp_t networkthread = LWP_THREAD_NULL;
+static bool networkHalt = true;
+static bool exitRequested = false;
+static u8 * ThreadStack = NULL;
+static bool networkinit = false;
+
+
+static void * networkinitcallback(void *arg )
+{
+	while(!exitRequested)
+	{
+		if(networkHalt)
+		{
+			LWP_SuspendThread(networkthread);
+			usleep(100);
+			continue;
+		}
+
+		////if(!networkinit)
+		////	Initialize_Network();
+
+		//if(!firstRun)
+		//{
+		//	ConnectSMBShare();
+		//	if(Settings.FTPServer.AutoStart)
+		//		FTPServer::Instance()->StartupFTP();
+
+		//	ConnectFTP();
+		//	CheckForUpdate();
+
+		//	LWP_SetThreadPriority(networkthread, 0);
+		//	firstRun = true;
+		//}
+
+		//if(Receiver.CheckIncomming())
+		//{
+		//	IncommingConnection(Receiver);
+		//}
+
+		usleep(200000);
+	}
+	return NULL;
+}
+void ResumeNetworkThread()
+{
+	networkHalt = false;
+	LWP_ResumeThread(networkthread);
+}
+
+
+void InitNetworkThread()
+{
+	ThreadStack = (u8 *) memalign(32, 16384);
+	if(!ThreadStack)
+		return;
+
+	LWP_CreateThread (&networkthread, networkinitcallback, NULL, ThreadStack, 16384, 30);
+	ResumeNetworkThread();
+}
+
+void ShutdownNetworkThread()
+{
+	//Receiver.FreeData();
+	//Receiver.CloseConnection();
+	exitRequested = true;
+
+	if(networkthread != LWP_THREAD_NULL)
+	{
+		ResumeNetworkThread();
+		LWP_JoinThread (networkthread, NULL);
+		networkthread = LWP_THREAD_NULL;
+	}
+
+	if(ThreadStack)
+		free(ThreadStack);
+	ThreadStack = NULL;
+}
+
+
+
+
+
+
 
 //////
 //////void DisplaySimpleMessage(std::string Text)
