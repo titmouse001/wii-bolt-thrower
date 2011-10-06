@@ -16,9 +16,12 @@
 #include "HashString.h"
 #include "Config.h"
 #include "Menu.h"
+#include "MenuManager.h"
 #include "ogc\lwp_watchdog.h"
 #include "MenuScreens.h"
 #include "Timer.h"
+
+#include "GameDisplay.h"
 
 MenuScreens::MenuScreens() :  m_ZoomAmountForSpaceBackground(3.1f), m_pTimer(NULL)
 {
@@ -61,6 +64,11 @@ void MenuScreens::DoMenuScreen()
 	GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
 	m_pWii->GetCamera()->SetLightOn3();
 	//--------------------------
+
+	m_pWii->GetGameDisplay()->DisplayMoon();
+
+
+
 	Mtx Model,mat;
 	orient_t Orientation;
 	WPAD_Orientation(0, &Orientation);
@@ -71,22 +79,20 @@ void MenuScreens::DoMenuScreen()
 	static float pitch =0; 
 	static float roll  = 0;
 
+	// WiiMote Model
 	yaw += (DegToRad(Orientation.yaw) - yaw )*0.15f;
 	pitch += (DegToRad(Orientation.pitch) - pitch)*0.15f;
 	roll += (DegToRad(Orientation.roll) - roll)*0.15f;
-
 	guMtxRotRad(Model,'y', -M_PI/2 + yaw) ;
 	guMtxRotRad(mat2,'x', M_PI + M_PI/6 - pitch );
 	guMtxRotRad(mat3,'z', M_PI - roll) ;
-
 	guMtxConcat(mat3,Model,Model);
 	guMtxConcat(mat2,Model,Model);
-
-	guMtxTrans(mat, 0,0, 0);
+	guMtxScaleApply(Model,Model,0.20f,0.20f,0.20f);
+	guMtxTrans(mat, 40,0, -450);
 	guMtxConcat(mat,Model,Model);
 	guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
-
-	m_pWii->Render.RenderModelHardNorms(HashString::WiiMote, Model);
+	m_pWii->Render.RenderModelHardNorms( HashString::WiiMote, Model );
 	//--------------------------
 
 	m_pWii->GetCamera()->SetLightOff();
@@ -98,6 +104,12 @@ void MenuScreens::DoMenuScreen()
 
 	// "B O L T    T H R O W E R"
 	m_pWii->GetFontManager()->DisplayLargeTextCentre( m_pWii->GetText("MainMenuScreenTopTitle") ,0,-180,190); 
+
+	
+	//string Language(m_pWii->GetMenuManager()->GetMenuItemText(HashString::LanguageSetting));
+	m_pWii->GetFontManager()->DisplaySmallTextVertCentre( m_pWii->GetLanguage(),-300,160,144); 
+	m_pWii->GetFontManager()->DisplaySmallTextVertCentre( m_pWii->GetText(m_pWii->GetDifficulty()),-200,160,144); 
+
 
 	//----------------------------------------------------------
 	Util3D::TransRot(320-50,240-50,-3.14f/4.0f);

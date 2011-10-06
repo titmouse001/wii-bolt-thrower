@@ -8,6 +8,8 @@
 
 namespace Util
 {
+	void SetUpPowerButtonTrigger();
+
 	void StringToLower(std::string& StringValue);
 
 	GXColor Colour(u8 r,u8 g,u8 b,u8 a=0xff);
@@ -17,7 +19,7 @@ namespace Util
 	u64 TicksToMicrosecs(u64 Value);
 
 	////bool InsideRadius(float center_x, float center_y, float radius, float x, float y);
-	u8 CalculateFrameRate();
+	u8 CalculateFrameRate(bool bReadOnly  = false);
 
 	void	SleepForMilisec(unsigned long milisec); //TEMP
 

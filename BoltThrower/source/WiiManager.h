@@ -37,6 +37,7 @@ class MissionManager;
 class MessageBox;
 class GameDisplay;
 class URLManager;
+class SetUpGame;
 
 struct FrameInfo
 {
@@ -137,6 +138,8 @@ public:
 	MessageBox*			GetMessageBox() const	{ return m_MessageBox; }
 	GameDisplay*		GetGameDisplay() const	{ return m_pGameDisplay; }
 	URLManager*			GetURLManager() const	{ return m_URLManager; }
+
+	SetUpGame*			GetSetUpGame() const	{ return m_SetUpGame; }
 	
 
 	
@@ -205,16 +208,18 @@ public:
 		eDemoMode,
 		eHighScore,
 		eControls,
-		eOptions
+		eOptions,
+		eExit,
 	};
 	void		SetGameState(EGameState State)	{ m_GameState = State; }
 	EGameState	GetGameState(void)				{ return m_GameState; }
-	bool	IsGameStateShowingIntro()			{ return m_GameState==eIntro; }
-	bool	IsGameStateShowingMenu()			{ return m_GameState==eMenu; }
-	bool	IsGameStateShowingCredits()			{ return m_GameState==eCredits; }
-	bool	IsGameStateShowingGame()			{ return m_GameState==eGame; }
-	bool	IsGameStateShowingControls()		{ return m_GameState==eControls; }
-	bool	IsGameStateShowingOptions()			{ return m_GameState==eOptions; }
+	bool	IsGameStateIntro()					{ return m_GameState==eIntro; }
+	bool	IsGameStateMenu()					{ return m_GameState==eMenu; }
+	bool	IsGameStateCredits()				{ return m_GameState==eCredits; }
+	bool	IsGameStateGame()					{ return m_GameState==eGame; }
+	bool	IsGameStateControls()				{ return m_GameState==eControls; }
+	bool	IsGameStateOptions()				{ return m_GameState==eOptions; }
+	bool	IsGameStateExit()					{ return m_GameState==eExit; }
 	void	ProgramStartUp();
 
 	std::map<HashLabel,FrameStartEnd> m_FrameEndStartConstainer;  
@@ -247,8 +252,11 @@ public:
 
 	u32	GetFrameCounter() { return m_uFrameCounter; } 
 
+	void SetDifficulty(string Value) { m_Difficulty = Value; }
+	string GetDifficulty() { return m_Difficulty; }
 
 	void SetLanguage(string Language) { m_Language = Language; }
+	string GetLanguage() { return m_Language; }
 	string GetText(string Name)
 	{
 		//printf(Name.c_str());
@@ -277,6 +285,7 @@ private:
 	SoundManager*			m_SoundManager;
 	Camera*					m_Camera;
 	URLManager*				m_URLManager;
+	SetUpGame*				m_SetUpGame;
 	MenuManager*			m_pMenuManager;
 	MissionManager*			m_MissionManager;
 	GameLogic*				m_pGameLogic;
@@ -305,7 +314,7 @@ private:
 	map<HashLabel,float> m_VariablesContainer;
 
 	string m_Language;
-
+	string m_Difficulty;
 
 };	
 

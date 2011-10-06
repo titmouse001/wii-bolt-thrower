@@ -1,9 +1,11 @@
+//#include <gccore.h>
 #include <math.h>
 #include "Util.h"
 #include "config.h"
 #include "ogc\lwp_watchdog.h"
 #include "ogc\system.h"
 #include "ogcsys.h"
+#include "wiiuse\wpad.h"
 #include <sstream>
 #include <iomanip>
 
@@ -16,6 +18,13 @@ bool g_bEnablePowerOffMode(false);
 void Trigger_Reset_Callback(void)			{ g_PowerOffMode = SYS_RESTART;  g_bEnablePowerOffMode=true; } 
 void Trigger_Power_Callback(void)			{ g_PowerOffMode = SYS_POWEROFF; g_bEnablePowerOffMode=true; }  
 void Trigger_PadPower_Callback( s32 chan )	{ g_PowerOffMode = SYS_POWEROFF; g_bEnablePowerOffMode=true; } 
+
+void Util::SetUpPowerButtonTrigger()
+{
+	SYS_SetResetCallback(Trigger_Reset_Callback); 
+    SYS_SetPowerCallback(Trigger_Power_Callback); 
+	WPAD_SetPowerButtonCallback( Trigger_PadPower_Callback );
+}
 
 bool Util::IsPowerOff()
 {
@@ -61,15 +70,20 @@ std::string Util::GetGamePath()
 	return TempGamePath;
 }
 
-u8 Util::CalculateFrameRate()
+u8 Util::CalculateFrameRate(bool bReadOnly)
 {
-    static u8 FramesPerSecondCounter(0);
-    static u64 LastTime;
+    static u8 FramesPerSecondCounter(60);
+	static u64 LastTime(0);
     static u8 FPS(0);
+
+	if (bReadOnly)
+		return (FPS);
+
 	u64 CurrentTime( ticks_to_millisecs( Util::timer_gettime() )); // gettick() ) );
 
     FramesPerSecondCounter++;
-    if ( (CurrentTime - LastTime) >= 1000) 
+	static const u32 MILLISECONDS(1000);
+    if ( (CurrentTime - LastTime) >= MILLISECONDS) 
 	{
         FPS = FramesPerSecondCounter;
         FramesPerSecondCounter = 0;

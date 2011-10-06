@@ -180,6 +180,9 @@
       <AddText WiiMoteButtonHome = "Quit" />
       <AddText PressButtonAToContinueMessage = "PRESS A TO CONTINUE" />
 
+
+      <AddText QuitMessage = "Bye" />
+      
       <AddText Options = "Options" />
       <AddText Controls = "Controls" />
       <AddText Credits= "Credits" />
@@ -187,6 +190,8 @@
       <AddText Start_Game = "Start Game" />
       <AddText Quit = "Quit" />
       
+      <AddText Back = "Back" />
+
       <AddText Ingame_Music = "In-game Music" />
       <AddText Difficulty_Level = "Difficulty Level" />
       <AddText Set_Language = "Set Language" />
@@ -224,7 +229,8 @@
     </English>
 
     <Klingon>
-      <AddText MainMenuScreenTopTitle = "N A H L E T   W O D" />
+      <!-- this is NUT FIRE in klingon! -->
+      <AddText MainMenuScreenTopTitle = "N A H L E T   Q U L" />
       <AddText OptionsMenuScreenTopTitle = "L U R G H" />
       <AddText CreditsMenuScreenTopTitle = "R I '" />
       <AddText ControlsMenuScreenTopTitle = "R U Q" />
@@ -235,12 +241,18 @@
       <AddText WiiMoteButtonHome = "mej" />
       <AddText PressButtonAToContinueMessage = "BING A DAQ VIH" />
 
+      <AddText QuitMessage = "Qapla'" />
+      
+      
       <AddText Options = "DuH" />
       <AddText Controls = "RuQ" />
       <AddText Credits= "Tlho'" />
       <AddText Intro = "VeQDuj" />
       <AddText Start_Game = "Tagh Quj" />
       <AddText Quit = "Bup" />
+
+      <AddText Back = "Back" />
+
 
       <AddText Ingame_Music = " Daq Quj QoQ" />
       <AddText Difficulty_Level = "SuD" />

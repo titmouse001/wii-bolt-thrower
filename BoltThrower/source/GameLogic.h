@@ -20,6 +20,7 @@ class Timer;
 class SoundManager;
 class HashLabel;
 class TurretItem3D;
+class MoonItem3D;
 
 enum EVesselType { eGunShip, SemallShip};
 
@@ -50,7 +51,7 @@ public:
 	void TurnShipLogic();
 	void ExplosionLogic();
 	void MissileLogic();
-	void SpawnBadShips(Vessel& item);
+
 	void ProbeMineLogic( std::vector<Vessel>*  pVesselContainer = NULL, float ThrustPower = 0.05f, float ActiveRange = 155.0f, float ScanRange = 22.0f, float CraftSize = (12.0f*12.0f) );
 	void BadShipsLogic();
 	void ExhaustLogic();
@@ -63,7 +64,7 @@ public:
 	bool IsEndLevelTrigger() const { return m_bEndLevelTrigger; }
 	void SetEndLevelTrigger(bool bState = true) { m_bEndLevelTrigger = bState; }
 
-	void AddBadShip(float x, float y, HashLabel ShipType);
+	
 	void ClearBadContainer();
 
 	guVector	m_CPUTarget;
@@ -176,8 +177,8 @@ public:
 	int GetDyingEnemiesContainerSize();
 
 	// Celestial Body
-	vector<Item3D>::iterator GetCelestialBodyContainerBegin()	{ return m_CelestialBodyContainer->begin();}
-	vector<Item3D>::iterator GetCelestialBodyContainerEnd()		{ return m_CelestialBodyContainer->end();}
+	vector<MoonItem3D>::iterator GetCelestialBodyContainerBegin()	{ return m_CelestialBodyContainer->begin();}
+	vector<MoonItem3D>::iterator GetCelestialBodyContainerEnd()		{ return m_CelestialBodyContainer->end();}
 	int GetCelestialBodyContainerSize();
 
 	// total enemies
@@ -185,11 +186,18 @@ public:
 
 	// mission logic
 	bool IsBaseShieldOnline();
-	
+
+	void CreateIntroScene();
+
+
 	// view clipping
 	float GetClippingRadiusNeededForMoonRocks()	const { return m_ClippingRadiusNeededForMoonRocks; }
 
 	int LastChanUsedForSoundAfterBurn;  // fudge
+
+	void MoonRocksLogic();
+
+	Vessel* GetGunTurretTarget(TurretItem3D* pTurret);
 
 private:
 
@@ -199,13 +207,18 @@ private:
 	void AddAnim(HashLabel Frame, Vessel* pVessel, float FrameSpeed, float SpinAmount);
 	void AddScalingAnim(HashLabel Frame, Vessel* pVessel, float FrameSpeed, float SpinAmount,
 							float TopScale, float ScaleStart, float ScaleFactor);
-	void AddEnemyVessels(int OriginX, int OriginY, int Amount, HashLabel ShipType, float Distance, float SpeedFactor = 1.0f);
+
+	void AddEnemy(float x, float y, HashLabel ShipType);
+	void AddEnemy(float x, float y, float Velx, float Vely, HashLabel ShipType);
+	void AddEnemy(int OriginX, int OriginY, int Amount, HashLabel ShipType, float Distance);
+	void AddEnemySpawn(Vessel& item);
 
 	void AddPickUps(Vessel* Position, int Amount);
 	void PickUpsLogic();
-	void MoonRocksLogic();
+	//void MoonRocksLogic();
 	void GunTurretLogic();
-	void GunTurretShotsLogic();
+	//void GunTurretShotsLogic();
+	void GunTurretShotsLogic( std::vector<Vessel>* pEnemy );
 	void InitialiseShieldGenerators(int Amount);
 	void InitialiseEnermyAmardaArroundLastShieldGenerator(int Amount, float Distance);
 	
@@ -230,11 +243,11 @@ private:
 
 	std::vector<Vessel>* m_DyingEnemiesContainer;
 
-	std::vector<Item3D>* m_CelestialBodyContainer;
+	std::vector<MoonItem3D>* m_CelestialBodyContainer;
 
 
 
-	bool			m_bAddMoreShipsFlag;
+	//bool			m_bAddMoreShipsFlag;
 	bool			m_bEndLevelTrigger;
 	u32				m_Score;
 	float			m_ZoomAmountForSpaceBackground;

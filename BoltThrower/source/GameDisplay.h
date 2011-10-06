@@ -19,6 +19,8 @@ public:
 
 	void DisplaySimpleMessage(std::string Text);
 
+	void DisplayMoon();
+
 private:
 
 	void DebugInformation();
@@ -27,7 +29,7 @@ private:
 	void DisplayShieldGenerators();
 	void DisplayGunTurrets();
 	void DisplayShotForGunTurret();
-	void DisplayMoon(float Dist = 0);
+	//void DisplayMoon();
 	void DisplayInformationPanels();
 	void DisplaySkull();
 	void DisplayRadar();

@@ -40,7 +40,8 @@
 // 2 blue pickup glow
 // 3 probe mines - show red lock on lines
 
-GameLogic::GameLogic():	m_bAddMoreShipsFlag(false),m_bEndLevelTrigger(false), m_Score(0),
+GameLogic::GameLogic():	//m_bAddMoreShipsFlag(false), 
+m_bEndLevelTrigger(false), m_Score(0),
 m_ZoomAmountForSpaceBackground(3.1f),m_ClippingRadiusNeededForMoonRocks(0),  
 m_GamePaused(false),m_GamePausedByPlayer(false),m_IsBaseShieldOnline(false)
 {
@@ -65,7 +66,7 @@ m_GamePaused(false),m_GamePausedByPlayer(false),m_IsBaseShieldOnline(false)
 
 	m_DyingEnemiesContainer = new std::vector<Vessel>;
 
-	m_CelestialBodyContainer = new std::vector<Item3D>;
+	m_CelestialBodyContainer = new std::vector<MoonItem3D>;
 }
 
 void GameLogic::Init()
@@ -218,10 +219,10 @@ void GameLogic::StillAlive()
 				m_ExhaustContainer->clear();
 				m_ProbeMineContainer->clear();
 
-				AddEnemyVessels(0,0,m_pWii->ApplyDifficultyFactor(16),HashString::GunShip,1750);
-				AddEnemyVessels(0,0,m_pWii->ApplyDifficultyFactor(10),HashString::GunShip,1640);
-				AddEnemyVessels(0,0,m_pWii->ApplyDifficultyFactor(45),HashString::Bad1Frames,1400);
-				AddEnemyVessels(0,0,m_pWii->ApplyDifficultyFactor(30),HashString::Bad2Frames,1700,0.70f);
+				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(16),HashString::GunShip,1750);
+				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(10),HashString::GunShip,1640);
+				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(45),HashString::Bad1Frames,1400);
+				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(30),HashString::Bad2Frames,1700);
 				GetPlrVessel()->SetShieldLevel( m_pWii->GetXmlVariable(HashString::PlayerMaxShieldLevel) );
 				break;
 			case 5:  // defence now online
@@ -259,29 +260,29 @@ void GameLogic::StillAlive()
 
 			if (m_SmallEnemiesContainer->size() < m_pWii->ApplyDifficultyFactor(14))
 			{
-				AddEnemyVessels(0,0,m_pWii->ApplyDifficultyFactor(45),HashString::Bad1Frames,1700);
-				AddEnemyVessels(0,0,m_pWii->ApplyDifficultyFactor(30),HashString::Bad2Frames,1800,0.70f);
+				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(45),HashString::Bad1Frames,1700);
+				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(30),HashString::Bad2Frames,1800);
 			}
 			break;
 		case 5:  // defence now online
 
 			if (m_SmallEnemiesContainer->size()<m_pWii->ApplyDifficultyFactor(14))
 			{
-				AddEnemyVessels(0,0,m_pWii->ApplyDifficultyFactor(45),HashString::Bad1Frames,1700);
-				AddEnemyVessels(0,0,m_pWii->ApplyDifficultyFactor(30),HashString::Bad2Frames,1800,0.70f);
+				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(45),HashString::Bad1Frames,1700);
+				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(30),HashString::Bad2Frames,1800);
 			}
 			//??? just attack what's left.... run out of things to shoot before enough scrap collected
 			break;
 		case 6:
 			if (m_SmallEnemiesContainer->size()<m_pWii->ApplyDifficultyFactor(24))
 			{
-				AddEnemyVessels(0,0,m_pWii->ApplyDifficultyFactor(45),HashString::Bad1Frames,1700);
-				AddEnemyVessels(0,0,m_pWii->ApplyDifficultyFactor(30),HashString::Bad2Frames,1800,0.70f);
+				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(45),HashString::Bad1Frames,1700);
+				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(30),HashString::Bad2Frames,1800);
 			}
 
 			if (m_GunShipContainer->size()<m_pWii->ApplyDifficultyFactor(8))
 			{
-				AddEnemyVessels(0,0,m_pWii->ApplyDifficultyFactor(28),HashString::GunShip,1700);
+				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(28),HashString::GunShip,1700);
 			}
 			break;
 		}
@@ -311,13 +312,6 @@ void GameLogic::StillAlive()
 
 void GameLogic::InGameLogic()
 {
-	extern int g_bEnablePowerOffMode;
-	if ( g_bEnablePowerOffMode )
-	{
-		extern int g_PowerOffMode;
-		::SYS_ResetSystem( g_PowerOffMode, 0, 0 );
-	}
-
 	if ( GetPlrVessel()->IsShieldOk() )
 	{
 		m_CPUTarget.x = GetPlrVessel()->GetX();
@@ -358,10 +352,9 @@ void GameLogic::InGameLogic()
 		GunShipLogic();
 
 		
-		GunTurretShotsLogic();  // before GunTurretLogic - so each shot leqaves the barrel correctly
+		GunTurretShotsLogic( m_GunShipContainer );
+		GunTurretShotsLogic(m_SmallEnemiesContainer);  // before GunTurretLogic - so each shot leqaves the barrel correctly
 		GunTurretLogic();
-
-
 
 		ExhaustLogic();
 		ProjectileLogic();
@@ -534,6 +527,12 @@ void GameLogic::ProjectileLogic()
 
 void GameLogic::ExhaustLogic()
 {
+	u8 fps = Util::CalculateFrameRate(true);
+	while ((fps<60) && (m_ExhaustContainer->size() > 550))  //should donly kick in for the intro as it uses lots and drags the frame rate down!
+	{
+		m_ExhaustContainer->erase(m_ExhaustContainer->begin(), (m_ExhaustContainer->begin()+100));
+	}
+
 	for (std::vector<Vessel>::iterator Iter(m_ExhaustContainer->begin()); Iter!= m_ExhaustContainer->end(); /*NOP*/)
 	{	
 		Iter->AddFrame();
@@ -620,7 +619,7 @@ void GameLogic::SporesCollisionLogic()
 			if ( ThingIter->InsideRadius(rMissile.GetX(), rMissile.GetY(), 10*10 ) )
 			{
 				AddScore(99);
-				SpawnBadShips(*ThingIter);
+				AddEnemySpawn(*ThingIter);
 				rMissile.SetFuel(0);
 				ThingIter = m_SporesContainer->erase( ThingIter );
 				break;
@@ -648,13 +647,16 @@ void GameLogic::MissileCollisionLogic()
 
 				if ( GunShipIter->IsShieldOk() )  // hit something but their shileds are holding
 				{
+					MissileIter->SetGravity(0.975f);  // missile will be deleted ... we can do this
+					MissileIter->VelReduce();
+
 					AddScalingAnim(HashString::LargeYellowExplosion, 
 						&(*MissileIter),
-						0.01f,									// frame speed
+						0.05f,									// frame speed
 						( 800 - ( rand()%1600) ) * 0.00025f,	// Spin Amount
-						0.25f + (rand()%100)*0.01,				// Top Scale
-						0.01f,									// Start Scale
-						0.35f );								// Scale Factor
+						0.65f + ((rand()%25)*0.01f),				// Top Scale
+						0.001f,									// Start Scale
+						0.25f );								// Scale Factor
 
 					m_pSoundManager->PlaySound( HashString::hitmetal,100,100);
 				}
@@ -684,11 +686,11 @@ void GameLogic::MissileCollisionLogic()
 				{
 					AddScalingAnim(HashString::LargeYellowExplosion, 
 						&(*BadIter),
-						0.01f + ((rand()%5)*0.01),				// frame speed
+						0.02f,									// frame speed
 						( 800 - ( rand()%1600) ) * 0.00025f,	// Spin Amount
-						0.25f + (rand()%100)*0.01,				// Top Scale
+						0.75f + ((rand()%65)*0.01f), 			// Top Scale
 						0.01f,									// Start Scale
-						0.35f );								// Scale Factor
+						0.05f );								// Scale Factor
 				}
 				MissileIter->SetFuel(0);
 				break;
@@ -844,7 +846,7 @@ void GameLogic::MissileLogic()
 			float my(cos( dir ) * -0.15f);
 
 			if ( (MissileIter->GetFuel()&RandomValue) &&  // something random'ish 
-				 (MissileIter->GetFuel() > (60*9) ) )  // (60 fps) don't bother drwing thrust after this limit.
+				 (MissileIter->GetFuel() > (60*9) ) )  // ( 60fps x N ) don't bother drwing thrust after this limit.
 			{
 				Vessel thrust( *MissileIter ); // create some thrust flames coming out the back end of the rocket
 				thrust.AddPos( -mx*2.0f, -my*2.0f, 0  );
@@ -876,7 +878,7 @@ void GameLogic::ProbeMineLogic(std::vector<Vessel>*  pVesselContainer, float Thr
 		bool HaveLockOnSoForgetTheRest(false); // but still check for collisions
 		for (std::vector<Vessel>::iterator BadIter(pVesselContainer->begin()); BadIter!= pVesselContainer->end(); ++BadIter )
 		{
-			if ( BadIter->HasShieldFailed() )
+			if ( BadIter->HasShieldFailed() )  
 				continue;
 	
 			// Only show what is inside the viewport
@@ -889,19 +891,19 @@ void GameLogic::ProbeMineLogic(std::vector<Vessel>*  pVesselContainer, float Thr
 					AddAnim(HashString::Explosion64x64, &(*ProbeMineIter), 0.25f, 0 );
 					AddScalingAnim(HashString::LargeYellowExplosion, 
 						&(*ProbeMineIter),
-						0.05f,									// frame speed
-						( 100 - ( rand()%200) ) * 0.00025f,		// Spin Amount
-						1.5f + (rand()%50)*0.01,				// Top Scale
-						0.5,									// Start Scale
-						0.20f );								// Scale Factor
+						0.070f,									// frame speed
+						( 100 - ( rand()%200) ) * 0.0015f,		// Spin Amount
+						1.25f + (rand()%50)*0.01,				// Top Scale
+						0.25,									// Start Scale
+						0.10f );								// Scale Factor
 
 					AddScalingAnim(HashString::LargeYellowExplosion, 
 						&(*ProbeMineIter),
-						0.05f,									// frame speed
-						( 100 - ( rand()%200) ) * 0.00025f,		// Spin Amount
-						2.5f + (rand()%75)*0.01,				// Top Scale
-						0.01,									// Start Scale
-						0.10f );								// Scale Factor
+						0.080f,									// frame speed
+						( 100 - ( rand()%200) ) * 0.0015f,		// Spin Amount
+						2.2f + (rand()%75)*0.01,				// Top Scale
+						0.0001,									// Start Scale
+						0.15f );								// Scale Factor
 					//-------------------
 
 					ProbeMineIter = m_ProbeMineContainer->erase( ProbeMineIter );  // SAFE to erase - about to exit loop
@@ -981,15 +983,16 @@ void GameLogic::ProbeMineLogic(std::vector<Vessel>*  pVesselContainer, float Thr
 
 void GameLogic::GunShipLogic()
 {
-	guVector Target(m_CPUTarget);
+	guVector ChaseTarget(m_CPUTarget);
 	for (std::vector<Vessel>::iterator GunShipIter( m_GunShipContainer->begin()); GunShipIter!= m_GunShipContainer->end(); ++GunShipIter)
 	{
-		f32 Turn = GunShipIter->GetTurnDirection( &Target );
+		f32 Turn = GunShipIter->GetTurnDirection( &ChaseTarget );
 		GunShipIter->AddFacingDirection( Turn * 0.002f );
-		Turn = GunShipIter->GetTurnDirectionForTurret( &Target );
+
+		Turn = GunShipIter->GetTurnDirectionForTurret( &m_CPUTarget );
 		GunShipIter->AddTurrentDirection( Turn * 0.25f);
 
-		Target = GunShipIter->GetPos();  // the next ship will now follow this one, and so on in the sequence.
+		ChaseTarget = GunShipIter->GetPos();  // the next ship will now follow this one, and so on in the sequence.
 
 		// gun ship firing		
 		if (rand()%GunShipIter->GetFireRate() == 0)
@@ -1022,7 +1025,9 @@ void GameLogic::GunShipLogic()
 			float mx(sin( dir )* 32.0f);
 			float my(cos( dir )* 32.0f);
 			Boom.AddPos(mx * 0.45f, -my * 0.45f, 0);		
+			
 			f32 TurretLockOn = atan2( m_CPUTarget.x - Boom.GetX(), Boom.GetY() - m_CPUTarget.y  );
+
 			float temp_mx(sin( TurretLockOn )* 32.0f);
 			float temp_my(cos( TurretLockOn )* 32.0f);
 			Boom.SetVel( temp_mx * GunShipIter->GetBulletSpeedFactor(), -temp_my * GunShipIter->GetBulletSpeedFactor(), 0);  
@@ -1120,7 +1125,7 @@ void GameLogic::AddPickUps(Vessel* Position, int Amount)
 	Item3D PickUp;
 
 	PickUp.SetPos( Position->GetX(), Position->GetY(), Position->GetZ());
-	PickUp.SetScale( 1, 1, 1);
+	PickUp.SetScale( 0.5f, 0.5f, 0.5f);
 
 	for (int i=0; i<Amount; ++i)
 	{
@@ -1130,18 +1135,13 @@ void GameLogic::AddPickUps(Vessel* Position, int Amount)
 		float my = cos(ang)*(r) ;
 
 		if (Amount>1)
-			PickUp.SetVel(mx,my,0);
+			PickUp.SetVel(mx+Position->GetVelX(),my+Position->GetVelY(),0);
 		else
-			PickUp.SetVel(0,0,0);
+			PickUp.SetVel(Position->GetVelX(),Position->GetVelY(),0);
 
 		PickUp.SetRotateAmount(	0,0.005f,0.015f);
 		m_pMaterialPickUpContainer->push_back(PickUp);
 	}
-}
-
-void GameLogic::ClearBadContainer()
-{ 
-	m_SmallEnemiesContainer->clear(); 
 }
 
 void GameLogic::PickUpsLogic()
@@ -1149,29 +1149,33 @@ void GameLogic::PickUpsLogic()
 	Vessel* pPlayerShip = GetPlrVessel();
 	for (std::vector<Item3D>::iterator iter(m_pMaterialPickUpContainer->begin()); iter!= m_pMaterialPickUpContainer->end(); /*nop*/ )
 	{
-		iter->MulScale(0.9975f);
+		//iter->MulScale(0.9975f);
+		iter->MulScale(0.995f);
 		iter->Rotate();
 
-		if (iter->GetScaleX()<0.25f)
+		if (iter->GetScaleX()<0.45f)
 		{
-			iter = m_pMaterialPickUpContainer->erase(iter);
-			continue;
-		}
-		if (pPlayerShip->InsideRadius(iter->GetX(), iter->GetY(),200*200))
-		{
-			float mx( pPlayerShip->GetX() - iter->GetX() );
-			float my( pPlayerShip->GetY() - iter->GetY() );
-			float dir( atan2( mx,my ) );
-			float dx = sin( dir )*0.085f;
-			float dy = cos( dir )*0.085f;
-			iter->AddVel( dx, dy, 0 );
-
-			if (pPlayerShip->InsideRadius(iter->GetX(), iter->GetY(),30*30))
+			if (iter->GetScaleX()<0.05f)
 			{
 				iter = m_pMaterialPickUpContainer->erase(iter);
-				GetPlrVessel()->AddToPickUpTotal(iter->GetScaleX()*10.0f);
-				AddScore(15);// todo ... for each player!!!!
 				continue;
+			}
+			if (pPlayerShip->InsideRadius(iter->GetX(), iter->GetY(),200*200))
+			{
+				float mx( pPlayerShip->GetX() - iter->GetX() );
+				float my( pPlayerShip->GetY() - iter->GetY() );
+				float dir( atan2( mx,my ) );
+				float dx = sin( dir )*0.085f;
+				float dy = cos( dir )*0.085f;
+				iter->AddVel( dx, dy, 0 );
+
+				if (pPlayerShip->InsideRadius(iter->GetX(), iter->GetY(),30*30))  // this could be optimised... x2 calls to insideRadius
+				{
+					iter = m_pMaterialPickUpContainer->erase(iter);
+					GetPlrVessel()->AddToPickUpTotal(iter->GetScaleX()*10.0f);
+					AddScore(15);// todo ... for each player!!!!
+					continue;
+				}
 			}
 		}
 		iter->AddVelToPos();
@@ -1180,48 +1184,15 @@ void GameLogic::PickUpsLogic()
 	}
 }
 
+void GameLogic::ClearBadContainer()
+{ 
+	m_SmallEnemiesContainer->clear(); 
+}
+
 void GameLogic::AddScore(u32 Value) 
 {
 	if ( GetPlrVessel()->IsShieldOk() )
 		m_Score += Value ; 
-}
-
-void GameLogic::AddEnemyVessels(int OriginX, int OriginY, int Amount, HashLabel ShipType, float Radius, float SpeedFactor)
-{
-	Vessel Ship;
-	Ship.SetFrameGroup(ShipType, 1.0f);
-	Ship.SetFireRate( 35 );
-	Ship.SetBulletSpeedFactor( 0.12f );
-
-	if (ShipType == HashString::GunShip)
-	{
-		Ship.SetSpeedFactor( SpeedFactor );
-		Ship.SetShieldLevel( 18 ); 
-	}
-	else if (ShipType == HashString::Bad1Frames)
-	{
-		Ship.SetSpeedFactor( SpeedFactor);
-		Ship.SetShieldLevel( m_pWii->GetXmlVariable(HashString::BadShipType1MaxShieldLevel) ); 
-	}
-	else if (ShipType == HashString::Bad2Frames)
-	{
-		Ship.SetSpeedFactor( SpeedFactor );
-		Ship.SetShieldLevel( m_pWii->GetXmlVariable(HashString::BadShipType2MaxShieldLevel) ); 
-	}
-//	else
-//		ExitPrintf("AddEnemyVessels nothing found");
-
-	for (int i=0; i<Amount; ++i)
-	{
-		float ang = (float)i * ((M_PI*2) / (float)Amount);
-		float addx = sin(ang)*(Radius);
-		float addy = cos(ang)*(Radius); 
-		Ship.SetPos(OriginX + addx, OriginY + addy,0);
-		if (ShipType == HashString::GunShip)
-			m_GunShipContainer->push_back(Ship);
-		else
-			m_SmallEnemiesContainer->push_back(Ship);
-	}
 }
 
 vector<Item3DChronometry>::iterator GameLogic::EraseItemFromShieldGeneratorContainer(vector<Item3DChronometry>::iterator iter)
@@ -1229,54 +1200,114 @@ vector<Item3DChronometry>::iterator GameLogic::EraseItemFromShieldGeneratorConta
 	return m_ShieldGeneratorContainer->erase(iter);
 }
 
+
+Vessel* GameLogic::GetGunTurretTarget(TurretItem3D* pTurret)
+{
+	if ( m_GunShipContainer->empty() && m_SmallEnemiesContainer->empty() )
+		return NULL;
+
+	if (pTurret->GetLockOntoVesselType() == HashString::TurretTarget_SmallShip)
+	{
+		if (m_SmallEnemiesContainer->empty()) 
+			pTurret->SetLockOntoVesselIndex( -1 );
+	}
+	else
+	{
+		if (m_GunShipContainer->empty()) 
+			pTurret->SetLockOntoVesselIndex( -1 );
+	}
+	
+
+
+	if (pTurret->GetLockOntoVesselIndex()==-1)
+	{
+		int r = rand()%2;
+		if (m_GunShipContainer->empty()) 
+			r=0;
+		if (m_SmallEnemiesContainer->empty()) 
+			r=1;
+
+		if (r==0)
+		{
+			pTurret->SetLockOntoVesselIndex(rand()%m_SmallEnemiesContainer->size());
+			pTurret->SetLockOntoVesselType(HashString::TurretTarget_SmallShip);
+		}
+		else
+		{
+			pTurret->SetLockOntoVesselIndex(rand()%m_GunShipContainer->size());
+			pTurret->SetLockOntoVesselType(HashString::TurretTarget_GunShip);
+		}
+	}
+
+	std::vector<Vessel>* pEnemy;
+	if (pTurret->GetLockOntoVesselType() == HashString::TurretTarget_SmallShip)
+		pEnemy = m_SmallEnemiesContainer;
+	else
+		pEnemy = m_GunShipContainer;
+
+	std::vector<Vessel>::iterator TargetIter( pEnemy->begin() );
+	advance( TargetIter, pTurret->GetLockOntoVesselIndex() );
+
+	if (TargetIter == pEnemy->end())
+	{
+		TargetIter = pEnemy->begin();
+	}
+
+	return &(*TargetIter);
+}
+
 void GameLogic::GunTurretLogic()
 {
-
-	//	if (m_GunShipContainer->empty() || m_SmallEnemiesContainer->empty())
-	//		return;
-
-	if (m_SmallEnemiesContainer->empty())
-		return;
-
 	VectorOfPointXYZ Points = m_pWii->Render.GetModelPointsFromLayer("SmallGunTurret[BONE]"); // layer 3 has the needed bone points
 	for (std::vector<TurretItem3D>::iterator iter(m_pGunTurretContainer->begin()); iter!= m_pGunTurretContainer->end(); ++iter)
 	{
-		std::vector<Vessel>::iterator TargetIter( m_SmallEnemiesContainer->begin() );
-		advance( TargetIter, iter->GetLockOntoVesselIndex() );
-
-		if (TargetIter == m_SmallEnemiesContainer->end())
-		{
-			iter->SetLockOntoVesselIndex(rand()%m_SmallEnemiesContainer->size());
-			advance( TargetIter, iter->GetLockOntoVesselIndex() );
-		}
-
-//		if (TargetIter == m_SmallEnemiesContainer->end())
-//		{
-//			printf("nothing");
-//		}
-
-		// Gets the distance squared - no need to use sqrt here
-		float Xpos( TargetIter->GetX() );
-		float Ypos( TargetIter->GetY() );
-		float square_dist (	((Xpos - iter->WorkingTarget.x)*(Xpos - iter->WorkingTarget.x) ) + 
-							((Ypos - iter->WorkingTarget.y)*(Ypos - iter->WorkingTarget.y) ) );
+		Vessel* pTarget( GetGunTurretTarget( &(*iter) ) );
 
 		static float LockOnSpeed( 0.25f );
-		iter->WorkingTarget.x += ( TargetIter->GetPos().x - iter->WorkingTarget.x ) * LockOnSpeed;
-		iter->WorkingTarget.y += ( TargetIter->GetPos().y - iter->WorkingTarget.y ) * LockOnSpeed;
-		iter->WorkingTarget.z += ( TargetIter->GetPos().z - iter->WorkingTarget.z ) * LockOnSpeed;
-
 		static float CurrentLockOnSpeed( 0.085f ); // Damps the first set - reduces seeing a jumpy 3d object 
+		if (pTarget==NULL)
+		{
+			iter->CurrentTarget.x += ( 0 - iter->CurrentTarget.x ) * CurrentLockOnSpeed;
+			iter->CurrentTarget.y += ( 0 - iter->CurrentTarget.y ) * CurrentLockOnSpeed;
+			iter->CurrentTarget.z += ( 0 - iter->CurrentTarget.z ) * CurrentLockOnSpeed;
+			continue;		
+		}
+
+		// Gets the distance squared - no need to use sqrt here
+		float Shot_dist (	(pTarget->GetX() - iter->GetX()) * (pTarget->GetX() - iter->GetX())  + 
+							(pTarget->GetY() - iter->GetY()) * (pTarget->GetY() - iter->GetY())  +
+							(pTarget->GetZ() - iter->GetZ()) * (pTarget->GetZ() - iter->GetZ())  );
+//		float TotalShotDist = sqrt(Shot_dist);		
+		
+
+		static const float ShotSpeed (6.0f);
+
+		guVector LockOnto(pTarget->GetPos() );
+		float dist ;
+		{
+			guVector ShotVelocity;
+			guVecSub(&(iter->GetPos()),&(pTarget->GetPos()),&ShotVelocity); // get vec between end of gun and ship
+			guVecNormalize(&ShotVelocity);
+			guVecScale(&ShotVelocity, &ShotVelocity, ShotSpeed );
+
+			 dist =  ( (ShotVelocity.x * ShotVelocity.x) + 
+						(ShotVelocity.y * ShotVelocity.y) + (ShotVelocity.z * ShotVelocity.z)  );
+			float div = sqrt(Shot_dist / dist);
+			
+			LockOnto.x += pTarget->GetVelX() * div;
+			LockOnto.y += pTarget->GetVelY() * div;
+		}
+	
+
+		// use this for lock on
+		iter->WorkingTarget.x += ( LockOnto.x - iter->WorkingTarget.x ) * LockOnSpeed;
+		iter->WorkingTarget.y += ( LockOnto.y - iter->WorkingTarget.y ) * LockOnSpeed;
+		iter->WorkingTarget.z += ( LockOnto.z - iter->WorkingTarget.z ) * LockOnSpeed;
+
+		// use this for drawing angles
 		iter->CurrentTarget.x += ( iter->WorkingTarget.x - iter->CurrentTarget.x ) * CurrentLockOnSpeed;
 		iter->CurrentTarget.y += ( iter->WorkingTarget.y - iter->CurrentTarget.y ) * CurrentLockOnSpeed;
 		iter->CurrentTarget.z += ( iter->WorkingTarget.z - iter->CurrentTarget.z ) * CurrentLockOnSpeed;
-
-
-		//////printf("w   %f %f %f",iter->WorkingTarget.x,iter->WorkingTarget.y,iter->WorkingTarget.z);
-		//////printf("pos %f %f %f",iter->GetX(),iter->GetY(),iter->GetZ());
-		//////printf("    %f %f %f",iter->CurrentTarget.x,iter->CurrentTarget.y,iter->CurrentTarget.z);
-
-
 
 		// Get Direction Vector for the Turret
 		guVector DirectionVector; 
@@ -1285,50 +1316,46 @@ void GameLogic::GunTurretLogic()
 		DirectionVector.z = (iter->CurrentTarget.z  - iter->GetZ() );
 		guVecNormalize(&DirectionVector);
 
-		//iter->m_Roll  = (M_PI) + atan2( DirectionVector.y, sqrt( DirectionVector.x * DirectionVector.x + DirectionVector.z * DirectionVector.z) ); 
-		//iter->m_Pitch = -(M_PI/2) + atan2( DirectionVector.x,  DirectionVector.z); 
 		float Roll  = (M_PI) + atan2( DirectionVector.y, sqrt( DirectionVector.x * DirectionVector.x + DirectionVector.z * DirectionVector.z) ); 
 		float Pitch = -(M_PI/2) + atan2( DirectionVector.x,  DirectionVector.z); 
 		iter->SetRotate( 0, Pitch, Roll );
 
-
-		if ( (iter->IsTimerDone()) &&  (fabs(square_dist) < (20*20)) )
+		if ( iter->IsTimerDone()  )
 		{
-			iter->SetTimerMillisecs( (rand()%1000) + 500 );
-			float TargetDistanceSquared = ( DirectionVector.x * DirectionVector.x + DirectionVector.z * DirectionVector.z) ;
-	
+			iter->SetTimerMillisecs( (rand()%1000) + 3000 );
+		
 			Mtx Model,mat,mat2;
-			//guMtxRotRad(mat,'y', iter->m_Pitch );
-			//guMtxRotRad(mat2,'z',iter->m_Roll );
-
 			guMtxRotRad(mat,'y', Pitch );
 			guMtxRotRad(mat2,'z', Roll );
-
 			guMtxConcat(mat,mat2,Model);
-
-			// pre calc - add a bit of crap prediction - where to shoot at
-			guVector temp = TargetIter->GetVel(); 
-			guVecScale(&temp, &temp, -(TargetDistanceSquared*0.00008f));  // best fit , will be very off for distance shots
 			
 			// use bone points for both turret barrels
-			for (VectorOfPointXYZ::iterator BoneIter(Points.begin()); BoneIter!= Points.end(); ++BoneIter)
+			//for (VectorOfPointXYZ::iterator BoneIter(Points.begin()); BoneIter!= Points.end(); ++BoneIter)
+			VectorOfPointXYZ::iterator BoneIter(Points.begin());
 			{
-				Item3D pShot = *iter;	
-
+				Item3D pShot = *iter;	// need a full copy
+							
 				pShot.SetPos(BoneIter->Getx(),BoneIter->Gety(), BoneIter->Getz());
 				// Rotate Bone point to that of the models world 
 				guVecMultiply(Model, &(pShot.GetPos()), &(pShot.GetPos()))	;
 				// Place it in the world
 				pShot.AddPos(iter->GetX(),iter->GetY(), iter->GetZ()); 
-				
-				guVector vecTarget =  TargetIter->GetPos();
-				guVecSub(&vecTarget,&temp,&vecTarget);  // add prediction
 		
+			
 				// angle from bone point
 				guVector ShotVelocity; 
-				guVecSub(&vecTarget,&(pShot.GetPos()),&ShotVelocity); // get vec between end of gun and ship
-				guVecNormalize(&ShotVelocity);
-				guVecScale(&ShotVelocity, &ShotVelocity, 12.0f);
+				guVecSub(&LockOnto,&(pShot.GetPos()),&ShotVelocity); // get vec between end of gun and ship
+			//	guVecNormalize(&ShotVelocity);
+
+				float ShipDistPredict (	
+					(pTarget->GetX() - iter->WorkingTarget.x) * (pTarget->GetX() - iter->WorkingTarget.x)  + 
+					(pTarget->GetY() - iter->WorkingTarget.y) * (pTarget->GetY() - iter->WorkingTarget.y)  +
+					(pTarget->GetZ() - iter->WorkingTarget.z) * (pTarget->GetZ() - iter->WorkingTarget.z)  );
+
+				float OneVesselStep =  ( (pTarget->GetVelX() * pTarget->GetVelX()) + (pTarget->GetVelY() * pTarget->GetVelY()) );
+
+				float step = sqrt(OneVesselStep / (ShipDistPredict) );
+				guVecScale(&ShotVelocity, &ShotVelocity, step * 0.5f );  // no idea why 1/2 makes it work!!!!
 				pShot.SetVel(ShotVelocity);
 
 
@@ -1336,63 +1363,48 @@ void GameLogic::GunTurretLogic()
 				pShot.SetTimerMillisecs( 8500 );
 				m_ShotForGunTurretContainer->push_back(pShot); // fire shot
 
-
-				{
-					Vessel Boom(&pShot, 0.8f);
-					Boom.SetFrameGroup( HashString::SmokeTrailFrames, 0.5f );
-					m_ExhaustContainer->push_back(Boom);	
-				}
+				// barrel effect
+				Vessel Boom(&pShot, 0.82f);
+				Boom.SetFrameGroup( HashString::SmokeTrailFrames, 0.5f );
+				m_ExhaustContainer->push_back(Boom);	
 			}
 		}
 	}
 }
 
-void GameLogic::GunTurretShotsLogic()
+void GameLogic::GunTurretShotsLogic( std::vector<Vessel>* pEnemy )
 {
 	for (std::vector<Item3D>::iterator iter(m_ShotForGunTurretContainer->begin()); iter!= m_ShotForGunTurretContainer->end(); /*NOP*/  )
 	{
 		if ( iter->IsTimerDone() )
 		{
-			// remove shot from list
-			iter = m_ShotForGunTurretContainer->erase(iter); 
+			iter = m_ShotForGunTurretContainer->erase(iter);  // remove shot from list
 			continue;
 		}
 		
 		bool hit=false;
-
 		iter->AddVelToPos();
-		for (std::vector<Vessel>::iterator GunShipIter(m_SmallEnemiesContainer->begin()); GunShipIter!=m_SmallEnemiesContainer->end(); ++GunShipIter)
+
+		//		for (std::vector<Vessel>::iterator GunShipIter(m_SmallEnemiesContainer->begin()); GunShipIter!=m_SmallEnemiesContainer->end(); ++GunShipIter)
+		for (std::vector<Vessel>::iterator GunShipIter(pEnemy->begin()); GunShipIter!=pEnemy->end(); ++GunShipIter)
 		{	
 			float RadiusSquare (iter->GetSqaureRadius(GunShipIter->GetX(),GunShipIter->GetY()));
-			if (RadiusSquare < (16*16) )
+			if (RadiusSquare < GunShipIter->GetRadius() ) 
 			{
 				Vessel Boom;  // to be fill from a Item3D... can't do a copy here
 				Boom.SetPos(iter->GetPos());
 				Boom.SetFrameGroup(HashString::Explosion64x64,0.35f);
 				Boom.SetVel(iter->GetVel());
-
 				Boom.SetGravity(0.85f);
-				Boom.SetSpin( (1000 - (rand()%2000 )) * 0.00025f );
-				m_ExplosionsContainer->push_back(Boom);
-
-				Boom.SetGravity(0.90f);
 				Boom.SetSpin( (1000 - (rand()%2000 )) * 0.00025f );
 				m_ExplosionsContainer->push_back(Boom);
 
 				GunShipIter->AddShieldLevel(-1);
 
-				// remove shot from list
-				iter = m_ShotForGunTurretContainer->erase(iter);
+				GunShipIter->AddVel(iter->GetVelX()*0.5f,iter->GetVelY()*0.5f,0);
 
-				// new target
-				for (std::vector<TurretItem3D>::iterator Guniter(m_pGunTurretContainer->begin()); 
-					Guniter!= m_pGunTurretContainer->end(); ++Guniter)
-				{
-					if (Guniter->GetLockOntoVesselIndex() == distance(m_SmallEnemiesContainer->begin(),GunShipIter))
-					{
-						Guniter->SetLockOntoVesselIndex( rand()%( GetSmallEnemiesContainerSize() ) );
-					}
-				}
+				iter = m_ShotForGunTurretContainer->erase(iter); // remove shot from list
+				iter->SetLockOntoVesselIndex(-1);
 				hit=true;
 				break;
 			}
@@ -1413,61 +1425,77 @@ void GameLogic::MoonRocksLogic( )
 	}
 }
 
-void GameLogic::AddBadShip(float x, float y, HashLabel ShipType)
-{
-	Vessel BadVessel;
-	BadVessel.SetFacingDirection( (rand()%(int)(100000*M_PI*2))/100000.0f );
-	BadVessel.SetPos( x , y,  0  );
-	BadVessel.SetVel(sin( BadVessel.GetFacingDirection() )*0.45,-cos( BadVessel.GetFacingDirection() )*0.45, 0);
 
-	BadVessel.SetFrameGroup(ShipType,1);
-	if (ShipType==HashString::Bad2Frames)
-	{
-		BadVessel.SetGravity(0.975);
-		BadVessel.SetShieldLevel( m_pWii->GetXmlVariable(HashString::BadShipType2MaxShieldLevel) );
-	}
-	else
-	{
-		BadVessel.SetGravity(0.995);
-		BadVessel.SetShieldLevel( m_pWii->GetXmlVariable(HashString::BadShipType1MaxShieldLevel) );
-	}
-	m_SmallEnemiesContainer->push_back(BadVessel);
+void GameLogic::AddEnemy(float x, float y, HashLabel ShipType)
+{
+	AddEnemy( x,y, 0,1, ShipType);
 }
 
-void GameLogic::SpawnBadShips(Vessel& rItem)
+void GameLogic::AddEnemy(int OriginX, int OriginY, int Amount, HashLabel ShipType, float Radius)
 {
-	int BadShipType1MaxShieldLevel = m_pWii->GetXmlVariable(HashString::BadShipType1MaxShieldLevel);
-	int BadShipType2MaxShieldLevel = m_pWii->GetXmlVariable(HashString::BadShipType2MaxShieldLevel);
-	Vessel BadVessel;
-	BadVessel.SetPos( rItem.GetX() , rItem.GetY(), 0  );
-
-	// spawn bad ships
-	float vel = 2.25f ; // + ((rand()%100) * 0.015f);
-	for (int i=0; i<m_pWii->GetConfigValueWithDifficultyApplied(HashString::AmountBadShipsFromSpore); ++i)
+	for (int i=0; i<Amount; ++i)
 	{
-		float ang = (rand()%(314*2)) * 0.1f;
-		BadVessel.SetVel( sin(ang) * vel , cos(ang) * vel ,0);
-		BadVessel.SetFacingDirection( ang );
+		float ang = (float)i * ((M_PI*2) / (float)Amount);
+		float addx = sin(ang)*(Radius);
+		float addy = cos(ang)*(Radius); 
+		AddEnemy(OriginX + addx, OriginY + addy, 0, 1 , ShipType);
+	}
+}
 
-		if (i%4==0)
-		{
-			BadVessel.SetGravity(0.975);
-			BadVessel.SetFrameGroup(HashString::Bad2Frames,1);
-			BadVessel.SetShieldLevel( BadShipType2MaxShieldLevel );
-		}
-		else
-		{
-			BadVessel.SetGravity(0.995);
-			BadVessel.SetFrameGroup(HashString::Bad1Frames,1);
-			BadVessel.SetShieldLevel( BadShipType1MaxShieldLevel );
-		}
+void GameLogic::AddEnemy(float x, float y, float Velx, float Vely, HashLabel ShipType)
+{
+	Vessel BadVessel;
+	float dir( atan2(Velx, Vely) );
+	BadVessel.SetFacingDirection( dir );
+	BadVessel.SetPos( x , y,  0  );
+	BadVessel.SetVel(Velx, Vely, 0);
+	BadVessel.SetFrameGroup(ShipType,1);
+	BadVessel.SetFireRate( 35 ); // not all Vessels use this value
+
+	if (ShipType == HashString::GunShip)
+	{
+		BadVessel.SetGravity(1.0f);  // better prediction for turrets
+		BadVessel.SetSpeedFactor( 1.0 );
+		BadVessel.SetShieldLevel( 18 ); 
+		BadVessel.SetRadius(46*46);
+	}
+	else if (ShipType==HashString::Bad2Frames)
+	{
+		BadVessel.SetGravity(0.99f);
+		BadVessel.SetSpeedFactor( 0.80f );
+		BadVessel.SetShieldLevel( m_pWii->GetXmlVariable(HashString::BadShipType2MaxShieldLevel) );
+		BadVessel.SetRadius(12*12);
+	}
+	else if (ShipType == HashString::Bad1Frames)
+	{
+		BadVessel.SetGravity(0.99f);
+		BadVessel.SetSpeedFactor( 1.00f );
+		BadVessel.SetShieldLevel( m_pWii->GetXmlVariable(HashString::BadShipType1MaxShieldLevel) );
+		BadVessel.SetRadius(12*12);
+	}
+	
+	if (ShipType == HashString::GunShip)
+		m_GunShipContainer->push_back(BadVessel);
+	else
 		m_SmallEnemiesContainer->push_back(BadVessel);
+
+}
+
+void GameLogic::AddEnemySpawn(Vessel& rItem)
+{
+	float vel = 2.35f;
+	for (int i=0; i < m_pWii->GetConfigValueWithDifficultyApplied(HashString::AmountBadShipsFromSpore)/2; ++i)
+	{
+		float ang = ( rand() % (314*2) ) * 0.1f;
+		AddEnemy(rItem.GetX(),rItem.GetY(), sin(ang) * vel , cos(ang) * vel, HashString::Bad1Frames);
+		ang = ( rand() % (314*2) ) * 0.1f;
+		AddEnemy(rItem.GetX(),rItem.GetY(), sin(ang) * vel , cos(ang) * vel, HashString::Bad2Frames);
 	}
 }
 
 void GameLogic::CelestialBodyLogic()
 {
-	for (std::vector<Item3D>::iterator iter(m_CelestialBodyContainer->begin()); iter!= m_CelestialBodyContainer->end(); ++iter )
+	for (std::vector<MoonItem3D>::iterator iter(m_CelestialBodyContainer->begin()); iter!= m_CelestialBodyContainer->end(); ++iter )
 	{
 		iter->Rotate();
 	}
@@ -1541,7 +1569,7 @@ void GameLogic::InitialiseSmallGunTurret(int Amount, float Dist, float x1, float
 		Item.SetTimerMillisecs( rand()%5000 );
 
 		//int index( rand()%GetSmallEnemiesContainerSize()  );
-		Item.SetLockOntoVesselIndex( 0 );
+		Item.SetLockOntoVesselIndex( -1 );
 
 		Item.WorkingTarget.x = 0;
 		Item.WorkingTarget.y = 0;
@@ -1558,7 +1586,7 @@ void GameLogic::InitialiseSmallGunTurret(int Amount, float Dist, float x1, float
 
 void GameLogic::InitialiseMoonRocks(int Amount, float RadiusFactor)
 {
-	m_bAddMoreShipsFlag = false;
+//	m_bAddMoreShipsFlag = false;
 	m_pMoonRocksContainer->clear();
 
 	float minvalue = 999999;
@@ -1641,13 +1669,32 @@ void GameLogic::InitialiseEnermyAmardaArroundLastShieldGenerator(int Amount, flo
 
 void GameLogic::InitialiseIntro()
 {
-	m_bAddMoreShipsFlag = false;
-	InitialiseMoonRocks(850, 0.003f);
+//	m_bAddMoreShipsFlag = false;
+
+	//----------------------------------------
+	m_AsteroidContainer->clear();
+	m_CelestialBodyContainer->clear();
+	//----------------------------------------
+
+	MoonItem3D Moon;
+	Moon.SetPos(0,0,600-200);
+	Moon.SetRotateAmount(0.005f,0.005f,0.005f);  //note: just RotateY is used in logic
+	Moon.SetDetailLevel(Auto);
+	Moon.SetAmountOfRocks(725);
+	m_CelestialBodyContainer->push_back(Moon);
+	//----------------------------------------
+	Moon.SetPos(2000,-1700,4200);
+	Moon.SetAmountOfRocks(98);
+	Moon.SetDetailLevel(Low);
+	m_CelestialBodyContainer->push_back(Moon);
+	//----------------------------------------
+
+	InitialiseMoonRocks(800, 0.003f);  //todo - use the largest value in m_CelestialBodyContainer
 
 	static int Amount = 3;
 	static float Distance = 800.0f;
 	static float x = 0.0f;
-	static float y = 220.0f;
+	static float y = 120.0f; //220.0f;
 	static float z = 600.0f;
 	InitialiseSmallGunTurret( Amount, Distance, x, y, z, 3.14/3.0f );
 
@@ -1664,8 +1711,8 @@ void GameLogic::Intro()
 	static f32 sx=0;
 	sx+=0.01;
 	m_pWii->GetCamera()->SetCameraView( 
-		sin(sx)*80,  -100 + cos(sx)*40,  0 , 
-		sin(sx)*140, -100 + sin(sx)*160, -(700.0f) - cos(sx)*265);
+		sin(sx)*80,  -25 + cos(sx)*40,  0 , 
+		sin(sx)*140, -25 + sin(sx)*160, -(700.0f) - cos(sx)*320);
 
 	{
 		static float fff(0);
@@ -1707,18 +1754,24 @@ void GameLogic::Intro()
 
 	if ((int)m_SmallEnemiesContainer->size() <= 25 )
 	{
-		m_bAddMoreShipsFlag = true;
-	}
+//		m_bAddMoreShipsFlag = true;
+//	}
 
-	if (m_bAddMoreShipsFlag)  // trickle feed over a frew frames...rather than splatting them all on in one CPU hungry go
-	{
-		if ((int)m_SmallEnemiesContainer->size() <= 50)
+//		if (m_bAddMoreShipsFlag)  // trickle feed over a frew frames...rather than splatting them all on in one CPU hungry go
 		{
-			for (int i=0; i< 10; ++i)
-				AddBadShip(300-(rand()%600),255,HashString::Bad1Frames);
+			if ((int)m_SmallEnemiesContainer->size() <= 50)
+			{
+			//	for (int i=0; i< 5; ++i)  // add just a few
+				//at 60 fps this is going to happan in under a second - one at a time is fine
+				// this why there are no sudden jump in CPU activity
+				if ( (rand()%2) == 0)
+					AddEnemy(300-(rand()%600),255+150,HashString::Bad1Frames);
+				else
+					AddEnemy(300-(rand()%600),-(255+150),HashString::Bad1Frames);
+			}
+//			else
+//				m_bAddMoreShipsFlag = false;
 		}
-		else
-			m_bAddMoreShipsFlag = false;
 	}
 
 	BadShipsLogic();
@@ -1726,11 +1779,14 @@ void GameLogic::Intro()
 	ExplosionLogic();
 	ExhaustLogic();
 	
-	GunTurretShotsLogic();
+
+	GunTurretShotsLogic( m_SmallEnemiesContainer );
 	GunTurretLogic();
-
-
+	
 	MoonRocksLogic();
+
+	DyingShipsLogic();
+
 	CelestialBodyLogic();
 
 	if (m_ProbeMineContainer->size() < 240)
@@ -1739,6 +1795,18 @@ void GameLogic::Intro()
 		ProbeMineLogic(m_SmallEnemiesContainer, 0.0035f, 555.0f); // slow mines - keeps intact logo for a while
 
 	m_pWii->GetGameDisplay()->DisplayAllForIntro();
+}
+
+
+void GameLogic::CreateIntroScene()
+{
+	m_CelestialBodyContainer->clear();
+	MoonItem3D Moon;
+	Moon.SetPos(-202,-94,400);
+	Moon.SetRotateAmount(0.0015f,0.0015f,0.0015f);  //note: just RotateY is used in logic
+	Moon.SetDetailLevel(High);
+	Moon.SetAmountOfRocks(250);
+	m_CelestialBodyContainer->push_back(Moon);
 }
 
 void GameLogic::InitialiseGame()
@@ -1780,9 +1848,9 @@ void GameLogic::InitialiseGame()
 
 	//----------------------------
 	//initialise bad ships
-	AddEnemyVessels(0,0,m_pWii->GetConfigValueWithDifficultyApplied(HashString::AmountOfGunShipsAtStartUp),HashString::GunShip,2000,0.65f);
-	AddEnemyVessels(0,0,m_pWii->GetConfigValueWithDifficultyApplied(HashString::AmountBadShips),HashString::Bad1Frames,1200,1.00f);
-	AddEnemyVessels(0,0,m_pWii->GetConfigValueWithDifficultyApplied(HashString::AmountBadShips),HashString::Bad2Frames,1400,0.70f);
+	AddEnemy(0,0,m_pWii->GetConfigValueWithDifficultyApplied(HashString::AmountOfGunShipsAtStartUp),HashString::GunShip,2000);
+	AddEnemy(0,0,m_pWii->GetConfigValueWithDifficultyApplied(HashString::AmountBadShips),HashString::Bad1Frames,1200);
+	AddEnemy(0,0,m_pWii->GetConfigValueWithDifficultyApplied(HashString::AmountBadShips),HashString::Bad2Frames,1400);
 
 
 
@@ -1863,39 +1931,31 @@ void GameLogic::InitialiseGame()
 		"Protect your moon base while the terraforming process creates a habitable atmosphere. \n  THIS LEVEL IS STILL IN DEVELOPMENT - IT CURRENTLY DOES NOT END!",
 		"Your base's terraforming is now complete.");
 
-	Item3D Moon;
+	MoonItem3D Moon;
 	Moon.SetPos(0,0,600);
 	Moon.SetRotateAmount(0.005f,0.005f,0.005f);
+	Moon.SetDetailLevel(Low);
+	Moon.SetAmountOfRocks(120);  // TODO - thins above need to work with this
 	m_CelestialBodyContainer->push_back(Moon);
-	////Moon.SetPos(1000,0,600);
-	////m_CelestialBodyContainer->push_back(Moon);
-
 
 	//--------------
 	//debug - remove for final release
-
 	//m_pWii->profiler_create(&myjob1, "AsteroidsLogic");
-
 	// TEST AREA - NOT TO BE COMPILED AS PART OF RELEASE PACKAGE
-
-	//AddEnemyVessels(0,0,20,HashString::GunShip,666);
-	////	AddEnemyVessels(0,0,30,HashString::GunShip,777);
-	//AddEnemyVessels(0,0,50,HashString::Bad1Frames,888);
-	////	AddEnemyVessels(0,0,50,HashString::Bad2Frames,800);
-	//InitialiseSmallGunTurret(	4,500, 
-	//							0,0,600, 3.14/3.0f);
-
 	//static int Amount = 3;
 	//static float Distance = 800.0f;
 	//static float x = 0.0f;
 	//static float y = 220.0f;
 	//static float z = 600.0f;
 	//InitialiseSmallGunTurret( Amount, Distance, x, y, z, 3.14/3.0f );
-
 	//InitialiseShieldGenerators(3);
 
-//	InitialiseSmallGunTurret(4,700, 0,120,600, 3.14/4.0f );
 
 
+	//m_SmallEnemiesContainer->clear();
+	//m_GunShipContainer->clear();
+	//AddEnemy(0,0,1,HashString::GunShip,666);
+	//AddEnemy(0,0,1,HashString::Bad2Frames,666);
+	//InitialiseSmallGunTurret(4,700, 0,120,600, 3.14/4.0f );
 }
 

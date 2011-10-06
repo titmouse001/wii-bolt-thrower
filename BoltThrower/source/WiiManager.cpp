@@ -1,45 +1,46 @@
 //
 // WiiManager - Singleton class
 //
-#include <stdio.h>
-#include <stdlib.h>
-#include <wiiuse/wpad.h>
-#include <vector>
-#include <malloc.h>
-#include <stdarg.h> 
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <malloc.h>
+//#include "MapManager.h"
+//#include "HTTP/HTTP_Util.h"
+//#include "profiler/timer.h"
+
+#include <stdarg.h>   //  for things like va_list
 #include <vector>
 #include <set>
-
 #include <math.h>
-
 #include <limits.h>
+#include <wiiuse/wpad.h>
 
 #include "WiiManager.h"
-#include "font.h"
-#include "Image.h"
 #include "ImageManager.h"
-#include "fontManager.h"
 #include "SpriteManager.h"
+#include "MenuManager.h"
 #include "InputDeviceManager.h"
 #include "SoundManager.h"
-#include "MapManager.h"
-#include "debug.h"
+#include "FontManager.h"
+#include "URIManager.h"
+#include "SetupGame.h"
+
+#include "TinyXML/TinyXML.h"
+#include "Image.h"
+#include "font.h"
 #include "Util3D.h"
 #include "Util.h"
-#include "TinyXML/TinyXML.h"
-#include "FontManager.h"
 #include "HashString.h"
 #include "Menu.h"
-#include "GameLogic.h"
-#include "config.h"
 #include "MenuScreens.h"
+#include "GameLogic.h"
 #include "Mission.h"
 #include "MessageBox.h"
 #include "GameDisplay.h"
-//#include "HTTP/HTTP_Util.h"
-#include "URIManager.h"
+#include "config.h"
+#include "debug.h"
 
-//#include "profiler/timer.h"
+
 
 #define DEBUGCONSOLESTATE	( eDebugConsoleOn )  // its ignored (off) in final release
 #define COLOUR_FOR_WIPE		( COLOR_BLACK )  // crash at startup colour
@@ -53,6 +54,7 @@ WiiManager::WiiManager() :	m_pGXRMode(NULL), m_gp_fifo(NULL),
 							m_SoundManager(NULL),
 							m_Camera(NULL),		
 							m_URLManager(NULL),
+							m_SetUpGame(NULL),
 							m_ViewportX(0),
 							m_ViewportY(0),
 							m_GameState(eIntro),
@@ -73,6 +75,7 @@ WiiManager::WiiManager() :	m_pGXRMode(NULL), m_gp_fifo(NULL),
 	m_MissionManager		= new MissionManager;
 	m_MessageBox			= new MessageBox;
 	m_URLManager			= new URLManager;
+	m_SetUpGame				= new SetUpGame;
 
 }
 
@@ -124,6 +127,7 @@ void WiiManager::InitWii()
 	m_pGameDisplay->Init();
 	m_pMenuScreens->Init();
 	m_MessageBox->Init();
+	m_SetUpGame->Init();
 
 	WiiFile::InitFileSystem();
 
@@ -953,9 +957,6 @@ void WiiManager::ProgramStartUp()
 
 	BuildMenus();
 
-
-
-
 	//Get the tracker module into memory
 	for ( vector<FileInfo>::iterator Iter( GetModInfoBegin());	Iter !=  GetModInfoEnd() ; ++Iter )
 	{
@@ -993,29 +994,36 @@ void WiiManager::BuildMenus(bool KeepSettings)
 
 	//========================================
 	// Main Menu - one time setup
-	int y=-92;
-	static const int step=68;
-	float width=400;
-	static const int height=60;
-	width*=0.65f;
+	int y=-36;
+	int step=64;
+	int height=56;
+	float width=340;
+	
 	GetMenuManager()->SetMenuGroup("MainMenu");
-	GetMenuManager()->AddMenu((-width*0.5)-4, y, width,height,"Options");
-	GetMenuManager()->AddMenu((+width*0.5)+4, y, width,height,"Controls");
+
+	GetMenuManager()->AddMenu(-width*0.20, y, width,height,"Start_Game",false,true);
 	y+=step;
-	GetMenuManager()->AddMenu((-width*0.5)-4, y, width,height,"Credits");
-	GetMenuManager()->AddMenu((+width*0.5)+4, y, width,height,"Intro");
-	y+=step*1.5f;
-	width*=1.50f;
-	GetMenuManager()->AddMenu(0, y, width,height,"Start_Game");
-	y+=step*1.5;
-	width*=0.65f;
-	GetMenuManager()->AddMenu(0, y, width,height,"Quit");
+	GetMenuManager()->AddMenu(-width*0.30, y, width,height,"Options",false,true);
+	y+=step;
+	GetMenuManager()->AddMenu(-width*0.40, y, width,height,"Intro",false,true);
+
+//	y+=step*1.5;
+//	GetMenuManager()->AddMenu(-width*0.50, y, width,height,"Quit");
+
 	//==========================================================
+
 	// Options Menu - one time setup
-	//int x=-96;
-	int x=0; // centre of screen
-	y=-70;
 	GetMenuManager()->SetMenuGroup("OptionsMenu");
+
+	int x=0; // centre of screen
+	y=-98;
+	height=52;
+	step=60;
+
+	GetMenuManager()->AddMenu( x - 108, y, 200, height ,"Credits" );
+	GetMenuManager()->AddMenu( x + 108, y, 200, height ,"Controls" );
+	y+=step;
+
 	GetMenuManager()->AddMenu(x, y, 600, height, "Ingame_Music",false,true);
 	GetMenuManager()->AddMenu(x+222, y, 1, height, "IngameMusicState",true)->
 		AddTextItem(GetText("off"))->AddTextItem(GetText("on"))->SetCurrentItemIndex(Music);
@@ -1125,12 +1133,41 @@ void WiiManager::profiler_output(profiler_t* pjob,int x,int y)
 int WiiManager::GetConfigValueWithDifficultyApplied(HashLabel Name) 
 {
 	GetMenuManager()->SetMenuGroup("OptionsMenu");
-	float value = GetXmlVariable(Name);
-	value *= GetXmlVariable( (HashLabel)GetMenuManager()->GetMenuItemText(HashString::DifficultySetting) );
-	return value;
+	float Value = GetXmlVariable(Name);
+	return ApplyDifficultyFactor( Value );
+
+	//GetMenuManager()->SetMenuGroup("OptionsMenu");
+	//float value = GetXmlVariable(Name);
+
+	////value *= GetXmlVariable( (HashLabel)GetMenuManager()->GetMenuItemText(HashString::DifficultySetting) );
+
+	//int Index = GetMenuManager()->GetMenuItemIndex(HashString::DifficultySetting);
+	//if (Index==0)
+	//	value *= GetXmlVariable( (HashLabel)"easy" );
+	//else if (Index==1)
+	//	value *= GetXmlVariable( (HashLabel)"medium" );
+	//else if (Index==2)
+	//	value *= GetXmlVariable( (HashLabel)"hard" );
+
+	//printf("%d %f",Index,value);
+
+	//return value;
 }
 float WiiManager::ApplyDifficultyFactor(float Value) 
 {
-	float Factor = GetXmlVariable( (HashLabel)GetMenuManager()->GetMenuItemText(HashString::DifficultySetting) );
-	return Value * Factor;
+	///float Factor = GetXmlVariable( (HashLabel)GetMenuManager()->GetMenuItemText(HashString::DifficultySetting) );
+
+	int Index = GetMenuManager()->GetMenuItemIndex(HashString::DifficultySetting);
+	if (Index==0)
+		Value *= GetXmlVariable( (HashLabel)"easy" );
+	else if (Index==1)
+		Value *= GetXmlVariable( (HashLabel)"medium" );
+	else if (Index==2)
+		Value *= GetXmlVariable( (HashLabel)"hard" );
+
+	//return Value * Factor;
+	return Value;
 }
+
+
+//LWO VAR "index" is seen HERE!!!!

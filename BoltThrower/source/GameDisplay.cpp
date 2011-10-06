@@ -30,6 +30,8 @@ void GameDisplay::Init()
 
 void GameDisplay::DisplayAllForIntro()
 {
+	Util::CalculateFrameRate();
+
 	GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
 
 	static float bbb(0);
@@ -55,9 +57,9 @@ void GameDisplay::DisplayAllForIntro()
 	}
 
 	// 3D section
-	DisplayMoon(600);
+	DisplayMoon();
 	
-	DisplayGunTurrets();
+	//DisplayGunTurrets();
 	DisplayShotForGunTurret();
 
 //	DisplayAsteroids();
@@ -79,6 +81,12 @@ void GameDisplay::DisplayAllForIntro()
 	DisplayExplosions();
 	DisplayBadShips();
 
+	GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
+	m_pWii->GetCamera()->SetLightOn2();
+	DisplayGunTurrets();
+	m_pWii->GetCamera()->SetLightOff();
+	GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
+
 
 	m_pWii->GetCamera()->SetCameraView(0,0);
 	Util3D::TransRot(-204,-128,-3.14f/4.0f);
@@ -97,6 +105,9 @@ void GameDisplay::DisplayAllForIntro()
 
 void GameDisplay::DisplayAllForIngame()
 {
+	Util::CalculateFrameRate();
+
+
 	GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
 	m_pWii->GetSpaceBackground()->DrawImageXYZ(0,0, 9400,255,0, 28.0f );
 
@@ -104,7 +115,7 @@ void GameDisplay::DisplayAllForIngame()
 	m_pWii->GetCamera()->SetLightOn2();
 
 	// 3D section
-	DisplayMoon(600);
+	DisplayMoon();
 
 	DisplayGunTurrets();
 	DisplayShotForGunTurret();
@@ -280,9 +291,9 @@ void GameDisplay::DisplayPickUps()
 	}
 }
 
-void GameDisplay::DisplayMoon(float Dist)
+void GameDisplay::DisplayMoon()
 {
-	for (std::vector<Item3D>::iterator MoonIter(m_pGameLogic->GetCelestialBodyContainerBegin()); 
+	for (std::vector<MoonItem3D>::iterator MoonIter(m_pGameLogic->GetCelestialBodyContainerBegin()); 
 		MoonIter!= m_pGameLogic->GetCelestialBodyContainerEnd(); ++MoonIter )
 	{
 		Vec3 v( MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ() );
@@ -291,29 +302,28 @@ void GameDisplay::DisplayMoon(float Dist)
 		{
 			// moon
 			Mtx Model,mat;
-
 			Util3D::MatrixRotateY(Model, MoonIter->GetRotateY());
 //			guMtxRotRad( Model,'y', MoonIter->GetRotateY() ) ;
-			
 			guMtxTrans( mat, MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ() );  // distance back
 			guMtxConcat(mat,Model,Model);
 			guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
-			m_pWii->Render.RenderModel(HashString::MoonLowRess, Model);
+			if (MoonIter->GetDetailLevel() == Low)
+				m_pWii->Render.RenderModel(HashString::MoonLowRess, Model);
+			else
+				m_pWii->Render.RenderModel(HashString::MoonHiRess, Model);
+
 
 			if (m_pGameLogic->IsBaseShieldOnline())
 			{
 				// moon shield
 				GX_SetCullMode(GX_CULL_NONE);
 				GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_FALSE);
-
 				Util3D::MatrixRotateY(Model, MoonIter->GetRotateY()*8);
 //				guMtxRotRad(Model,'y', MoonIter->GetRotateY()*8) ;
-
 				guMtxTrans(mat, 0, 0, MoonIter->GetZ());
 				guMtxConcat(mat,Model,Model);
 				guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
 				m_pWii->Render.RenderModelHardNorms(HashString::MoonShield, Model);
-
 				GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
 				GX_SetCullMode(GX_CULL_BACK);
 			}
@@ -322,12 +332,29 @@ void GameDisplay::DisplayMoon(float Dist)
 		// moon rocks
 		if (m_pWii->m_Frustum.sphereInFrustum(v,m_pGameLogic->GetClippingRadiusNeededForMoonRocks()) != FrustumR::OUTSIDE)
 		{
+			float AmountOfRocksToDisplay( MoonIter->GetAmountOfRocks() );
+			float Total( m_pGameLogic->GetMoonRocksContainerSize() );
+			u32 Step(Total/AmountOfRocksToDisplay);
+			u32 WorkingStep(Step);
+
 			m_pWii->Render.RenderModelPreStage(HashString::Rock1);  // rock1 & rock2 use the same texture
 			for (std::vector<Item3D>::iterator iter(m_pGameLogic->GetMoonRocksContainerBegin()); 
 				iter!= m_pGameLogic->GetMoonRocksContainerEnd(); ++iter)
 			{
-				Mtx Model,mat;
 
+						//IDEA- create rocks in random order then this bit is not needed!!!
+		
+
+			//can't just take the first amount we need as the rocks will clump - since they have been created in squence
+			WorkingStep--;
+			if (WorkingStep<=0)   // throw some away (rocks are shared across all moons - but some have less) 
+				WorkingStep=Step; 
+			else
+				continue;
+
+
+
+				Mtx Model,mat;
 				Util3D::MatrixRotateZ(Model, iter->GetRotateZ());
 				Util3D::MatrixRotateY(mat, iter->GetRotateY());
 
@@ -343,10 +370,22 @@ void GameDisplay::DisplayMoon(float Dist)
 				guMtxTransApply(Model,Model, MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ());
 				guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
 
-				if (( fabs(iter->GetZ()) > 750)  ||( fabs(iter->GetX()) > 750))
-					m_pWii->Render.RenderModelMinimal(HashString::Rock1, Model);
-				else
-					m_pWii->Render.RenderModelMinimal(HashString::Rock2, Model);
+				if (MoonIter->GetDetailLevel() == Low)
+				{
+					m_pWii->Render.RenderModelMinimal(HashString::Rock2, Model);  //lowress
+				}
+				else if (MoonIter->GetDetailLevel() == High)
+				{
+					m_pWii->Render.RenderModelMinimal(HashString::Rock1, Model); 
+				}
+				else if (MoonIter->GetDetailLevel() == Auto)
+				{
+					if (( fabs(iter->GetZ()) > 750)  ||( fabs(iter->GetX()) > 750))
+						m_pWii->Render.RenderModelMinimal(HashString::Rock1, Model);  //hiress
+					else
+						m_pWii->Render.RenderModelMinimal(HashString::Rock2, Model);  //lowress
+				}
+
 			}
 		}
 	}
@@ -852,13 +891,11 @@ void GameDisplay::DisplayGunShips()
 			pTurrentFrame->DrawImage();
 		}
 	}
-}
 
-void GameDisplay::DisplayGunTurrets()
-{
 
-	//////for (std::vector<TurretItem3D>::iterator iter(m_pGameLogic->GetSmallGunTurretContainerBegin()); iter!=m_pGameLogic->GetSmallGunTurretContainerEnd(); ++iter)
-	//////{
+
+	////for (std::vector<TurretItem3D>::iterator iter(m_pGameLogic->GetSmallGunTurretContainerBegin()); iter!=m_pGameLogic->GetSmallGunTurretContainerEnd(); ++iter)
+	////{
 	//////	std::vector<Vessel>::iterator TargetIter = m_pGameLogic->GetSmallEnemiesContainerBegin();
 	//////	advance( TargetIter, iter->GetLockOntoVesselIndex() );
 
@@ -866,11 +903,15 @@ void GameDisplay::DisplayGunTurrets()
 	//////	m_pWii->GetImageManager()->GetImage( m_pWii->m_FrameEndStartConstainer[HashString::AimingPointer].StartFrame )
 	//////	->DrawImage(*TargetIter);
 
-	//////	Util3D::Identity();
-	//////	m_pWii->GetImageManager()->GetImage( m_pWii->m_FrameEndStartConstainer[HashString::AimingPointer].StartFrame )
-	//////	->DrawImageXYZ( iter->WorkingTarget.x,iter->WorkingTarget.y, iter->WorkingTarget.z, 255, 0 );
-	//////}
+	////	Util3D::Identity();
+	////	m_pWii->GetImageManager()->GetImage( m_pWii->m_FrameEndStartConstainer[HashString::AimingPointer].StartFrame )
+	////	->DrawImageXYZ( iter->WorkingTarget.x,iter->WorkingTarget.y, iter->WorkingTarget.z, 255, 0 );
+	////}
 
+}
+
+void GameDisplay::DisplayGunTurrets()
+{
 
 	m_pWii->Render.RenderModelPreStage(HashString::SmallGunTurret); 
 	for (std::vector<TurretItem3D>::iterator iter(m_pGameLogic->GetSmallGunTurretContainerBegin()); iter!=m_pGameLogic->GetSmallGunTurretContainerEnd(); ++iter)
@@ -920,10 +961,20 @@ void GameDisplay::DisplaySimpleMessage(std::string Text)
 
 void GameDisplay::DebugInformation()
 {
+	 
+
 #ifndef LAUNCH_VIA_WII
-	int y=-200;
+
+	static int DroppedFrames(0);
+	int y=-180;
 	int x=0;
-	m_pWii->Printf(x,y+=22,"FPS: %d",Util::CalculateFrameRate());
+
+	u8 FPS( Util::CalculateFrameRate(true) );
+	if (FPS<60) ++DroppedFrames;
+
+	m_pWii->Printf(x,y+=22,"DroppedFrames: %d",DroppedFrames);
+	m_pWii->Printf(x,y+=22,"FPS: %d",FPS);
+
 	m_pWii->Printf(x,y+=22,"Asteroids: %d",m_pGameLogic->GetAsteroidContainerSize());
 	m_pWii->Printf(x,y+=22,"Moon Rocks: %d",m_pGameLogic->GetMoonRocksContainerSize());
 	m_pWii->Printf(x,y+=22,"Small Ships: %d",m_pGameLogic->GetSmallEnemiesContainerSize());
@@ -935,6 +986,8 @@ void GameDisplay::DebugInformation()
 	m_pWii->Printf(x,y+=22,"Exhaust Trails: %d",m_pGameLogic->GetExhaustContainerSize());
 	m_pWii->Printf(x,y+=22,"Projectiles: %d",m_pGameLogic->GetProjectileContainerSize());
 	m_pWii->Printf(x,y+=22,"CurrentMission: %d",m_pWii->GetMissionManager()->GetCurrentMission() );
+	m_pWii->Printf(x,y+=22,"Turret shots: %d",m_pGameLogic->GetShotForGunTurretContainerSize() );
+	
 #endif
 
 	// for checking the view is correct - should fit snug inside the view port

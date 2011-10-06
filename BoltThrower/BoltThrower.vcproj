@@ -149,6 +149,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\SetupGame.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\SetupGame.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\Timer.cpp"
 				>
 			</File>
@@ -217,6 +225,14 @@
 				</File>
 				<File
 					RelativePath=".\source\MapManager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\MenuManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\source\MenuManager.h"
 					>
 				</File>
 				<File

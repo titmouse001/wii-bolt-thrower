@@ -1,101 +1,160 @@
 #include <asndlib.h>
-#include <tremor/ivorbiscodec.h>
-#include <tremor/ivorbisfile.h>
 #include <gccore.h>
 #include <unistd.h>
 #include <string.h>
 
+#include "../tremor/ivorbiscodec.h"
+#include "../tremor/ivorbisfile.h"
+
 #include "oggplayer.h"
 
-struct OggPlayerInfo
+// This shows the buffer use amounts - not always a single hit, so loop fill out is needed 
+//
+//15:23:265 Src\HLE\HLE_OS.cpp:52 N[OSREPORT]: 8006d944->8006d92c| ----
+//15:23:265 Src\HLE\HLE_OS.cpp:52 N[OSREPORT]: 8006d92c->8006d910| 1024  <- x1
+//15:23:265 Src\HLE\HLE_OS.cpp:52 N[OSREPORT]: 8006d944->8006d92c| ----
+//15:23:265 Src\HLE\HLE_OS.cpp:52 N[OSREPORT]: 8006d92c->8006d910| 1024
+//15:23:265 Src\HLE\HLE_OS.cpp:52 N[OSREPORT]: 8006d944->8006d92c| ----
+//15:23:281 Src\HLE\HLE_OS.cpp:52 N[OSREPORT]: 8006d92c->8006d910| 1024
+//15:23:281 Src\HLE\HLE_OS.cpp:52 N[OSREPORT]: 8006d944->8006d92c| ----
+//15:23:281 Src\HLE\HLE_OS.cpp:52 N[OSREPORT]: 8006d92c->8006d910| 755   <- x4
+//15:23:281 Src\HLE\HLE_OS.cpp:52 N[OSREPORT]: 8006d92c->8006d910| 755
+//15:23:281 Src\HLE\HLE_OS.cpp:52 N[OSREPORT]: 8006d92c->8006d910| 754
+//15:23:281 Src\HLE\HLE_OS.cpp:52 N[OSREPORT]: 8006d92c->8006d910| 1024
+//15:23:281 Src\HLE\HLE_OS.cpp:52 N[OSREPORT]: 8006d944->8006d92c| ----
+
+
+class OggPlayerInfo
 {
-	char	*mem;
-	int		size;
-	int		pos;
+public:
+	u8*		GetMem()  const { return m_Mem; }
+	u32		GetSize() const { return m_Size; } 
+	u32		GetPos()  const { return m_Pos; }
+//	void	SetMem(u8* Value)  { m_Mem = Value; }
+//	void	SetSize(u32 Value) { m_Size = Value; } 
+//	void	SetPos(u32 Value)  { m_Pos = Value; }
+	OggPlayerInfo*	SetMem(u8* Value) { m_Mem = Value; return this; }
+	OggPlayerInfo*	SetSize(u32 Value) { m_Size = Value; return this; }
+	OggPlayerInfo*	SetPos(u32 Value)  { m_Pos = Value; return this; }
+	void	AddPos(u32 Value)  { m_Pos += Value; }
+
+	bool	Empty() const { return (m_Size==0); }
+	void	Reset() { m_Mem=NULL, m_Size=0, m_Pos=0; } 
+
+//private:
+	u8*	m_Mem;
+	int	m_Size; 
+	int	m_Pos;
 };
 
 OggPlayerInfo file;
 
+#define READ_SAMPLES 4096	// try to consume 
+#define BUFFER_SIZE 4096	// read limit
 
-static int CallBackRead(void * punt, int bytes, int blocks, int *f)
+
+static int CallBackRead(void* Ptr, int Size, int Count, int *Stream)
 {
-	if (bytes * blocks <= 0)
+	OggPlayerInfo* pBuffer( (OggPlayerInfo*) Stream );
+	
+	if (pBuffer->m_Size == 0)
+		return -1;
+	
+	int RequestedBytes( Size * Count );
+	if (RequestedBytes <= 0) // can't drop through, still have cases negitive or div by zero
 		return 0;
 
-	struct OggPlayerInfo* pBuffer = (OggPlayerInfo*) f;
-
-	if (pBuffer->size == 0)
-		return -1;
-
-	blocks = bytes * blocks;
-	int CountBlocks = 0;
-
-	while (blocks > 0)
+	int AmountLeft( RequestedBytes );
+	while (AmountLeft > 0)  // not used very often, but this loop is needed
 	{
-		int b = blocks;
-		if (b > 4096)	//clamp
-			b = 4096;
+		int AmountOfBytesToCopy( AmountLeft );
+		if (AmountOfBytesToCopy > BUFFER_SIZE)
+			AmountOfBytesToCopy = BUFFER_SIZE;
 
-		if ((pBuffer->pos + b) > pBuffer->size)
-			b = pBuffer->size - pBuffer->pos;
+		if ((pBuffer->m_Pos + AmountOfBytesToCopy) > pBuffer->m_Size)
+			AmountOfBytesToCopy = pBuffer->m_Size - pBuffer->m_Pos;
 
-		if (b > 0)
+		if (AmountOfBytesToCopy > 0)
 		{
-			memcpy(punt, pBuffer->mem + pBuffer->pos, b);
-			pBuffer->pos += b;
+			memcpy(Ptr, pBuffer->m_Mem + pBuffer->m_Pos, AmountOfBytesToCopy);
+			pBuffer->m_Pos += AmountOfBytesToCopy;
 		}
-
-		if (b <= 0)
+		else
 		{
-			return CountBlocks / bytes;
+			break;  // empty or negative value copy amount left
 		}
-		CountBlocks += b;
-		blocks -= b;
+		AmountLeft -= AmountOfBytesToCopy;
 	}
-	return CountBlocks / bytes;
+
+	// The total number of elements successfully read 
+	return (RequestedBytes - AmountLeft) / Size;
 }
 
-static int CallBackSeek(int *f, ogg_int64_t offset, int mode)
+//
+//static int CallBackRead(void* Ptr, int Size, int Count, int *Stream)
+//{
+//	OggPlayerInfo* pBuffer( (OggPlayerInfo*)Stream);
+//
+//	if ( (Size * Count) <= 0 || pBuffer->Empty() )
+//	{
+//		return -1;
+//	}
+//	else
+//	{
+//		int BytesToCopy( Size * Count );
+//		if (BytesToCopy > BUFFER_SIZE)
+//			BytesToCopy = BUFFER_SIZE;
+//
+//		memcpy(Ptr, pBuffer->GetMem() + pBuffer->GetPos(), BytesToCopy);
+//		pBuffer->AddPos(BytesToCopy);
+//
+//		return Count;
+//	}
+//}
+
+static int CallBackSeek(int *Ptr, ogg_int64_t offset, int mode)
 {
-	OggPlayerInfo* pBuffer = (OggPlayerInfo*)f;
-	if (pBuffer->size == 0)
+	OggPlayerInfo* pBuffer( (OggPlayerInfo*)Ptr );
+	if ( pBuffer->Empty() )
 		return -1;
 
-	switch (mode&3)
+	switch ( mode )
 	{
 	case SEEK_SET:
-		pBuffer->pos = offset;
+		pBuffer->SetPos( offset );
 		break;
 	case SEEK_CUR:
-		pBuffer->pos += offset;
+		pBuffer->AddPos( offset );
 		break;
 	case SEEK_END:
-		pBuffer->pos = pBuffer->size + offset;
+		pBuffer->SetPos( pBuffer->GetSize() + offset );
 		break;
 	}
-	
-	if (pBuffer->pos >= pBuffer->size)
+
+	if (pBuffer->GetPos() >= pBuffer->GetSize() )
 	{
-		pBuffer->pos = pBuffer->size;
+		pBuffer->SetPos( pBuffer->GetSize() );
 		return -1;
 	}
 
-	if (pBuffer->pos < 0)
+	if (pBuffer->GetPos() < 0)
 	{
-		pBuffer->pos = 0;
+		pBuffer->SetPos( 0 );
 		return -1;
 	}
 
 	return 0;
 }
 
-static int CallBackClose(int *f)
+static int CallBackClose(int *Ptr)
 {
-	OggPlayerInfo* pBuffer = (OggPlayerInfo*) f;
+	OggPlayerInfo* pBuffer( (OggPlayerInfo*) Ptr ); 
 
-	pBuffer->size = 0;
-	pBuffer->pos = 0;
-	pBuffer->mem = 0;
+//	pBuffer->SetSize( 0 );
+//	pBuffer->SetPos( 0 );
+//	pBuffer->SetMem( 0 );
+
+	pBuffer->Reset();
 
 	return 0;
 }
@@ -103,7 +162,7 @@ static int CallBackClose(int *f)
 static long CallBackTell(int *f)
 {
 	OggPlayerInfo* pBuffer = (OggPlayerInfo*) f;
-	return 	(long)(pBuffer->pos);
+	return 	(long)( pBuffer->GetPos() );
 }
 
 /* The function prototypes for the callbacks are basically the same as for
@@ -133,8 +192,7 @@ static ov_callbacks callbacks =
 };
 
 
-#define READ_SAMPLES 4096 // samples that it must read before to send
-#define MAX_PCMOUT 4096 // minimum size to read ogg samples
+
 typedef struct
 {
 	OggVorbis_File vf;
@@ -147,7 +205,7 @@ typedef struct
 	int seek_time;
 	int VoiceFormat; 
 
-	short pcmout[2][READ_SAMPLES + MAX_PCMOUT * 2]; /* take 4k out of the data segment, not the stack */
+	short pcmout[2][READ_SAMPLES + BUFFER_SIZE * 2]; /* take 4k out of the data segment, not the stack */
 
 	int DoubleBufferToggle;
 	int pcm_indx;
@@ -220,10 +278,8 @@ static void* ogg_player_thread(private_data_ogg* priv)
 	priv->DoubleBufferToggle = 0;
 	priv->eof = 0;
 	priv->flag = 0;
-
 	ogg_thread_running = 1;
-
-	int bitstream = 0;
+	int bitstream(0);
 
 	while (!priv->eof && ogg_thread_running)
 	{
@@ -250,14 +306,14 @@ static void* ogg_player_thread(private_data_ogg* priv)
 
 				ret	= ov_read( &priv->vf,
 					(void *) &priv->pcmout[priv->DoubleBufferToggle][priv->pcm_indx],
-					MAX_PCMOUT, &bitstream);
+					BUFFER_SIZE, &bitstream);
 
 				priv->flag &= 192;  //128+64 11000000
 				// above might as well read...  priv->flag = 192
 
 				if (ret == 0)
 				{
-					/* EOF */
+					// end of file
 					if (priv->ContinuousPlay & 1)
 						ov_time_seek(&priv->vf, 0); // repeat
 					else
@@ -265,9 +321,7 @@ static void* ogg_player_thread(private_data_ogg* priv)
 				}
 				else if (ret < 0)
 				{
-					/* error in the stream.  Not a problem, just reporting it in
-					case we (the app) cares.  In this case, we don't. */
-					if (ret != OV_HOLE)
+					if (ret != OV_HOLE) // error in the stream.
 					{
 						if (priv->ContinuousPlay & 1)
 							ov_time_seek(&priv->vf, 0); // repeat
@@ -277,8 +331,7 @@ static void* ogg_player_thread(private_data_ogg* priv)
 				}
 				else
 				{
-					/* we don't bother dealing with sample rate changes, etc, but
-					you'll have to*/
+					// with sample rate changes, etc ... may not be very future proof just here!
 					priv->pcm_indx += ret >> 1; //get 16 bits samples
 				}
 			}
@@ -336,9 +389,12 @@ int OggPlayer::PlayOgg(const void *buffer, s32 len, int time_pos, int mode)
 {
 	StopOgg();
 
-	file.mem = (char*) buffer;
-	file.size = len;
-	file.pos = 0;
+	file.SetMem((u8*) buffer)->SetSize( len )->SetPos( 0 );
+//	file.SetSize( len );
+//	file.SetPos( 0 );
+
+	if ( file.Empty() )
+		return -1;
 
 	private_ogg.ContinuousPlay = mode;
 	private_ogg.eof = 0;
@@ -349,9 +405,12 @@ int OggPlayer::PlayOgg(const void *buffer, s32 len, int time_pos, int mode)
 	if (time_pos > 0)
 		private_ogg.seek_time = time_pos;
 
+	// The ov_callbacks structure contains file manipulation function prototypes necessary for opening, closing, seeking, and location. 
+	// The header vorbis/vorbisfile.h provides several predefined static ov_callbacks structures that may be passed to ov_open_callbacks(): 
 	if (ov_open_callbacks((void *) &file, &private_ogg.vf, NULL, 0, callbacks) < 0)
 	{
-		file.size = 0;
+		//file.SetSize( 0 );
+		file.Reset();
 		ogg_thread_running = 0;
 		return -1;
 	}
@@ -360,12 +419,9 @@ int OggPlayer::PlayOgg(const void *buffer, s32 len, int time_pos, int mode)
 	// This code was unsing 80, I found this a little hungry, using 64 instead.
 	// Maybe possible to dynamicaly calculate this value
 
-	if (LWP_CreateThread(	&h_oggplayer, 
-		(void* (*)(void*))ogg_player_thread,  
-		&private_ogg, 
-		oggplayer_stack, 
-		STACKSIZE,
-		4 ) == -1)
+	if (LWP_CreateThread( 
+		&h_oggplayer,(void*(*)(void*))ogg_player_thread, 
+		&private_ogg, oggplayer_stack, STACKSIZE, 64 ) == -1)
 	{
 		ogg_thread_running = 0;
 		ov_clear(&private_ogg.vf);
@@ -414,12 +470,10 @@ void OggPlayer::SetVolumeOgg(int volume)
 
 s32 OggPlayer::GetTimeOgg()
 {
-	int ret;
 	if (ogg_thread_running == 0 )
 		return -1;
-	ret = ((s32) ov_time_tell(&private_ogg.vf));
-
-	return ret;
+	else
+		return (s32)ov_time_tell(&private_ogg.vf);
 }
 
 void OggPlayer::SetTimeOgg(s32 time_pos)

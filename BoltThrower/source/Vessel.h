@@ -7,8 +7,9 @@
 #include "ogc\gu.h"
 #include <math.h>
 
+#include "hashlabel.h"
 
-class  HashLabel;
+//class  HashLabel;
 class  WiiManager;
 class  Timer;
 
@@ -70,9 +71,6 @@ public:
 	f32 GetRotateZ() const { return m_Rotate.z; }
 
 	void SetRotateAmount(f32 x, f32 y , f32 z) { m_RotateAmount.x = x; m_RotateAmount.y = y; m_RotateAmount.z = z; }
-	f32 GetRotateAmountX() const { return m_RotateAmount.x; }
-	f32 GetRotateAmountY() const { return m_RotateAmount.y; }
-	f32 GetRotateAmountZ() const { return m_RotateAmount.z; }
 
 	void DampRotation(float Value) { m_RotateAmount.x *= Value;	m_RotateAmount.y *= Value; m_RotateAmount.z *= Value; }
 
@@ -89,12 +87,12 @@ public:
 		return fabs((GetX()-center_x)*(GetX()-center_x) ) + ((GetY()-center_y)*(GetY()-center_y)) ;
 	}
 
-	bool  InsideRadius(float center_x, float center_y, float radius)
+	bool  InsideRadius(float center_x, float center_y, float radius) const 
 	{
 		float square_dist = ((GetX()-center_x)*(GetX()-center_x) ) + ((GetY()-center_y)*(GetY()-center_y)) ;
 		return ( fabs(square_dist) < (radius) );
 	}
-	bool  InsideRadius(Item3D& rItem, float radius)
+	bool  InsideRadius(Item3D& rItem, float radius) const
 	{
 		// note: The radius param takes a squared value
 		float XToCheck(rItem.GetX());
@@ -106,8 +104,11 @@ public:
 	void SetEnable(bool State) { m_Enable = State; }
 	bool GetEnable() { return m_Enable; }
 
-	int GetLockOntoVesselIndex() { return m_LockOntoVesselIndex; }
+	int GetLockOntoVesselIndex() const { return m_LockOntoVesselIndex; }
 	void SetLockOntoVesselIndex(int Value) { m_LockOntoVesselIndex = Value;}
+
+	HashLabel GetLockOntoVesselType()  { return m_LockOntoVesselType; }
+	void SetLockOntoVesselType(HashLabel Value) { m_LockOntoVesselType = Value;}
 
 	// timer section
 	void InitTimer();
@@ -121,11 +122,35 @@ private:
 	guVector	m_RotateAmount;
 	guVector	m_Scale;
 	bool		m_Enable;
+
 	int			m_LockOntoVesselIndex;
+	HashLabel	m_LockOntoVesselType;
+
 
 	Timer*		m_pTimer;
 
 };
+
+enum EDetailLevelFor3D { High, Medium, Low, Auto } ;
+
+class  MoonItem3D : public Item3D
+{
+
+public:
+	MoonItem3D() : m_AmountOfRocks(0), m_eDetailLevel(Auto) {;}
+
+	u32 GetAmountOfRocks() { return  m_AmountOfRocks; } 
+	void SetAmountOfRocks(u32 Value) { m_AmountOfRocks = Value; }
+
+	void SetDetailLevel(EDetailLevelFor3D Value = Auto) { m_eDetailLevel=Value; }
+	EDetailLevelFor3D GetDetailLevel()	{ return m_eDetailLevel; }
+
+private:
+	u32		m_AmountOfRocks;
+	EDetailLevelFor3D 	m_eDetailLevel;
+
+};
+
 
 // TODO - REMOVE
 // get rid of this class... Item3D to use a 'has-a' timer
@@ -238,9 +263,6 @@ public:
 	void SetFuel(int iFuel) { m_iFuelValue = iFuel;}
 	int ReduceFuel(int iFuel=1) { m_iFuelValue -= iFuel; return m_iFuelValue; }
 
-	//bool GetGoingBoom() const { return m_bGoingBoom; }
-	//void SetGoingBoom(bool bState ) { m_bGoingBoom= bState;}
-
 	u8 GetAlpha() { return m_Alpha; }
 	void SetAlpha(u8 Value) { m_Alpha = Value;}
 
@@ -289,16 +311,13 @@ public:
 	f32 GetTurnDirection(guVector* Vec);
 	f32 GetTurnDirectionForTurret(guVector* Vec);
 
-	//void SetBeingTargetLocked(bool bState) {  M_bBeingTargetLocked = bState; }	
-	//bool IsBeingTargetLocked() const { return M_bBeingTargetLocked; }
+	void SetRadius(float Value) { m_Radius = Value; }
+	float GetRadius() const { return m_Radius; }
 
 private:
-
-
 	void SetEndFrame(int Value) { m_iEndFrame = Value; }
 	void SetFrameStart(float Value) { m_fFrameStart = Value; }
 	void SetFrameSpeed(float Value) { m_fFrameSpeed = Value; }
-
 
 	// gun ship section
 	int			m_FireRate;
@@ -321,14 +340,13 @@ private:
 	float		m_Gravity;
 	int			m_iFuelValue;
 	u8			m_Alpha;  
-	//bool		m_bGoingBoom;
 
 	//explosions
 	float		m_fCurrentScaleFactor; 
 	float		m_fScaleToFactor;
 	float		m_fScaleToFactorSpeed;
 
-//	bool		M_bBeingTargetLocked;
+	float		m_Radius;
 
 };
 

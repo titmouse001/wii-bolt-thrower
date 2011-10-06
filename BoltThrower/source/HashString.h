@@ -151,6 +151,9 @@ public:
 	
 	const static HashLabel  EnermyAmardaArroundLastShieldGenerator;
 
+	const static HashLabel TurretTarget_SmallShip;
+	const static HashLabel TurretTarget_GunShip;
+
 
 };
 

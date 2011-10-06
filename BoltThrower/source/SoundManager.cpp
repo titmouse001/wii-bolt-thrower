@@ -13,7 +13,7 @@
 
 int RawSample::Play(u8 VolumeLeft, u8 VolumeRight, bool bLoop)
 {
-	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStateShowingGame() )
+	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStateGame() )
 		return 0;
 
 	int Chan = ASND_GetFirstUnusedVoice();
@@ -28,7 +28,7 @@ int RawSample::Play(u8 VolumeLeft, u8 VolumeRight, bool bLoop)
 
 int SoundManager::PlaySound(HashLabel SoundName, u8 VolumeLeft, u8 VolumeRight, bool bLoop)
 {
-	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStateShowingGame() )
+	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStateGame() )
 		return 0;
 
 
@@ -47,7 +47,7 @@ int SoundManager::PlaySound(HashLabel SoundName, u8 VolumeLeft, u8 VolumeRight, 
 
 void SoundManager::StopSound(u8 Chan)
 {
-	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStateShowingGame() )
+	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStateGame() )
 		return;
 
 	ASND_StopVoice(Chan);
@@ -206,7 +206,7 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 	vorbis_info *vi=ov_info(&vf,-1);
 	while (*ptr)
 	{
-		printf("%s\n",*ptr);
+		//printf("%s\n",*ptr);
 		++ptr;
 	}
 

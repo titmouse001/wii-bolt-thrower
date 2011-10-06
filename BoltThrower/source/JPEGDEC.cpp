@@ -686,14 +686,19 @@ int load_JPEG_header(FILE *fp, DWORD *X_image, DWORD *Y_image)
 	if (vers!=1) exit_func("JFIF version not supported");
 	BYTE_p(byte_pos); // vers_lo=bp;
 	BYTE_p(byte_pos);  units=bp;
-	if (units!=0) //exit_func("JPG format not supported");
-		;//	printf("units = %d\n", units);
+
+	if (units!=0) 
+		exit_func("JPG format not supported");
+
 	WORD_p(byte_pos); Xdensity=wp; WORD_p(byte_pos); Ydensity=wp;
-	if ((Xdensity!=1)||(Ydensity!=1)) //exit_func("JPG format not supported");
-		;  //{printf("X density = %d\n",Xdensity); printf("Y density = %d\n",Ydensity);}
+
+	if ((Xdensity!=1)||(Ydensity!=1)) 
+		exit_func("JPG format not supported");
+
 	BYTE_p(byte_pos);Xthumbnail=bp;BYTE_p(byte_pos);Ythumbnail=bp;
 	if ((Xthumbnail!=0)||(Ythumbnail!=0))
 		exit_func(" Cannot process JFIF thumbnailed files\n");
+
 	// Start decoding process
 	SOS_found=0; SOF_found=0; Restart_markers=0;
 	while ((byte_pos<length_of_file)&&!SOS_found)

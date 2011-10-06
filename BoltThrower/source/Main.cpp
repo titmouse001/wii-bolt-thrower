@@ -1,5 +1,7 @@
 // Bolt Thrower for the wii - Paul Overy - 2010
 
+// To turn on visual indicators of whitespace in Visual Studio, use the keyboard chord (Ctrl-R, Ctrl-W) 
+
 /* 
 Bolt Thrower - Games design notes
 
@@ -62,7 +64,6 @@ Bolt Thrower - Games design notes
 #include "MenuScreens.h"
 
 //#include  "HTTP/HTTP_Util.h"
-
 #include <network.h>
 
 #include  "URIManager.h"
@@ -79,8 +80,15 @@ Bolt Thrower - Games design notes
 #include <fcntl.h>
 
 
+#include  "vessel.h"
+
 
 #include "oggplayer/oggplayer.h"
+
+#include  "SetupGame.h"
+
+
+#include  "util.h"
 
 
 extern "C" {  extern void __exception_setreload(int t); }
@@ -103,310 +111,32 @@ extern void OggTest();
 #include "CullFrustum\Vec3.h"
 #include "CullFrustum\FrustumR.h"
 
+
+// TODO: main is getting nasty - needs a big refactor
+
 int main(int argc, char **argv) 
 {	
+
 	__exception_setreload(6);
 	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
 	rWiiManager.InitWii();
 
+	Util::SetUpPowerButtonTrigger();
+
 	rWiiManager.ProgramStartUp();
-	rWiiManager.SetGameState(WiiManager::eIntro);
 
-	MODPlay_Init(&rWiiManager.m_ModuleTrackerPlayerInterface);
-	rWiiManager.m_ModuleTrackerPlayerInterface.playing = false;
+	rWiiManager.GetSetUpGame()->MainLoop();
 
-
-//NOTE
-//pthread_create priority number (last param) must be >0 and <=127, typically 64
-//the stack can be changed to a smaller value but note it is unusually easy to eat up the stack. The define size is recommended
-//please dont change the define as libogc recommends 8k.
-//
-// UNIX has 128 priorites which range from 0 - high to 127 -low.)
-	
-{
-	//static char IP[16]; // i.e. 255.255.255.255 + NULL
-	//s32 result( if_config(IP, NULL, NULL, true) );   // this calls net_init() in a nice way (must provide first param)
-	//if(result < 0) 
-	//	ExitPrintf("if_config failed");
-
-	//pURLManager->SaveURI("http://www.dr-lex.be/software/download/mp3tones.zip", Util::GetGamePath() );
-	//pURLManager->SaveURI("http://vba-wii.googlecode.com/files/Visual%20Boy%20Advance%20GX%202.2.5.zip");
-	//pURLManager->SaveURI("http://www.fnordware.com/superpng/pngtest8rgba.png");
-
-	//MemoryInfo* pMeminfo( pURLManager->NewFromURI("http://wiimc.googlecode.com/files/WiiMC%201.2.0%20%28New%20Install%29.zip") );
-	//pMeminfo->SavePath("c://");
-	//delete pMeminfo;
-
-//	rWiiManager.GetURLManager()->SaveURI("http://he3.magnatune.com/all/09-Faerie%20tale-Indidginus.ogg", Util::GetGamePath());
-//	rWiiManager.GetSoundManager()->LoadSound(Util::GetGamePath() + "09-Faerie tale-Indidginus.ogg", "Indidginus");
-
-
-
-}
-
-
-
-
-	bool ModPlaying = false;  // modplay's own interface (Interface.playing) does not seem to work, even if I set it
-	bool bQuit = false;
-	do
-	{
-		if (!ModPlaying)
-		{
-			ModPlaying = true;
-
-			rWiiManager.m_ModuleTrackerPlayerInterface.manual_polling=false;  
-			MODPlay_SetMOD(&rWiiManager.m_ModuleTrackerPlayerInterface, rWiiManager.m_pModuleTrackerData);
-			MODPlay_Start(&rWiiManager.m_ModuleTrackerPlayerInterface); 
-			MODPlay_SetVolume( &rWiiManager.m_ModuleTrackerPlayerInterface, 10,10);    
-
-	//rWiiManager.SetGameState(WiiManager::eGame);   // this is shit ... disable sounds needed, not this fudge
-	//rWiiManager.GetSoundManager()->PlaySound( (HashLabel)"Indidginus",244,244,true );
-	//rWiiManager.SetGameState(WiiManager::eIntro); 
-		}
-
-
-
-
-		rWiiManager.GetGameLogic()->InitialiseGame();
-		
-		//rWiiManager.GetCamera()->SetCameraView( 0,0 );
-
-		rWiiManager.GetCamera()->SetCameraView( 0, 0, -(579.4f));
-
-		rWiiManager.GetGameLogic()->ClearBadContainer();
-		rWiiManager.GetGameLogic()->InitialiseIntro();
-
-		if (rWiiManager.IsGameStateShowingIntro())
-		{
-
-			//--------------
-			// INTRO
-			do 
-			{	
-				if (Util::IsPowerOff()) //if ( g_bEnablePowerOffMode )
-				{
-					extern int g_PowerOffMode;
-					::SYS_ResetSystem( g_PowerOffMode, 0, 0 );
-				}
-				rWiiManager.GetGameLogic()->Intro();
-
-				if ( (WPAD_ButtonsUp(0) & WPAD_BUTTON_HOME)!= 0 )
-				{
-					bQuit = true;
-					break;
-				}
-
-			if ( (WPAD_ButtonsUp(0) & WPAD_BUTTON_1)!= 0 )
-			{
-	rWiiManager.SetGameState(WiiManager::eGame);   // this is shit ... disable sounds needed, not this fudge
-
-	{
-		OggPlayer Ogg;
-	string FullFileName = Util::GetGamePath() + "09-Faerie tale-Indidginus.ogg";
-	FILE* pOggFile( WiiFile::FileOpenForRead( FullFileName.c_str() ) );
-	u32 OggSize = WiiFile::GetFileSize(pOggFile);
-	u8* pOggData = (u8*) malloc(OggSize);
-	fread( pOggData, OggSize, 1, pOggFile);
-	Ogg.PlayOgg(pOggData, OggSize, 0, OGG_ONE_TIME);
-
-//	int fd = open (FullFileName.c_str(), O_WRONLY);
-//	PlayOgg(&fd, 0, 0, OGG_ONE_TIME);
-
-	}
-	rWiiManager.SetGameState(WiiManager::eIntro); 
-				
-			}
-
-
-			} while( (WPAD_ButtonsUp(0) & (WPAD_BUTTON_A | WPAD_BUTTON_B) )== 0 );
-		}
-
-		if (bQuit)
-			break;
-
-		//--------------
-		// MENU
-		rWiiManager.SetGameState(WiiManager::eMenu);
-		rWiiManager.GetCamera()->SetCameraView( 0, 0, -(579.4f));
-		rWiiManager.GetMenuScreens()->SetTimeOutInSeconds();
-
-		if (rWiiManager.IsGameStateShowingMenu())
-		{
-			do 
-			{	
-				if (Util::IsPowerOff()) //if ( g_bEnablePowerOffMode )
-				{
-					extern int g_PowerOffMode;
-					::SYS_ResetSystem( g_PowerOffMode, 0, 0 );
-				}
-
-				if (rWiiManager.IsGameStateShowingMenu())
-				{
-					rWiiManager.GetMenuManager()->SetMenuGroup("MainMenu");
-					rWiiManager.GetMenuScreens()->DoMenuScreen();
-
-					if ( (WPAD_ButtonsUp(0) & WPAD_BUTTON_B) || (rWiiManager.GetMenuScreens()->HasMenuTimedOut()) )  
-					{
-						rWiiManager.SetGameState(WiiManager::eIntro);
-						break;
-					}
-
-					if ( (WPAD_ButtonsUp(0) & WPAD_BUTTON_A) != 0) 
-					{
-						HashLabel Name = rWiiManager.GetMenuManager()->GetSelectedMenu();
-
-						if (Name == HashString::Quit)
-						{
-							bQuit = true;
-						}
-						else if (Name == HashString::Credits)
-						{
-							rWiiManager.SetGameState(WiiManager::eCredits);
-						}
-						else if (Name == HashString::Controls)
-						{
-							rWiiManager.SetGameState(WiiManager::eControls);
-						}
-						else if (Name == HashString::Options)
-						{
-							rWiiManager.SetGameState(WiiManager::eOptions);
-						}
-						else if (Name == HashString::Start_Game)
-						{
-							rWiiManager.SetGameState(WiiManager::eGame);
-							break;
-						}
-						else if (Name == HashString::Intro)
-						{
-							rWiiManager.SetGameState(WiiManager::eIntro);
-							break;
-						}
-					}
-				}
-			
-				if (rWiiManager.IsGameStateShowingCredits())
-				{
-					rWiiManager.GetMenuScreens()->DoCreditsScreen();
-					if ( WPAD_ButtonsUp(0) & (WPAD_BUTTON_A|WPAD_BUTTON_B) )
-					{
-						rWiiManager.GetMenuScreens()->SetTimeOutInSeconds();
-						rWiiManager.SetGameState(WiiManager::eMenu);
-					}
-				}
-
-				if (rWiiManager.IsGameStateShowingControls())
-				{
-					rWiiManager.GetMenuScreens()->DoControlsScreen();
-					if ( WPAD_ButtonsUp(0) & (WPAD_BUTTON_A|WPAD_BUTTON_B) )
-					{
-						rWiiManager.GetMenuScreens()->SetTimeOutInSeconds();
-						rWiiManager.SetGameState(WiiManager::eMenu);
-					}
-				}
-				
-				if (rWiiManager.IsGameStateShowingOptions())
-				{
-					rWiiManager.GetMenuScreens()->DoOptionsScreen();		
-					rWiiManager.GetMenuManager()->SetMenuGroup("OptionsMenu");
-					if ( WPAD_ButtonsUp(0) & (WPAD_BUTTON_A|WPAD_BUTTON_B) )
-					{
-						HashLabel Name = rWiiManager.GetMenuManager()->GetSelectedMenu();		
-
-						rWiiManager.GetMenuManager()->SetMenuGroup("OptionsMenu");
-
-						if (Name == (HashLabel)"Ingame_Music")
-						{
-							rWiiManager.GetMenuManager()->AdvanceMenuItemText(HashString::IngameMusicState);
-						}
-						else if (Name == (HashLabel)"Difficulty_Level")
-						{
-							rWiiManager.GetMenuManager()->AdvanceMenuItemText(HashString::DifficultySetting);
-						}
-						else if (Name == (HashLabel)"Set_Language")
-						{
-							rWiiManager.GetMenuManager()->AdvanceMenuItemText(HashString::LanguageSetting);
-							rWiiManager.SetLanguage( rWiiManager.GetMenuManager()->GetMenuItemText(HashString::LanguageSetting) );
-						}
-						else if ((Name == (HashLabel)"Back") || ( WPAD_ButtonsUp(0)&WPAD_BUTTON_B ))
-						{
-							rWiiManager.GetMenuScreens()->SetTimeOutInSeconds();
-							rWiiManager.SetGameState(WiiManager::eMenu);
-						}
-						rWiiManager.BuildMenus( true );
-					}
-				}
-
-				if ( (WPAD_ButtonsUp(0) & WPAD_BUTTON_HOME)!= 0 )
-					bQuit = true;
-
-			} while (!bQuit);
-		}
-
-		if (bQuit)
-			break;
-
-		//----------------
-		// PLAY GAME
-		if (rWiiManager.IsGameStateShowingGame())
-		{
-			// Ingame music - settings
-			rWiiManager.GetMenuManager()->SetMenuGroup("OptionsMenu");
-			if (rWiiManager.GetMenuManager()->GetMenuItemText(HashString::IngameMusicState) == "on")
-			{
-				MODPlay_SetVolume( &rWiiManager.m_ModuleTrackerPlayerInterface, 35,35);     
-			}
-			else
-			{
-				ModPlaying = false;  // looks like the modplay interface is lacking a few minor things
-				MODPlay_Stop(&rWiiManager.m_ModuleTrackerPlayerInterface);
-			}
-
-			rWiiManager.GetGameLogic()->InitialiseGame();
-
-			WPAD_ScanPads();   // Do a read now, this will flush out anything old ready for a fresh start.
-			bool bEndLevel = false;
-			do // game loop
-			{
-
-				rWiiManager.GetGameLogic()->InGameLogic();
-				if ( rWiiManager.GetGameLogic()->IsEndLevelTrigger() )
-				{
-					if (!rWiiManager.IsGameStateShowingGame())
-					{
-						bEndLevel = true;
-					}
-					if (WPAD_ButtonsUp(0) & WPAD_BUTTON_A)
-					{
-						bEndLevel = true;
-					}
-				}
-
-				if ( (WPAD_ButtonsUp(0) & WPAD_BUTTON_HOME)!= 0 )
-				{
-					bQuit = true;
-				}
-			} while( !bEndLevel && !bQuit );
-		}
-	} while( !bQuit );
-	
-	rWiiManager.GetGameDisplay()->DisplaySimpleMessage("Bye...");
-
-	//////for (int i=0 ;i<2; ++i)
-	//////{
-	//////	Util3D::TransRot(0,0,-3.14f/12.0f);
-	//////	rWiiManager.GetFontManager()->DisplayLargeTextCentre("bye", 0,0,112);
-	//////	GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
-	//////	rWiiManager.SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
-	//////}
+	rWiiManager.GetGameDisplay()->DisplaySimpleMessage(rWiiManager.GetText("Quit_Message"));
 	rWiiManager.UnInitWii();
 	return 0;
 }
+
+
 static lwp_t networkthread = LWP_THREAD_NULL;
 static bool networkHalt = true;
 static bool exitRequested = false;
 static u8 * ThreadStack = NULL;
-static bool networkinit = false;
 
 
 static void * networkinitcallback(void *arg )

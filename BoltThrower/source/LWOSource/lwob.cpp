@@ -85,7 +85,7 @@ static int add_clip( char *s, lwClip **clist, int *nclips )
    }
 
     // was ...  *nclips++;  !!!   so was increamenting pointer and then +1 to derefrenced value
-   printf("**** USED ****");
+   //printf("**** USED ****");
    (*nclips)++;
    clip->index = *nclips;
 

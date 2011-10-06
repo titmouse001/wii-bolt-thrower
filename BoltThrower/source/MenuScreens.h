@@ -14,7 +14,7 @@ public:
 	void DoControlsScreen();
 	void DoOptionsScreen();
 
-	void SetTimeOutInSeconds(int Value = 45);
+	void SetTimeOutInSeconds(int Value = 121);
 	bool HasMenuTimedOut();
 
 private:

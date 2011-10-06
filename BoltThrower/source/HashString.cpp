@@ -146,3 +146,8 @@ const HashLabel HashString::AsteroidWidthCoverage("AsteroidWidthCoverage");
 const HashLabel HashString::AsteroidHeightCoverage("AsteroidHeightCoverage");
 
 const HashLabel HashString::ViewRadiusForAsteroids("ViewRadiusForAsteroids");
+
+
+
+const HashLabel HashString::TurretTarget_SmallShip("TurretTarget_SmallShip");
+const HashLabel HashString::TurretTarget_GunShip("TurretTarget_GunShip");
