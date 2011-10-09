@@ -144,24 +144,23 @@ void Render3D::RenderModelMinimalHardNorms(HashLabel ModelName, Mtx& ModelView)
 	GX_CallDispList(Info.m_dispList,Info.m_dispSize);
 }
 
-void Render3D::SetTextureFromModelName(HashLabel Name, int TextureMap)
+void Render3D::SetTextureFromModelName(HashLabel Name, int GX_TexMap)
 {
-	for (std::vector<Object3D>::iterator  AllModelsIter = GetObjectBegin(); AllModelsIter!=GetObjectEnd(); ++AllModelsIter)
+	for (std::vector<Object3D>::iterator AllModelsIter( GetObjectBegin()); AllModelsIter!=GetObjectEnd(); ++AllModelsIter)
 	{
 		if ((HashLabel)AllModelsIter->GetName() == Name) 
 		{
-			GX_LoadTexObj( AllModelsIter->GetTexture()->GetHardwareTextureInfo(), GX_TEXMAP0);   
+			GX_LoadTexObj( AllModelsIter->GetTexture()->GetHardwareTextureInfo(), GX_TexMap);   
 			return;
 		}
 	}
 
-
-	for (std::vector<Object3D>::iterator  AllModelsIter = GetObjectBegin(); AllModelsIter!=GetObjectEnd(); ++AllModelsIter)
-	{
-		printf ( "From HERE: %s", AllModelsIter->GetName().c_str() ); 
-	}
-
-	ExitPrintf("Texture not found");
+	// DEBUG ... NEVER HIT (YET!)
+	//for (std::vector<Object3D>::iterator  AllModelsIter = GetObjectBegin(); AllModelsIter!=GetObjectEnd(); ++AllModelsIter)
+	//{
+	//	printf ( "From HERE: %s", AllModelsIter->GetName().c_str() ); 
+	//}
+	//ExitPrintf("Texture not found");
 }
 
 void Render3D::LoadTextures(Object3D& Obj3D)
@@ -178,12 +177,8 @@ void Render3D::LoadTextures(Object3D& Obj3D)
 			std::string basename ( FileNameWithPath.substr( FileNameWithPath.find_last_of( '/' ) +1 ) );  
 			// todo: what about ??? d:thing.tga using no dirs ???
 
-			std::string LongFileName( Util::GetGamePath() + "lwo/textures/" + basename );
-//			printf(basename.c_str());
+			std::string LongFileName( WiiFile::GetGamePath() + "lwo/textures/" + basename );
 			const HashLabel Hash((HashLabel)LongFileName);
-
-//			if (!WiiFile::CheckFileExist(LongFileName.c_str()))
-	//			ExitPrintf("FileMissing: %s for %s",LongFileName.c_str(),Obj3D.GetName().c_str());
 
 			Image* pImage(NULL);
 			std::vector<Object3D>::iterator  AllModelsIter(GetObjectBegin());
@@ -193,7 +188,6 @@ void Render3D::LoadTextures(Object3D& Obj3D)
 				{
 					if ( (*CheckIter)->GetFileName() == Hash)
 					{
-					//	printf ("##### found a matching image %s" , basename.c_str() );
 						pImage = *CheckIter;  // found a matching image... just use it, no need to load it into memory
 						break;  // found it - all done
 					}
@@ -203,7 +197,6 @@ void Render3D::LoadTextures(Object3D& Obj3D)
 
 			if (pImage == NULL)  // if nothing found then it doesn't exist, will need to load it as a new thing
 			{
-				//printf ("##### adding image %s" , basename.c_str() );
 				pImage = new Image( LongFileName );
 			}
 			Obj3D.AddTexture( pImage );
@@ -394,10 +387,7 @@ Object3D* Render3D::Add3DObject(std::string FullFileName, bool bSmooth3DObject, 
 		pLayer = pLayer->next;
 	}
 
-	//	printf ("%s",FullFileName.c_str());
-
 	lwFreeObject(obj);
-
 	Object3D& obj3D = AddObjectToList(TempWorking3DObject);
 
 	// [+BONE] becomes [BONE] at some point when stored in mem
@@ -434,15 +424,10 @@ void Render3D::DrawModelPoints(std::string ModelName, float Rot, float dist)
 				for ( VectorOfPointXYZ::iterator iterPoints(iter->GetPointBegin()) ; iterPoints!=iter->GetPointEnd() ; ++iterPoints)
 				{
 					Mtx Model,mat;
-					//guMtxScale(Model,10,10,10);
-					//guMtxTransApply(Model,Model,iterPoints->Getx(),iterPoints->Gety(),iterPoints->Getz());
-					
 					guMtxTrans(Model,iterPoints->Getx(),iterPoints->Gety(),iterPoints->Getz());
 					guMtxRotRad(mat,'y', Rot);
 					guMtxConcat(mat,Model,Model);
-
 					guMtxTransApply(Model,Model,0,0,dist);
-
 					guMtxConcat(Wii.GetCamera()->GetcameraMatrix(),Model,Model);
 					RenderModel(HashString::ShieldGenerator,Model);
 				}
@@ -454,7 +439,6 @@ void Render3D::DrawModelPoints(std::string ModelName, float Rot, float dist)
 
 VectorOfPointXYZ Render3D::GetModelPointsFromLayer(std::string ModelName)
 {
-//	WiiManager& Wii( Singleton<WiiManager>::GetInstanceByRef() );
 	VectorOfPointXYZ Points;
 	Points.clear();
 	Object3D* pModel(GetModel(ModelName));
@@ -465,10 +449,8 @@ VectorOfPointXYZ Render3D::GetModelPointsFromLayer(std::string ModelName)
 			VectorOfPointXYZ::iterator iterPoints(iter->GetPointBegin());
 			PointXYZ p= *iterPoints;
 			Points.push_back(p);
-		//	printf ("%f %f %f",p.Getx(),p.Gety(),p.Getz());
 		}
 	}
-//	printf ("-----------");
 	return Points;
 }
 

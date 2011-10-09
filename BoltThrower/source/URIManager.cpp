@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
-//#include "HTTP_util.h"
+#include "debug.h"
 #include <string.h>		// included for memcpy
 
 
@@ -84,14 +84,20 @@ void URLManager::SaveURI(string URI, string DestinationPath )
 {
 	printf("SaveURI");
 	MemoryInfo* pMeminfo( NewFromURI( URI ) );
-	pMeminfo->SavePath( DestinationPath );
-	delete pMeminfo;
+	if (pMeminfo!=NULL)
+	{
+		pMeminfo->SavePath( DestinationPath );
+		delete pMeminfo;
+	}
+	else
+	{
+		ExitPrintf("%s URI NOT FOUND",URI.c_str());
+	}
 }
 
 
 MemoryInfo* URLManager::NewFromURI(string URI)
 {
-	MemoryInfo* MemInfo( new MemoryInfo );
 	
 	string SiteName( GetHostNameFromUrl(URI) );
 	if (SiteName.empty())
@@ -99,7 +105,7 @@ MemoryInfo* URLManager::NewFromURI(string URI)
 
 	hostent* host( net_gethostbyname( SiteName.c_str() ) );   // todo  switch (h_errno)      HOST_NOT_FOUND , NO_ADDRESS , NO_RECOVERY ,TRY_AGAIN
 	if (host==NULL)
-		return MemInfo;
+		return NULL;
 
 	// socket takes, domain family, type & protocol
 	int sockfd (net_socket(PF_INET, SOCK_STREAM, IPPROTO_IP));  
@@ -238,6 +244,8 @@ MemoryInfo* URLManager::NewFromURI(string URI)
 	OutputDebugString( osstream.str().c_str()  );
 #endif
 
+	MemoryInfo* MemInfo( new MemoryInfo );
+	
 	MemInfo->SetData( BodyData );
 	MemInfo->SetSize( BodyBytes );
 	size_t Pos = URI.rfind("/") + 1;

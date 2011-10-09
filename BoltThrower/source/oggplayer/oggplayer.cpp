@@ -28,14 +28,14 @@ class OggPlayerInfo
 {
 public:
 	u8*		GetMem()  const { return m_Mem; }
-	u32		GetSize() const { return m_Size; } 
-	u32		GetPos()  const { return m_Pos; }
+	int		GetSize() const { return m_Size; } 
+	int		GetPos()  const { return m_Pos; }
 //	void	SetMem(u8* Value)  { m_Mem = Value; }
 //	void	SetSize(u32 Value) { m_Size = Value; } 
 //	void	SetPos(u32 Value)  { m_Pos = Value; }
 	OggPlayerInfo*	SetMem(u8* Value) { m_Mem = Value; return this; }
-	OggPlayerInfo*	SetSize(u32 Value) { m_Size = Value; return this; }
-	OggPlayerInfo*	SetPos(u32 Value)  { m_Pos = Value; return this; }
+	OggPlayerInfo*	SetSize(int Value) { m_Size = Value; return this; }
+	OggPlayerInfo*	SetPos(int Value)  { m_Pos = Value; return this; }
 	void	AddPos(u32 Value)  { m_Pos += Value; }
 
 	bool	Empty() const { return (m_Size==0); }
@@ -221,7 +221,7 @@ static lwpq_t oggplayer_queue = LWP_TQUEUE_NULL;
 static lwp_t h_oggplayer = LWP_THREAD_NULL;
 static int ogg_thread_running = 0;
 
-static void ogg_add_callback_for_SetVoice(int voice)
+static void ogg_add_callback_for_SetVoice(int /*voice*/)
 {
 	if (!ogg_thread_running)
 	{

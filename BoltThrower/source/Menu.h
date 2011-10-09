@@ -9,6 +9,20 @@
 
 struct SDL_Rect {int x,y,w,h; };
 
+enum EAlignment
+{
+	eLEFT		= 0x0001,
+	eCENTER		= 0x0002,
+	eRIGHT		= 0x0004,
+	eTOP		= 0x0010,
+	eMIDDLE		= 0x0020,
+	eBOTTOM		= 0x0040,
+	eTOP_LEFT	= eLEFT | eTOP,
+	eTOP_CENTER	= eCENTER | eTOP,
+	eTOP_RIGHT	= eRIGHT | eTOP,
+	eCENTERED	= eCENTER | eMIDDLE,
+};
+
 class Menu
 {
 public:

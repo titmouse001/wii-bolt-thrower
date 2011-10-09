@@ -48,7 +48,7 @@ public:
 	EMapType GetMapType() const { return m_eMapType; }
 
 
-	const char* const GetMapName() { return m_MapName.c_str(); }
+	const char* GetMapName() { return m_MapName.c_str(); }
 	void SetMapName(string Name) { m_MapName = Name; }
 
 private:

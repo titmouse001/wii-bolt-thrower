@@ -109,7 +109,7 @@ void MessageBox::DisplayMessageBox()
 	m_pWii->GetCamera()->RecallCameraView();
 }
 
-std::vector<std::string> MessageBox::MessageBox::FitTextToBox(std::string Text,int BoxWidth, int BoxHeight)
+std::vector<std::string> MessageBox::MessageBox::FitTextToBox(std::string Text,int BoxWidth, int /*BoxHeight*/)
 {
 	HashLabel FontType(HashString::SmallFont);
 

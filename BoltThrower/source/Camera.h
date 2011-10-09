@@ -42,7 +42,7 @@ public:
 	float GetFOV() const { return m_FieldOfView; }
 	void SetFOV(float fValue) { m_FieldOfView = fValue; }
 
-	void SetLightOn3(float x = 250000.0f, float y = 250000.0f, float z = -1000000.0f);
+	void SetLightOn3(float x = 25000.0f, float y = 45000.0f, float z = -100000.0f);
 	void SetLightOn(float x = 250000.0f, float y = 250000.0f, float z = -1000000.0f);
 	void SetLightOn2();
 	void SetLightOff();

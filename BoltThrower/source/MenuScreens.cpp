@@ -146,7 +146,7 @@ void MenuScreens::DoMenuScreen()
 			}		
 
 		}
-		m_pWii->GetImageManager()->GetImage( m_pWii->m_FrameEndStartConstainer[HashString::AimingPointer].StartFrame )
+		m_pWii->GetImageManager()->GetImage( m_pWii->m_FrameEndStartConstainer[HashString::AimingPointer32x32].StartFrame )
 			->DrawImageXYZ( m_pWii->GetCamera()->GetCamX() + WiiMote->x - (m_pWii->GetScreenWidth()/2), 
 			m_pWii->GetCamera()->GetCamY() + WiiMote->y - (m_pWii->GetScreenHeight()/2),
 			WiiMote->z, 255, 0) ; //GetPlrVessel()->GetFacingDirection() );
@@ -373,7 +373,7 @@ void MenuScreens::DoOptionsScreen()
 
 
 	// Draw aim pointer
-	m_pWii->GetImageManager()->GetImage( m_pWii->m_FrameEndStartConstainer[HashString::AimingPointer].StartFrame )
+	m_pWii->GetImageManager()->GetImage( m_pWii->m_FrameEndStartConstainer[HashString::AimingPointer32x32].StartFrame )
 			->DrawImageXYZ( m_pWii->GetCamera()->GetCamX() + WiiMote->x - (m_pWii->GetScreenWidth()/2), 
 			m_pWii->GetCamera()->GetCamY() + WiiMote->y - (m_pWii->GetScreenHeight()/2),
 			WiiMote->z, 255, 0) ; //GetPlrVessel()->GetFacingDirection() );

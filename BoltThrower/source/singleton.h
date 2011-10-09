@@ -42,8 +42,8 @@ public:
 class SingletonClient
 {
 private:
-    SingletonClient( const SingletonClient& sc ) { } // never called.
-    SingletonClient operator=( const SingletonClient& sc ) {  return *this; }  // Never called
+    SingletonClient( const SingletonClient& /*sc*/ ) { } // never called.
+    SingletonClient operator=( const SingletonClient& /*sc*/ ) {  return *this; }  // Never called
 public:
     SingletonClient() {}
 };

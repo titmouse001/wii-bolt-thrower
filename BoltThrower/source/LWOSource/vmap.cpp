@@ -44,7 +44,7 @@ lwGetVMap()
 Read an lwVMap from a VMAP or VMAD chunk in an LWO2.
 ====================================================================== */
 
-lwVMap *lwGetVMap( FILE *fp, int cksize, int ptoffset, int poloffset,
+lwVMap *lwGetVMap( FILE *fp, int cksize, int /*ptoffset*/, int /*poloffset*/,
    int perpoly )
 {
    unsigned char *buf, *bp;

@@ -8,13 +8,12 @@
 
 namespace Util
 {
+	void DoResetSystemCheck();
 	void SetUpPowerButtonTrigger();
 
 	void StringToLower(std::string& StringValue);
 
 	GXColor Colour(u8 r,u8 g,u8 b,u8 a=0xff);
-
-	std::string GetGamePath();
 
 	u64 TicksToMicrosecs(u64 Value);
 

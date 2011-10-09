@@ -94,7 +94,7 @@ void Font::CreateFontFromFile(const string& FileName)
 	fclose ( pTabFile );
 }
 
-const CharInfo*	const Font::GetChar(u32 uChar) const
+const CharInfo* Font::GetChar(u32 uChar) const
 {
 	if (uChar <= m_uLastChar)
 		return &m_vCharInfo[ uChar - m_uFirstChar ]; 

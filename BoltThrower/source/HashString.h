@@ -34,40 +34,37 @@ public:
 	const static HashLabel hitmetal;
 
 	// graphics names
-	const static HashLabel ShipFrames;
-	const static HashLabel AimingPointer;
-	const static HashLabel MissileFrames;
-	const static HashLabel Bad1Frames;
-	const static HashLabel Bad2Frames;
-	const static HashLabel BoomFrames;
-	const static HashLabel Boom2Frames;
-	const static HashLabel ThingFrames;
-	const static HashLabel StarFrames;
-	const static HashLabel ProbeMineFrames;
-	const static HashLabel ProbeMineUpThrusterFrames;
-	const static HashLabel ProbeMineRightThrusterFrames;
-	const static HashLabel ProbeMineDownThrusterFrames;
-	const static HashLabel ProbeMineLeftThrusterFrames;
-	const static HashLabel SimpleMineFrames;
-	const static HashLabel Boom3Frames;
-	const static HashLabel Explosion64x64;
+	const static HashLabel PlayersShip32x32;
+	const static HashLabel AimingPointer32x32;
+	const static HashLabel SmallMissile16x16;
+	const static HashLabel SmallWhiteEnemyShip16x16x2;
+	const static HashLabel SmallRedEnemyShip16x16x2;
+	const static HashLabel ExplosionFire1Type16x16x9;
+	const static HashLabel ExplosionFire2Type16x16x9;
+	const static HashLabel SpinningSpore16x16x9;
+	const static HashLabel ProbeMine16x16x5;
+	const static HashLabel ProbeMineUpThrust16x16x5;
+	const static HashLabel ProbeMineRightThrust16x16x5;
+	const static HashLabel ProbeMineDownThrust16x16x5;
+	const static HashLabel ProbeMineLeftThrust16x16x5;
+	const static HashLabel ExplosionThrust1Type16x16x10;
+	const static HashLabel ExplosionSolidType32x32x10;
 	const static HashLabel ShieldRed;
 	const static HashLabel ShieldBlue;
-	const static HashLabel Boom4Frames;
-	const static HashLabel Boom5Frames;
-	const static HashLabel Boom6Frames;
+	const static HashLabel ExplosionDull1Type16x16x10;
+	const static HashLabel ExplosionSmoke1Type16x16x10;
+	const static HashLabel ExplosionSmoke2Type16x16x10;
 
 	const static HashLabel Shot;
 
-	const static HashLabel MiniMoon;
-	const static HashLabel SmallTurrent;
-	const static HashLabel YellowCircleWithHole;
+	const static HashLabel MiniMoon16x16;
+	const static HashLabel YellowRadarPing32x32;
 	const static HashLabel SmallGunTurret;
 
 	const static HashLabel Material_PickUp;
 
-	const static HashLabel LargeRedExplosion;
-	const static HashLabel LargeYellowExplosion;
+	const static HashLabel RedEdgeExplosion64x64;
+	const static HashLabel YellowEdgeExplosion64x64;
 
 	// Variables
 	const static HashLabel WiiMoteIdleTimeoutInSeconds;
@@ -106,7 +103,7 @@ public:
 	const static HashLabel TurretForGunShip;
 	const static HashLabel BrokenTurretForGunShip;
 	const static HashLabel GunShip;
-	const static HashLabel SmokeTrailFrames;
+	const static HashLabel SmokeTrail16x16x10;
 
 
 	const static HashLabel TurretNo1ForGunShipOriginX;
@@ -117,8 +114,8 @@ public:
 	const static HashLabel GunShipProjectileFrames;
 
 
-	const static HashLabel LargeExplosion;
-	const static HashLabel VeryLargeExplosion;
+	const static HashLabel FireBallExplosion64x64;
+	const static HashLabel HotYellowOrangeExplosion80x80;
 
 	const static HashLabel NebulaGass01;
 

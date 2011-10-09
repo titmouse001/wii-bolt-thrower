@@ -971,7 +971,7 @@ int pngu_info (IMGCTX ctx)
 			{
 				ctx->prop.trans = malloc (sizeof (PNGUCOLOR) * ctx->prop.numTrans);
 				if (ctx->prop.trans)
-					for (i = 0; i < ctx->prop.numTrans; i++)
+					for (i = 0; (PNGU_u32)i < ctx->prop.numTrans; i++)
 					{
 						ctx->prop.trans[i].r = trans_values[i].red / scale;
 						ctx->prop.trans[i].g = trans_values[i].green / scale;
@@ -988,7 +988,7 @@ int pngu_info (IMGCTX ctx)
 			{
 				ctx->prop.trans = malloc (sizeof (PNGUCOLOR) * ctx->prop.numTrans);
 				if (ctx->prop.trans)
-					for (i = 0; i < ctx->prop.numTrans; i++)
+					for (i = 0; (PNGU_u32)i < ctx->prop.numTrans; i++)
 						ctx->prop.trans[i].r = ctx->prop.trans[i].g = ctx->prop.trans[i].b = 
 						trans_values[i].gray / scale;
 				else
@@ -1066,7 +1066,7 @@ int pngu_decode (IMGCTX ctx, PNGU_u32 width, PNGU_u32 height, PNGU_u32 stripAlph
 		return PNGU_LIB_ERROR;
 	}
 
-	for (i = 0; i < ctx->prop.imgHeight; i++)
+	for (i = 0; (PNGU_u32)i < ctx->prop.imgHeight; i++)
 		ctx->row_pointers[i] = ctx->img_data + (i * rowbytes);
 
 	// Transform the image and copy it to our allocated memory
@@ -1113,7 +1113,7 @@ void pngu_write_data_to_buffer (png_structp png_ptr, png_bytep data, png_size_t 
 
 
 // Custom data flusher function used for writing to memory buffers.
-void pngu_flush_data_to_buffer (png_structp png_ptr)
+void pngu_flush_data_to_buffer (png_structp png_ptr __attribute__((unused)) )
 {
 	// Nothing to do here
 }

@@ -17,7 +17,15 @@ bool g_bEnablePowerOffMode(false);
 
 void Trigger_Reset_Callback(void)			{ g_PowerOffMode = SYS_RESTART;  g_bEnablePowerOffMode=true; } 
 void Trigger_Power_Callback(void)			{ g_PowerOffMode = SYS_POWEROFF; g_bEnablePowerOffMode=true; }  
-void Trigger_PadPower_Callback( s32 chan )	{ g_PowerOffMode = SYS_POWEROFF; g_bEnablePowerOffMode=true; } 
+void Trigger_PadPower_Callback(s32 /*chan*/)	{ g_PowerOffMode = SYS_POWEROFF; g_bEnablePowerOffMode=true; }  // Param states the Wiimote used
+
+void Util::DoResetSystemCheck ()
+{
+	if (IsPowerOff()) 
+	{
+		::SYS_ResetSystem( g_PowerOffMode, 0, 0 );
+	}
+}
 
 void Util::SetUpPowerButtonTrigger()
 {
@@ -55,19 +63,6 @@ GXColor Util::Colour(u8 r,u8 g,u8 b,u8 a)
 	Colour.r=r;
 
 	return Colour;
-}
- 
-//MOVE THIS  into..  WiiFile
-std::string Util::GetGamePath()
-{
-#ifdef BUILD_FINAL_RELEASE 
-	std::string TempGamePath = ""; //  Final build - use path relative to the executable
-#else 
-	#warning *** DONT FORGET TO REMOVE THIS IN THE FINAL BUILDS ***
-	std::string TempGamePath = "sd://apps/BoltThrower/"; // debug only
-#endif
-
-	return TempGamePath;
 }
 
 u8 Util::CalculateFrameRate(bool bReadOnly)

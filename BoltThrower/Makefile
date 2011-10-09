@@ -17,7 +17,13 @@ include $(DEVKITPPC)/wii_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-MODULES     := source source/LWOSource source/libpng source/libpng/pngu source/TinyXML source/CullFrustum source/HTTP source/oggplayer source/tremor
+MODULES     :=	source \
+				source/LWOSource \
+				source/libpng \
+				source/libpng/pngu source/TinyXML \
+				source/CullFrustum source/HTTP \
+				source/oggplayer source/tremor
+				
 SOURCES		:=	$(MODULES)
 DATA		:=	data  
 INCLUDES	:=
@@ -33,7 +39,7 @@ INCLUDES	:=
 
 #CFLAGS	= -ffast-math -fomit-frame-pointer -pipe -g -O2 -Wall  $(MACHDEP) $(INCLUDE)
 #CFLAGS	= -g -O2 -Wall $(MACHDEP) $(INCLUDE)
-CFLAGS	= -g -O2 -Wall $(MACHDEP) $(INCLUDE)
+CFLAGS	= -g -O2 -Wall -Wextra $(MACHDEP) $(INCLUDE)
 CXXFLAGS	=	$(CFLAGS)
 
 LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map
@@ -65,8 +71,10 @@ ifneq ($(BUILD),$(notdir $(CURDIR)))
 
 export OUTPUT	:=	$(CURDIR)/$(TARGET)
 
-export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
-					$(foreach dir,$(DATA),$(CURDIR)/$(dir))
+#export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
+#					$(foreach dir,$(DATA),$(CURDIR)/$(dir))
+
+export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) 
 
 export DEPSDIR	:=	$(CURDIR)/$(BUILD)
 
@@ -77,7 +85,7 @@ CFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
 CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
 sFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.S)))
-BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
+#####BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
 
 #---------------------------------------------------------------------------------
 # use CXX for linking C++ projects, CC for standard C
@@ -123,7 +131,6 @@ clean:
 run:
 	wiiload $(TARGET).dol
 
-
 #---------------------------------------------------------------------------------
 else
 
@@ -138,13 +145,13 @@ $(OUTPUT).elf: $(OFILES)
 #---------------------------------------------------------------------------------
 # This rule links in binary data with the .jpg extension
 #---------------------------------------------------------------------------------
-%.jpg.o	:	%.jpg
+######%.jpg.o	:	%.jpg
 #---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	$(bin2o)
-
--include $(DEPENDS)
-
+#####	@echo $(notdir $<)
+#####	$(bin2o)
+#####
+#####-include $(DEPENDS)
+#####
 #---------------------------------------------------------------------------------
 endif
 #---------------------------------------------------------------------------------

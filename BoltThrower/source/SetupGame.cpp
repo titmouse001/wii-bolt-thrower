@@ -19,11 +19,8 @@ void SetUpGame::Init()
 	m_pWii = Singleton<WiiManager>::GetInstanceByPtr();
 }
 
-
-
 void SetUpGame::Intro()
 {
-//	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
 	m_pWii->GetGameLogic()->InitialiseGame();
 	m_pWii->GetCamera()->SetCameraView( 0, 0, -(579.4f));
 	m_pWii->GetGameLogic()->ClearBadContainer();
@@ -31,11 +28,8 @@ void SetUpGame::Intro()
 
 	do 
 	{	
-		if (Util::IsPowerOff()) 
-		{
-			extern int g_PowerOffMode;
-			::SYS_ResetSystem( g_PowerOffMode, 0, 0 );
-		}
+		Util::DoResetSystemCheck();
+
 		m_pWii->GetGameLogic()->Intro();
 
 		if ( (WPAD_ButtonsUp(0) & WPAD_BUTTON_HOME)!= 0 )
@@ -53,7 +47,7 @@ void SetUpGame::Intro()
 				//MODPlay_Unload( &m_pWii->m_ModuleTrackerPlayerInterface );
 				//-------------
 				OggPlayer Ogg;
-				string FullFileName = Util::GetGamePath() + "03-Law of One-Indidginus.ogg"; // "09-Faerie tale-Indidginus.ogg";
+				string FullFileName = WiiFile::GetGamePath() + "03-Law of One-Indidginus.ogg"; // "09-Faerie tale-Indidginus.ogg";
 				FILE* pOggFile( WiiFile::FileOpenForRead( FullFileName.c_str() ) );
 				u32 OggSize = WiiFile::GetFileSize(pOggFile);
 				u8* pOggData = (u8*) malloc(OggSize);
@@ -70,8 +64,6 @@ void SetUpGame::Intro()
 
 void SetUpGame::Menus()
 {
-	//WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
-
 	m_pWii->SetGameState(WiiManager::eMenu);
 	m_pWii->GetCamera()->SetCameraView( 0, 0, -(579.4f));
 	m_pWii->GetMenuScreens()->SetTimeOutInSeconds();
@@ -79,11 +71,7 @@ void SetUpGame::Menus()
 
 	while (1) 
 	{	
-		if (Util::IsPowerOff()) 
-		{
-			extern int g_PowerOffMode;
-			::SYS_ResetSystem( g_PowerOffMode, 0, 0 );
-		}
+		Util::DoResetSystemCheck();
 
 		if (m_pWii->IsGameStateMenu())
 		{
@@ -209,8 +197,6 @@ void SetUpGame::Menus()
 
 void SetUpGame::Play()
 {
-	//WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
-
 	// Ingame music - settings
 	m_pWii->GetMenuManager()->SetMenuGroup("OptionsMenu");
 	if (m_pWii->GetMenuManager()->GetMenuItemText(HashString::IngameMusicState) == "on")
@@ -234,11 +220,7 @@ void SetUpGame::Play()
 			}
 		}
 
-		if (Util::IsPowerOff()) 
-		{
-			extern int g_PowerOffMode;
-			::SYS_ResetSystem( g_PowerOffMode, 0, 0 );
-		}
+		Util::DoResetSystemCheck();
 
 		if ( (WPAD_ButtonsUp(0) & WPAD_BUTTON_HOME)!= 0 )
 		{
@@ -251,7 +233,6 @@ void SetUpGame::Play()
 
 void SetUpGame::MainLoop() 
 {	
-	//WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
 	MODPlay_Init(&m_pWii->m_ModuleTrackerPlayerInterface);
 	
 	m_pWii->SetGameState(WiiManager::eIntro);
@@ -302,3 +283,5 @@ void SetUpGame::MainLoop()
 //printf("%x", pOggData[2] );
 //printf("%x", pOggData[3] );
 //close(fd);
+
+

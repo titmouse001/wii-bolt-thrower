@@ -128,9 +128,9 @@ void Camera::SetLightOn3(float x, float y, float z)
 	guVector look, pos, light_dir;
 	GXLightObj LightObject;
 
-	light_pos.x =    25000;
-	light_pos.y =	 45000;
-	light_pos.z =  -100000;
+	light_pos.x = x;
+	light_pos.y = y;
+	light_pos.z = z;
 
 	light_look.x = 0;
 	light_look.y = 0;

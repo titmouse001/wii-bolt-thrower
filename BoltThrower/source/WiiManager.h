@@ -103,7 +103,7 @@ public:
 
 	void InitialiseVideo();
 
-	void InitDebugConsole(int ScreenOriginX = 20, int ScreenOriginY = 20);
+	void InitDebugConsole(int ScreenOriginX = 64, int ScreenOriginY = 0);  // was 20,20
 
 	u32* GetCurrentFrame() const;
 	u32 GetScreenBufferId() const;

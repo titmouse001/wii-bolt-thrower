@@ -8,7 +8,7 @@
 #include "LWOSource/Lwo2.h"
 #include "GCTypes.h"
 #include "ogc/GU.h"
-
+#include "ogc/gx.h"
 
 class PolyXYZ;
 class PointXYZ;
@@ -73,7 +73,7 @@ public:
 //	Object3D*  Add3DObject(std::string FullFileName, bool bSmooth3DObject = true);
 	Object3D*  Add3DObject(std::string FullFileName, bool bSmooth3DObject = true, int IndexLayerForBones=-1);
 
-	void SetTextureFromModelName(HashLabel Name, int TextureMap);
+	void SetTextureFromModelName(HashLabel Name, int GX_TexMap = GX_PNMTX0);
 	void CreateDisplayList(std::string ModelName);
 	void RenderModel(HashLabel, Mtx& ModelView);
 	void RenderModelMinimal(HashLabel, Mtx& ModelView);

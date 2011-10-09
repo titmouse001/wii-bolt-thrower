@@ -167,7 +167,7 @@ void GameDisplay::DisplayAllForIngame()
 	for (std::vector<guVector>::iterator iter(m_pGameLogic->GetAimPointerContainerBegin()); 
 		iter!= m_pGameLogic->GetAimPointerContainerEnd(); ++iter)
 	{
-		m_pImageManager->GetImage( m_pWii->m_FrameEndStartConstainer[HashString::AimingPointer].StartFrame )
+		m_pImageManager->GetImage( m_pWii->m_FrameEndStartConstainer[HashString::AimingPointer32x32].StartFrame )
 			->DrawImageXYZ( iter->x,iter->y, 0, 255, m_pGameLogic->GetPlrVessel()->GetFacingDirection() );
 	}
 
@@ -404,12 +404,12 @@ void GameDisplay::DisplayInformationPanels()
 	float y = ( -m_pWii->GetScreenHeight()*0.075f) + ( m_pWii->GetScreenHeight() / 2) - BoxHeight;
 
 	m_pWii->TextBoxWithIcon( fCamX + x, fCamY + y, BoxWidth, BoxHeight,
-		WiiManager::eRight, HashString::ThingFrames,
+		WiiManager::eRight, HashString::SpinningSpore16x16x9,
 		"%02d",m_pGameLogic->GetSporesContainerSize(), 
 		m_pWii->GetMissionManager()->GetCurrentMission() );
 
 	m_pWii->TextBoxWithIcon( fCamX + x - BoxWidth -2, fCamY + y, BoxWidth, BoxHeight,
-		WiiManager::eRight, HashString::Bad1Frames,
+		WiiManager::eRight, HashString::SmallWhiteEnemyShip16x16x2,
 		"%02d", m_pGameLogic->GetTotalEnemiesContainerSize() );
 
 	// score	
@@ -477,7 +477,7 @@ void GameDisplay::DisplayRadar() // big and messy...needs a refactor
 		//if ( ( Iter->InsideRadius(fCamX, fCamY, (120*120)*scale2 ) ) && !Iter->GetGoingBoom() )
 		if ( Iter->InsideRadius(fCamX, fCamY, (120*120)*scale2 ) )
 		{
-			m_pWii->GetImageManager()->GetImage(HashString::YellowCircleWithHole)
+			m_pWii->GetImageManager()->GetImage(HashString::YellowRadarPing32x32)
 				->DrawImageXYZ(fCamX - (pPlayerShip->GetX()*scale) - (320-64) + (Iter->GetX()*scale), 
 						   fCamY - (pPlayerShip->GetY()*scale) - (240-64) + (Iter->GetY()*scale), 0,(200)-(size*200),0,size );
 		}
@@ -509,7 +509,7 @@ void GameDisplay::DisplayRadar() // big and messy...needs a refactor
 	float square_dist = ((0-fCamX)*(0-fCamX) ) + ((0-fCamY)*(0-fCamY)) ;
 	if ( fabs(square_dist) < ((128*128)*scale2) )
 	{
-		m_pWii->GetImageManager()->GetImage(HashString::MiniMoon)->DrawImageTL(-8,-8,128);  // 16x16 image
+		m_pWii->GetImageManager()->GetImage(HashString::MiniMoon16x16)->DrawImageTL(-8,-8,128);  // 16x16 image
 	}
 	}
 
@@ -658,7 +658,7 @@ void GameDisplay::DisplaySporeThings()
 		if ( iter->InsideRadius(fCamX, fCamY, Rad) )
 		{
 
-			m_pWii->GetImageManager()->GetImage(HashString::YellowCircleWithHole)
+			m_pWii->GetImageManager()->GetImage(HashString::YellowRadarPing32x32)
 				->DrawImageXYZ( (iter->GetX()), (iter->GetY()), 0,(200)-(size*200),0,size *10.0F );
 
 
@@ -900,11 +900,11 @@ void GameDisplay::DisplayGunShips()
 	//////	advance( TargetIter, iter->GetLockOntoVesselIndex() );
 
 	//////	Util3D::Identity();
-	//////	m_pWii->GetImageManager()->GetImage( m_pWii->m_FrameEndStartConstainer[HashString::AimingPointer].StartFrame )
+	//////	m_pWii->GetImageManager()->GetImage( m_pWii->m_FrameEndStartConstainer[HashString::AimingPointer32x32].StartFrame )
 	//////	->DrawImage(*TargetIter);
 
 	////	Util3D::Identity();
-	////	m_pWii->GetImageManager()->GetImage( m_pWii->m_FrameEndStartConstainer[HashString::AimingPointer].StartFrame )
+	////	m_pWii->GetImageManager()->GetImage( m_pWii->m_FrameEndStartConstainer[HashString::AimingPointer32x32].StartFrame )
 	////	->DrawImageXYZ( iter->WorkingTarget.x,iter->WorkingTarget.y, iter->WorkingTarget.z, 255, 0 );
 	////}
 

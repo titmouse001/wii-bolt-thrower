@@ -30,7 +30,7 @@ void Debug::_ExitPrintf(const char* pFormat, ...)
 
 	if (Singleton<WiiManager>::GetInstanceByPtr()!=NULL) // we may be calling from the constructor or maybe its not even got that far
 	{
-		if (Singleton<WiiManager>::GetInstanceByRef().GetScreenBufferId() == 1)  // switch to buffer 0, so printf outputs to buffer ZERO
+		if (Singleton<WiiManager>::GetInstanceByRef().GetScreenBufferId() == 1)  // switch to buffer 0, so printf outputs to that buffer
 		{
 			Singleton<WiiManager>::GetInstanceByRef().SwapScreen();
 		}

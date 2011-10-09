@@ -64,7 +64,7 @@ static void mergesort(char *index,ogg_uint16_t *vals,ogg_uint16_t n){
       int k2=mid;
       int end=(j+i*2<n?j+i*2:n);
       while(k1<mid && k2<end){
-	if(vals[A[k1]]<vals[A[k2]])
+	if ( vals[A[k1]] < vals[A[k2]] )
 	  B[j++]=A[k1++];
 	else
 	  B[j++]=A[k2++];

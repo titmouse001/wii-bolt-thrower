@@ -11,8 +11,8 @@ namespace WiiFile
 
 	void	InitFileSystem();
 	
-	std::string GetFileExtension(const std::string& FileName);
-
+	string GetGamePath();
+	string GetFileExtension(const string& FileName);
 
 	FILE*	FileOpenForRead(const char* const pFileName);
 	bool	CheckFileExist(const char* FileName);

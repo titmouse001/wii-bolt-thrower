@@ -99,7 +99,7 @@ void GameLogic::DoControls()
 			Vessel Missile = *GetPlrVessel();
 			// NOTE: STUPID balue in missle logic need changing with this - TODO redo this
 			Missile.SetFuel(60*11);   // about 20 seconds of missle life
-			Missile.SetFrame( m_pWii->m_FrameEndStartConstainer[HashString::MissileFrames].StartFrame );
+			Missile.SetFrame( m_pWii->m_FrameEndStartConstainer[HashString::SmallMissile16x16].StartFrame );
 
 			float dir = Missile.GetFacingDirection();
 			static bool toggle = false;   // Fudge - todo replace this with something better
@@ -127,7 +127,7 @@ void GameLogic::DoControls()
 
 			// Thrust from back of ship  - todo need to make this far more simple to use, need more functionality
 			Vessel Tail = *GetPlrVessel();
-			Tail.SetFrameGroup( HashString::Boom3Frames, 0.35f);
+			Tail.SetFrameGroup( HashString::ExplosionThrust1Type16x16x10, 0.35f);
 			Tail.SetGravity(1.0f);
 			Tail.SetPos( Tail.GetX() + sin( Tail.GetFacingDirection() )* -8.45, 
 				Tail.GetY() - cos( Tail.GetFacingDirection() )* -8.45, Tail.GetZ());
@@ -147,7 +147,7 @@ void GameLogic::DoControls()
 		if (WPAD_ButtonsDown(0) & WPAD_BUTTON_DOWN)  // Mines
 		{
 			Vessel ProbeMine = *GetPlrVessel();
-			ProbeMine.SetFrameGroup( HashString::ProbeMineFrames);
+			ProbeMine.SetFrameGroup( HashString::ProbeMine16x16x5);
 			float dir = ProbeMine.GetFacingDirection() - (((rand()%(314/16))-(314/32))*0.01);
 			float v = (rand()%10) * 0.05f;
 			ProbeMine.SetGravity(0.985f);
@@ -221,8 +221,8 @@ void GameLogic::StillAlive()
 
 				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(16),HashString::GunShip,1750);
 				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(10),HashString::GunShip,1640);
-				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(45),HashString::Bad1Frames,1400);
-				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(30),HashString::Bad2Frames,1700);
+				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(45),HashString::SmallWhiteEnemyShip16x16x2,1400);
+				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(30),HashString::SmallRedEnemyShip16x16x2,1700);
 				GetPlrVessel()->SetShieldLevel( m_pWii->GetXmlVariable(HashString::PlayerMaxShieldLevel) );
 				break;
 			case 5:  // defence now online
@@ -260,24 +260,24 @@ void GameLogic::StillAlive()
 
 			if (m_SmallEnemiesContainer->size() < m_pWii->ApplyDifficultyFactor(14))
 			{
-				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(45),HashString::Bad1Frames,1700);
-				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(30),HashString::Bad2Frames,1800);
+				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(45),HashString::SmallWhiteEnemyShip16x16x2,1700);
+				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(30),HashString::SmallRedEnemyShip16x16x2,1800);
 			}
 			break;
 		case 5:  // defence now online
 
 			if (m_SmallEnemiesContainer->size()<m_pWii->ApplyDifficultyFactor(14))
 			{
-				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(45),HashString::Bad1Frames,1700);
-				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(30),HashString::Bad2Frames,1800);
+				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(45),HashString::SmallWhiteEnemyShip16x16x2,1700);
+				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(30),HashString::SmallRedEnemyShip16x16x2,1800);
 			}
 			//??? just attack what's left.... run out of things to shoot before enough scrap collected
 			break;
 		case 6:
 			if (m_SmallEnemiesContainer->size()<m_pWii->ApplyDifficultyFactor(24))
 			{
-				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(45),HashString::Bad1Frames,1700);
-				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(30),HashString::Bad2Frames,1800);
+				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(45),HashString::SmallWhiteEnemyShip16x16x2,1700);
+				AddEnemy(0,0,m_pWii->ApplyDifficultyFactor(30),HashString::SmallRedEnemyShip16x16x2,1800);
 			}
 
 			if (m_GunShipContainer->size()<m_pWii->ApplyDifficultyFactor(8))
@@ -386,7 +386,7 @@ void GameLogic::InGameLogic()
 			// Eject loads of mines on death as a final death throw to the enemy
 			Vessel ProbeMine = *GetPlrVessel();
 			ProbeMine.SetGravity(0.995f);
-			ProbeMine.SetFrameGroup( HashString::ProbeMineFrames);
+			ProbeMine.SetFrameGroup( HashString::ProbeMine16x16x5);
 			ProbeMine.SetFacingDirection(0);	
 			for (int i=0; i<200; i++)
 			{
@@ -429,7 +429,7 @@ void GameLogic::InGameLogic()
 	//	GetPlrVessel()->SetVel(0,0,0.85f);
 	//	GetPlrVessel()->SetGravity(0.99f);
 
-		static const HashLabel names[] = { HashString::Boom3Frames , HashString::Boom5Frames };
+		static const HashLabel names[] = { HashString::ExplosionThrust1Type16x16x10 , HashString::ExplosionSmoke1Type16x16x10 };
 
 		Vessel Boom = *GetPlrVessel();
 		Boom.SetGravity(1);
@@ -512,7 +512,7 @@ void GameLogic::ProjectileLogic()
 		}
 		else // end of projectile's life - this will add a final spent explosion at the end
 		{
-			AddScalingAnim(HashString::LargeYellowExplosion, 
+			AddScalingAnim(HashString::YellowEdgeExplosion64x64, 
 				&(*Iter),
 				0.05f, //frame speed
 				( 800 - ( rand()%1600) ) * 0.00025f, // Spin Amount
@@ -530,7 +530,8 @@ void GameLogic::ExhaustLogic()
 	u8 fps = Util::CalculateFrameRate(true);
 	while ((fps<60) && (m_ExhaustContainer->size() > 550))  //should donly kick in for the intro as it uses lots and drags the frame rate down!
 	{
-		m_ExhaustContainer->erase(m_ExhaustContainer->begin(), (m_ExhaustContainer->begin()+100));
+		u32 ReduceAmount = min((60-fps)*5,0);  // best guess amount to drop
+		m_ExhaustContainer->erase(m_ExhaustContainer->begin(), (m_ExhaustContainer->begin() + ReduceAmount  ));
 	}
 
 	for (std::vector<Vessel>::iterator Iter(m_ExhaustContainer->begin()); Iter!= m_ExhaustContainer->end(); /*NOP*/)
@@ -650,7 +651,7 @@ void GameLogic::MissileCollisionLogic()
 					MissileIter->SetGravity(0.975f);  // missile will be deleted ... we can do this
 					MissileIter->VelReduce();
 
-					AddScalingAnim(HashString::LargeYellowExplosion, 
+					AddScalingAnim(HashString::YellowEdgeExplosion64x64, 
 						&(*MissileIter),
 						0.05f,									// frame speed
 						( 800 - ( rand()%1600) ) * 0.00025f,	// Spin Amount
@@ -673,7 +674,7 @@ void GameLogic::MissileCollisionLogic()
 		{
 			if ( (BadIter->IsShieldOk()) && (BadIter->InsideRadius(MissileIter->GetX(), MissileIter->GetY(), fRocketCollisionRadius )) )
 			{
-				AddAnim(HashString::Boom3Frames, &(*BadIter), 0.45f, (1000 - (rand()%2000 )) * 0.00005f );
+				AddAnim(HashString::ExplosionThrust1Type16x16x10, &(*BadIter), 0.45f, (1000 - (rand()%2000 )) * 0.00005f );
 
 				BadIter->AddShieldLevel(-1);
 				if (BadIter->IsShieldOk())  // hit something but their shileds are holding
@@ -684,7 +685,7 @@ void GameLogic::MissileCollisionLogic()
 				}
 				else
 				{
-					AddScalingAnim(HashString::LargeYellowExplosion, 
+					AddScalingAnim(HashString::YellowEdgeExplosion64x64, 
 						&(*BadIter),
 						0.02f,									// frame speed
 						( 800 - ( rand()%1600) ) * 0.00025f,	// Spin Amount
@@ -811,11 +812,11 @@ void GameLogic::PlayerCollisionLogic()
 				GetPlrVessel()->SetShieldLevel( std::max(0,GetPlrVessel()->GetShieldLevel() ) );
 
 				Vessel Boom = *ProjectileIter;
-				Boom.SetFrameGroup(HashString::Explosion64x64,0.25f);
+				Boom.SetFrameGroup(HashString::ExplosionSolidType32x32x10,0.25f);
 				Boom.SetSpin( (1000 - (rand()%2000 )) * 0.00005f );
 				m_ExplosionsContainer->push_back(Boom);	// projectile explosion
 
-				AddScalingAnim(HashString::LargeYellowExplosion, 
+				AddScalingAnim(HashString::YellowEdgeExplosion64x64, 
 					&(*ProjectileIter),
 					0.05f, //frame speed
 					( 800 - ( rand()%1600) ) * 0.00025f, // Spin Amount
@@ -852,7 +853,7 @@ void GameLogic::MissileLogic()
 				thrust.AddPos( -mx*2.0f, -my*2.0f, 0  );
 				thrust.AddVel( -mx*32.0f, -my*32.0f, 0); 
 				thrust.SetGravity(0.89f);
-				AddAnim(HashString::Boom5Frames, &thrust, 0.5f, (1000 - (rand()%2000 )) * 0.00025f );
+				AddAnim(HashString::ExplosionSmoke1Type16x16x10, &thrust, 0.5f, (1000 - (rand()%2000 )) * 0.00025f );
 			}
 			MissileIter->AddVel( mx, my, 0);
 			MissileIter->AddVelToPos();
@@ -888,8 +889,8 @@ void GameLogic::ProbeMineLogic(std::vector<Vessel>*  pVesselContainer, float Thr
 				if ( ProbeMineIter->InsideRadius(*BadIter, CraftSize ) )
 				{
 					BadIter->AddShieldLevel( -3 );  // reduce shiled of the thing its hit - currently mines only effects one thing
-					AddAnim(HashString::Explosion64x64, &(*ProbeMineIter), 0.25f, 0 );
-					AddScalingAnim(HashString::LargeYellowExplosion, 
+					AddAnim(HashString::ExplosionSolidType32x32x10, &(*ProbeMineIter), 0.25f, 0 );
+					AddScalingAnim(HashString::YellowEdgeExplosion64x64, 
 						&(*ProbeMineIter),
 						0.070f,									// frame speed
 						( 100 - ( rand()%200) ) * 0.0015f,		// Spin Amount
@@ -897,7 +898,7 @@ void GameLogic::ProbeMineLogic(std::vector<Vessel>*  pVesselContainer, float Thr
 						0.25,									// Start Scale
 						0.10f );								// Scale Factor
 
-					AddScalingAnim(HashString::LargeYellowExplosion, 
+					AddScalingAnim(HashString::YellowEdgeExplosion64x64, 
 						&(*ProbeMineIter),
 						0.080f,									// frame speed
 						( 100 - ( rand()%200) ) * 0.0015f,		// Spin Amount
@@ -926,14 +927,14 @@ void GameLogic::ProbeMineLogic(std::vector<Vessel>*  pVesselContainer, float Thr
 								ProbeMineIter->AddVel(0, -ThrustPower, 0);
 								ProbeMineIter->SetFrame( ProbeMineIter->GetFrameStart() + 3 ); // use Bottom thruster
 								ProbeMineTail.AddVel(0.5 - ((rand()%100)*0.01),2.0 + ((rand()%300)*0.01),0);
-								ProbeMineTail.SetFrameGroup( HashString::ProbeMineDownThrusterFrames, 0.80f );
+								ProbeMineTail.SetFrameGroup( HashString::ProbeMineDownThrust16x16x5, 0.80f );
 							}
 							else
 							{
 								ProbeMineIter->AddVel(0, ThrustPower, 0);
 								ProbeMineIter->SetFrame( ProbeMineIter->GetFrameStart() + 1 ); // use Top thruster
 								ProbeMineTail.AddVel(0.5 - ((rand()%100)*0.01),-2.0 - ((rand()%300)*0.01),0);
-								ProbeMineTail.SetFrameGroup( HashString::ProbeMineUpThrusterFrames, 0.80f );
+								ProbeMineTail.SetFrameGroup( HashString::ProbeMineUpThrust16x16x5, 0.80f );
 							}
 							ProbeMineTail.SetGravity(0.975f);
 							if (rand()%8==0)
@@ -952,14 +953,14 @@ void GameLogic::ProbeMineLogic(std::vector<Vessel>*  pVesselContainer, float Thr
 								ProbeMineIter->AddVel(-ThrustPower, 0, 0);
 								ProbeMineIter->SetFrame( ProbeMineIter->GetFrameStart() + 2); // use Right thruster
 								ProbeMineTail.AddVel(2.0 + ((rand()%300)*0.01),0.5 - ((rand()%100)*0.01),0);
-								ProbeMineTail.SetFrameGroup( HashString::ProbeMineRightThrusterFrames, 0.80f );
+								ProbeMineTail.SetFrameGroup( HashString::ProbeMineRightThrust16x16x5, 0.80f );
 							}
 							else
 							{
 								ProbeMineIter->AddVel(ThrustPower, 0, 0);
 								ProbeMineIter->SetFrame( ProbeMineIter->GetFrameStart() + 4); // use Left thruster
 								ProbeMineTail.AddVel(-2.0 - ((rand()%300)*0.01),0.5 - ((rand()%100)*0.01),0);
-								ProbeMineTail.SetFrameGroup( HashString::ProbeMineLeftThrusterFrames, 0.80f );
+								ProbeMineTail.SetFrameGroup( HashString::ProbeMineLeftThrust16x16x5, 0.80f );
 							}
 							ProbeMineTail.SetGravity(0.975f);
 							if (rand()%8==0)
@@ -1042,7 +1043,7 @@ void GameLogic::GunShipLogic()
 		if (m_pWii->GetFrameCounter()&4)
 		{
 			Vessel Boom = *GunShipIter;
-			Boom.SetFrameGroup( HashString::SmokeTrailFrames, 0.5f );
+			Boom.SetFrameGroup( HashString::SmokeTrail16x16x10, 0.5f );
 			Boom.SetGravity(0.995f);
 			float dir = Boom.GetFacingDirection() + (5-rand()%11)*0.01;
 			float mx(sin( dir )* -32.0f);
@@ -1074,12 +1075,12 @@ void GameLogic::BadShipsLogic()
 			BadIter->AddVel( mx, my, 0 );
 
 			// add thrust trail
-			Tail.SetFrameGroup(HashString::Boom6Frames,0.25f);
+			Tail.SetFrameGroup(HashString::ExplosionSmoke2Type16x16x10,0.25f);
 			Tail.AddPos( -mx*4.0 ,-my*4.0,	0);
 			Tail.AddVel( -mx*8.2 ,-my*8.2,	0);
 			Tail.SetGravity(0.95f);
 			m_ExhaustContainer->push_back(Tail);  //1st puff of smoke
-			Tail.SetFrameGroup(HashString::Boom6Frames,0.25f);
+			Tail.SetFrameGroup(HashString::ExplosionSmoke2Type16x16x10,0.25f);
 			Tail.AddVel( -mx*4.2 ,my*4.2,	0);
 			Tail.SetGravity(0.85f);
 			m_ExhaustContainer->push_back(Tail); // 2nd puff
@@ -1104,7 +1105,7 @@ void GameLogic::DyingShipsLogic()
 			{
 				Vessel Boom = *BadIter;
 				Boom.SetVel(0,0,0);
-				Boom.SetFrameGroup(HashString::Boom2Frames,0.15f);
+				Boom.SetFrameGroup(HashString::ExplosionFire2Type16x16x9,0.15f);
 			//	Boom.SetGravity(0.95);
 				Boom.SetSpin( (1000 - (rand()%2000 )) * 0.000075f );
 				Boom.SetAlpha( max( 0, 255 - (int)(Boom.GetZ() * 1.5f )) ); // fudge
@@ -1280,7 +1281,7 @@ void GameLogic::GunTurretLogic()
 //		float TotalShotDist = sqrt(Shot_dist);		
 		
 
-		static const float ShotSpeed (6.0f);
+		static const float ShotSpeed (9.0f);
 
 		guVector LockOnto(pTarget->GetPos() );
 		float dist ;
@@ -1322,7 +1323,7 @@ void GameLogic::GunTurretLogic()
 
 		if ( iter->IsTimerDone()  )
 		{
-			iter->SetTimerMillisecs( (rand()%1000) + 3000 );
+			iter->SetTimerMillisecs( (rand()%1000) + 2000 );
 		
 			Mtx Model,mat,mat2;
 			guMtxRotRad(mat,'y', Pitch );
@@ -1365,7 +1366,7 @@ void GameLogic::GunTurretLogic()
 
 				// barrel effect
 				Vessel Boom(&pShot, 0.82f);
-				Boom.SetFrameGroup( HashString::SmokeTrailFrames, 0.5f );
+				Boom.SetFrameGroup( HashString::SmokeTrail16x16x10, 0.5f );
 				m_ExhaustContainer->push_back(Boom);	
 			}
 		}
@@ -1391,13 +1392,22 @@ void GameLogic::GunTurretShotsLogic( std::vector<Vessel>* pEnemy )
 			float RadiusSquare (iter->GetSqaureRadius(GunShipIter->GetX(),GunShipIter->GetY()));
 			if (RadiusSquare < GunShipIter->GetRadius() ) 
 			{
-				Vessel Boom;  // to be fill from a Item3D... can't do a copy here
-				Boom.SetPos(iter->GetPos());
-				Boom.SetFrameGroup(HashString::Explosion64x64,0.35f);
-				Boom.SetVel(iter->GetVel());
-				Boom.SetGravity(0.85f);
-				Boom.SetSpin( (1000 - (rand()%2000 )) * 0.00025f );
-				m_ExplosionsContainer->push_back(Boom);
+				////Vessel Boom;  // to be fill from a Item3D... can't do a copy here
+				////Boom.SetPos(iter->GetPos());
+				////Boom.SetFrameGroup(HashString::RedEdgeExplosion64x64,0.05f);
+				////Boom.SetVel(iter->GetVel());
+				////Boom.SetGravity(0.92f);
+				////Boom.SetSpin( (1000 - (rand()%2000 )) * 0.00025f );
+				////m_ExplosionsContainer->push_back(Boom);
+
+				AddScalingAnim(HashString::RedEdgeExplosion64x64, 
+						&(*GunShipIter),
+						0.015f,									// frame speed
+						( 800 - ( rand()%1600) ) * 0.00025f,	// Spin Amount
+						2.45f + ((rand()%25)*0.01f),				// Top Scale
+						0.001f,									// Start Scale
+						0.02f );								// Scale Factor
+
 
 				GunShipIter->AddShieldLevel(-1);
 
@@ -1459,14 +1469,14 @@ void GameLogic::AddEnemy(float x, float y, float Velx, float Vely, HashLabel Shi
 		BadVessel.SetShieldLevel( 18 ); 
 		BadVessel.SetRadius(46*46);
 	}
-	else if (ShipType==HashString::Bad2Frames)
+	else if (ShipType==HashString::SmallRedEnemyShip16x16x2)
 	{
 		BadVessel.SetGravity(0.99f);
 		BadVessel.SetSpeedFactor( 0.80f );
 		BadVessel.SetShieldLevel( m_pWii->GetXmlVariable(HashString::BadShipType2MaxShieldLevel) );
 		BadVessel.SetRadius(12*12);
 	}
-	else if (ShipType == HashString::Bad1Frames)
+	else if (ShipType == HashString::SmallWhiteEnemyShip16x16x2)
 	{
 		BadVessel.SetGravity(0.99f);
 		BadVessel.SetSpeedFactor( 1.00f );
@@ -1487,9 +1497,9 @@ void GameLogic::AddEnemySpawn(Vessel& rItem)
 	for (int i=0; i < m_pWii->GetConfigValueWithDifficultyApplied(HashString::AmountBadShipsFromSpore)/2; ++i)
 	{
 		float ang = ( rand() % (314*2) ) * 0.1f;
-		AddEnemy(rItem.GetX(),rItem.GetY(), sin(ang) * vel , cos(ang) * vel, HashString::Bad1Frames);
+		AddEnemy(rItem.GetX(),rItem.GetY(), sin(ang) * vel , cos(ang) * vel, HashString::SmallWhiteEnemyShip16x16x2);
 		ang = ( rand() % (314*2) ) * 0.1f;
-		AddEnemy(rItem.GetX(),rItem.GetY(), sin(ang) * vel , cos(ang) * vel, HashString::Bad2Frames);
+		AddEnemy(rItem.GetX(),rItem.GetY(), sin(ang) * vel , cos(ang) * vel, HashString::SmallRedEnemyShip16x16x2);
 	}
 }
 
@@ -1730,7 +1740,7 @@ void GameLogic::Intro()
 		}
 
 		Vessel ProbeMine;
-		ProbeMine.SetFrameGroup(HashString::ProbeMineFrames,1);
+		ProbeMine.SetFrameGroup(HashString::ProbeMine16x16x5,1);
 		ProbeMine.SetGravity(0.985f);
 		ProbeMine.SetVel( 0, 1.15f, 0);
 
@@ -1765,9 +1775,9 @@ void GameLogic::Intro()
 				//at 60 fps this is going to happan in under a second - one at a time is fine
 				// this why there are no sudden jump in CPU activity
 				if ( (rand()%2) == 0)
-					AddEnemy(300-(rand()%600),255+150,HashString::Bad1Frames);
+					AddEnemy(300-(rand()%600),255+150,HashString::SmallWhiteEnemyShip16x16x2);
 				else
-					AddEnemy(300-(rand()%600),-(255+150),HashString::Bad1Frames);
+					AddEnemy(300-(rand()%600),-(255+150),HashString::SmallWhiteEnemyShip16x16x2);
 			}
 //			else
 //				m_bAddMoreShipsFlag = false;
@@ -1825,7 +1835,7 @@ void GameLogic::InitialiseGame()
 	GetPlrVessel()->SetVel( m_pWii->GetXmlVariable(HashString::PlayerStartingVelocityX), m_pWii->GetXmlVariable(HashString::PlayerStartingVelocityY),0.0f );
 	GetPlrVessel()->SetShieldLevel( m_pWii->GetXmlVariable(HashString::PlayerMaxShieldLevel) );
 
-	GetPlrVessel()->SetFrameGroup(HashString::ShipFrames, 1.0f);
+	GetPlrVessel()->SetFrameGroup(HashString::PlayersShip32x32, 1.0f);
 	GetPlrVessel()->SetGravity( 0.995f );
 	//GetPlrVessel()->SetGoingBoom(false);
 	//----------------------------
@@ -1849,8 +1859,8 @@ void GameLogic::InitialiseGame()
 	//----------------------------
 	//initialise bad ships
 	AddEnemy(0,0,m_pWii->GetConfigValueWithDifficultyApplied(HashString::AmountOfGunShipsAtStartUp),HashString::GunShip,2000);
-	AddEnemy(0,0,m_pWii->GetConfigValueWithDifficultyApplied(HashString::AmountBadShips),HashString::Bad1Frames,1200);
-	AddEnemy(0,0,m_pWii->GetConfigValueWithDifficultyApplied(HashString::AmountBadShips),HashString::Bad2Frames,1400);
+	AddEnemy(0,0,m_pWii->GetConfigValueWithDifficultyApplied(HashString::AmountBadShips),HashString::SmallWhiteEnemyShip16x16x2,1200);
+	AddEnemy(0,0,m_pWii->GetConfigValueWithDifficultyApplied(HashString::AmountBadShips),HashString::SmallRedEnemyShip16x16x2,1400);
 
 
 
@@ -1861,7 +1871,7 @@ void GameLogic::InitialiseGame()
 		static const int Height(1000);
 		Vessel thing;
 		thing.SetPos( Width - (rand()%(Width*2)), Height - (rand()%(Height*2)), 0 );
-		thing.SetFrameGroupWithRandomFrame( HashString::ThingFrames, 0.35f);
+		thing.SetFrameGroupWithRandomFrame( HashString::SpinningSpore16x16x9, 0.35f);
 		m_SporesContainer->push_back(thing);
 	}
 
@@ -1955,7 +1965,7 @@ void GameLogic::InitialiseGame()
 	//m_SmallEnemiesContainer->clear();
 	//m_GunShipContainer->clear();
 	//AddEnemy(0,0,1,HashString::GunShip,666);
-	//AddEnemy(0,0,1,HashString::Bad2Frames,666);
+	//AddEnemy(0,0,1,HashString::SmallRedEnemyShip16x16x2,666);
 	//InitialiseSmallGunTurret(4,700, 0,120,600, 3.14/4.0f );
 }
 

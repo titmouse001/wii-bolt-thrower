@@ -27,6 +27,16 @@ std::string WiiFile::GetFileExtension(const std::string& FileName)
 } 
 
 
+std::string WiiFile::GetGamePath()
+{
+#ifdef BUILD_FINAL_RELEASE 
+	std::string TempGamePath = ""; //  Final build - use path relative to the executable
+#else 
+	std::string TempGamePath = "sd://apps/BoltThrower/"; // debug only
+#endif
+
+	return TempGamePath;
+}
 
 void WiiFile::InitFileSystem()
 {

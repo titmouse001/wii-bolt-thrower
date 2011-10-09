@@ -52,4 +52,8 @@
 #endif
 
 
+#ifndef BUILD_FINAL_RELEASE
+#warning *** DONT FORGET TO CHANGE THIS DEFINE FOR RELEASE BUILDS ***
+#endif
+
 #endif

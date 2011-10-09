@@ -114,16 +114,36 @@ extern void OggTest();
 
 // TODO: main is getting nasty - needs a big refactor
 
-int main(int argc, char **argv) 
+int main(int /* argc */, char** /* argv */) 
 {	
 
 	__exception_setreload(6);
 	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
+
 	rWiiManager.InitWii();
 
-	Util::SetUpPowerButtonTrigger();
 
 	rWiiManager.ProgramStartUp();
+
+
+	
+
+//	printf("   START URLManager  ");
+//	URLManager* pURLManager( new URLManager );
+	//pURLManager->SaveURI("http://www.dr-lex.be/software/download/mp3tones.zip", Util::GetGamePath() );
+	//pURLManager->SaveURI("http://vba-wii.googlecode.com/files/Visual%20Boy%20Advance%20GX%202.2.5.zip");
+	//pURLManager->SaveURI("http://www.fnordware.com/superpng/pngtest8rgba.png");
+	//pURLManager->SaveURI("http://he3.magnatune.com/all/03-Law%20of%20One-Indidginus.ogg", Util::GetGamePath());
+	
+//printf("----\n");
+	
+	//rWiiManager.GetSoundManager()->LoadSound(
+			//Util::GetGamePath() + "03-Law of One-Indidginus.ogg", "03-Law of One-Indidginus");
+	//		Util::GetGamePath() + "Law.ogg", "03-Law of One-Indidginus");
+
+//	delete pURLManager;
+
+
 
 	rWiiManager.GetSetUpGame()->MainLoop();
 
@@ -132,104 +152,87 @@ int main(int argc, char **argv)
 	return 0;
 }
 
+////////////////
+////////////////static lwp_t networkthread = LWP_THREAD_NULL;
+////////////////static bool networkHalt = true;
+////////////////static bool exitRequested = false;
+////////////////static u8 * ThreadStack = NULL;
+////////////////
+////////////////
+////////////////static void * networkinitcallback(void *arg )
+////////////////{
+////////////////	while(!exitRequested)
+////////////////	{
+////////////////		if(networkHalt)
+////////////////		{
+////////////////			LWP_SuspendThread(networkthread);
+////////////////			usleep(100);
+////////////////			continue;
+////////////////		}
+////////////////
+////////////////		////if(!networkinit)
+////////////////		////	Initialize_Network();
+////////////////
+////////////////		//if(!firstRun)
+////////////////		//{
+////////////////		//	ConnectSMBShare();
+////////////////		//	if(Settings.FTPServer.AutoStart)
+////////////////		//		FTPServer::Instance()->StartupFTP();
+////////////////
+////////////////		//	ConnectFTP();
+////////////////		//	CheckForUpdate();
+////////////////
+////////////////		//	LWP_SetThreadPriority(networkthread, 0);
+////////////////		//	firstRun = true;
+////////////////		//}
+////////////////
+////////////////		//if(Receiver.CheckIncomming())
+////////////////		//{
+////////////////		//	IncommingConnection(Receiver);
+////////////////		//}
+////////////////
+////////////////		usleep(200000);
+////////////////	}
+////////////////	return NULL;
+////////////////}
+////////////////void ResumeNetworkThread()
+////////////////{
+////////////////	networkHalt = false;
+////////////////	LWP_ResumeThread(networkthread);
+////////////////}
+////////////////
+////////////////
+////////////////void InitNetworkThread()
+////////////////{
+////////////////	ThreadStack = (u8 *) memalign(32, 16384);
+////////////////	if(!ThreadStack)
+////////////////		return;
+////////////////
+////////////////	LWP_CreateThread (&networkthread, networkinitcallback, NULL, ThreadStack, 16384, 30);
+////////////////	ResumeNetworkThread();
+////////////////}
+////////////////
+////////////////void ShutdownNetworkThread()
+////////////////{
+////////////////	//Receiver.FreeData();
+////////////////	//Receiver.CloseConnection();
+////////////////	exitRequested = true;
+////////////////
+////////////////	if(networkthread != LWP_THREAD_NULL)
+////////////////	{
+////////////////		ResumeNetworkThread();
+////////////////		LWP_JoinThread (networkthread, NULL);
+////////////////		networkthread = LWP_THREAD_NULL;
+////////////////	}
+////////////////
+////////////////	if(ThreadStack)
+////////////////		free(ThreadStack);
+////////////////	ThreadStack = NULL;
+////////////////}
+////////////////
+////////////////
+////////////////
 
-static lwp_t networkthread = LWP_THREAD_NULL;
-static bool networkHalt = true;
-static bool exitRequested = false;
-static u8 * ThreadStack = NULL;
-
-
-static void * networkinitcallback(void *arg )
-{
-	while(!exitRequested)
-	{
-		if(networkHalt)
-		{
-			LWP_SuspendThread(networkthread);
-			usleep(100);
-			continue;
-		}
-
-		////if(!networkinit)
-		////	Initialize_Network();
-
-		//if(!firstRun)
-		//{
-		//	ConnectSMBShare();
-		//	if(Settings.FTPServer.AutoStart)
-		//		FTPServer::Instance()->StartupFTP();
-
-		//	ConnectFTP();
-		//	CheckForUpdate();
-
-		//	LWP_SetThreadPriority(networkthread, 0);
-		//	firstRun = true;
-		//}
-
-		//if(Receiver.CheckIncomming())
-		//{
-		//	IncommingConnection(Receiver);
-		//}
-
-		usleep(200000);
-	}
-	return NULL;
-}
-void ResumeNetworkThread()
-{
-	networkHalt = false;
-	LWP_ResumeThread(networkthread);
-}
-
-
-void InitNetworkThread()
-{
-	ThreadStack = (u8 *) memalign(32, 16384);
-	if(!ThreadStack)
-		return;
-
-	LWP_CreateThread (&networkthread, networkinitcallback, NULL, ThreadStack, 16384, 30);
-	ResumeNetworkThread();
-}
-
-void ShutdownNetworkThread()
-{
-	//Receiver.FreeData();
-	//Receiver.CloseConnection();
-	exitRequested = true;
-
-	if(networkthread != LWP_THREAD_NULL)
-	{
-		ResumeNetworkThread();
-		LWP_JoinThread (networkthread, NULL);
-		networkthread = LWP_THREAD_NULL;
-	}
-
-	if(ThreadStack)
-		free(ThreadStack);
-	ThreadStack = NULL;
-}
-
-
-
-
-
-
-
-//////
-//////void DisplaySimpleMessage(std::string Text)
-//////{
-//////	Util3D::Trans(0,0);
-//////	rWiiManager.GetCamera()->SetCameraView( 0, 0, -(579.4f));
-//////
-//////	for (int i=0 ;i<2; ++i)
-//////	{
-//////		Util3D::TransRot(0,0,-3.14f/12.0f);
-//////		rWiiManager.GetFontManager()->DisplayLargeTextCentre(Text, 0,0,112);
-//////		GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
-//////		rWiiManager.SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
-//////	}
-//////}
 
 
 //inline float absf(float f)
@@ -243,7 +246,6 @@ void ShutdownNetworkThread()
 //	);	
 //	return tmp;
 //}
-
 
 
 // Buzz words for web search
@@ -270,23 +272,3 @@ void ShutdownNetworkThread()
 //   mu2 = (1-cos(mu*PI))/2;
 //   return(y1*(1-mu2)+y2*mu2);
 //}
-
-
-
-	//for (int i=0; i<Wii.GetXmlVariable(HashString::AsteroidTotal); ++i)
-	//{
-	////	static const int Width (800000);
-	////	static const int Height(800000);
-
-	//	float ang = M_PI; //(rand()%(int)(M_PI*2.0f*1000.0f))/1000.0f;
-	//	float r = rand()%AsteroidRadius;
-	//	float x = sin(ang) * r;
-	//	float y = cos(ang) * r;
-
-	//	Asteroid.SetPos( x, y, (-50000 + rand()%100000)*0.01f );
-
-	//	Asteroid.SetRotateAmount(	(5000-(rand()%10000)) * 0.0000065f, 
-	//								(5000-(rand()%10000)) * 0.0000065f, 
-	//								(5000-(rand()%10000)) * 0.0000065f );
-	//	m_AsteroidContainer->push_back(Asteroid);
-	//}

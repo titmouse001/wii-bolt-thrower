@@ -14,7 +14,7 @@ public:
 
 	Font(const string& FileName);
 
-	const CharInfo*	const	GetChar (u32 uChar) const;
+	const CharInfo*	GetChar (u32 uChar) const;
 
 	void			SetFirstChar(u32 uFirstChar) { m_uFirstChar = uFirstChar; }
 	u32				GetFirstChar() const { return m_uFirstChar; }
@@ -28,7 +28,7 @@ public:
 	u16				GetLeading() const { return m_uLeading; }
 	void			SetLineSpacing(u16 uLineSpacing) { m_uLineSpacing = uLineSpacing; }
 	u16				GetLineSpacing() const { return m_uLineSpacing; }
-	void			SetUnderline(s16 iUnderline) { m_iUnderline = m_iUnderline; }
+	void			SetUnderline(s16 iUnderline) { m_iUnderline = iUnderline; }
 	s16				GetUnderline() const { return m_iUnderline; }
 	void			SetStrikeout(s16 iStrikeout) { m_iStrikeout = iStrikeout; }
 	s16				GetStrikeout() const { return m_iStrikeout; }

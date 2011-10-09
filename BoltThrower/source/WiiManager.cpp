@@ -129,11 +129,14 @@ void WiiManager::InitWii()
 	m_MessageBox->Init();
 	m_SetUpGame->Init();
 
+	Util::SetUpPowerButtonTrigger();
+
 	WiiFile::InitFileSystem();
 
 	// try to do everything after this - that way we get to see the debug console
 	//maybe my ExitPrintf() should check is the display is up and running - creating one when needed for user error messages???
 	// do this after the display is setup - its a debug dependancy thing
+
 	//Screen specific
 	SetViewport(0.0f,0.0f);
 	InitialiseVideo();
@@ -141,7 +144,7 @@ void WiiManager::InitWii()
 	SetUp3DProjection();
 
 	// XML configuration - this places sections of data into specificly named containers found in the code
-	CreateSettingsFromXmlConfiguration(Util::GetGamePath() + "GameConfiguration.xml");
+	CreateSettingsFromXmlConfiguration(WiiFile::GetGamePath() + "GameConfiguration.xml");
 
 	FinaliseInputDevices();  // maybe do this first? but has dependancy on screen size
 	//maybe do kind of part1 and part2 of this, that way the wiimote can get up and going sooner????
@@ -168,8 +171,6 @@ GXRModeObj* WiiManager::GetBestVideoMode()
 	if (CONF_GetAspectRatio() == CONF_ASPECT_16_9)
 	{
 	      vmode->viWidth = 678;  // probably top limit for stretching the display onto your TV
-    //    vmode->viWidth = 720;  //Not a good idea as this will crop badly on most TV’s if not all
-
 	}
 	//else
 	//{
@@ -194,98 +195,6 @@ GXRModeObj* WiiManager::GetBestVideoMode()
 		vmode->viXOrigin += hoffset;
 
 	return vmode;
-
-	//
-	//
-	//
-	//	GXRModeObj* mode = VIDEO_GetPreferredMode(NULL); // get default video mode
-	//
-	//	
-	//	// choose the desired video mode
-	//	switch(0)
-	//	{
-	//		case 1: // NTSC (480i)
-	//			mode = &TVNtsc480IntDf;
-	//			break;
-	//		case 2: // Progressive (480p)
-	//			mode = &TVNtsc480Prog;
-	//			break;
-	//		case 3: // PAL (50Hz)
-	//			mode = &TVPal528IntDf;
-	//			break;
-	//		case 4: // PAL (60Hz)
-	//			mode = &TVEurgb60Hz480IntDf;
-	//			break;
-	//		default:
-	//			mode = VIDEO_GetPreferredMode(NULL);
-	//			// force TVNtsc480Prog for anyone using ComponentCable
-	//			//if(VIDEO_HaveComponentCable())
-	//			//	mode = &TVNtsc480Prog;
-	//			break;
-	//	}
-	//
-	//	////// check for progressive scan
-	//	////if (mode->viTVMode == VI_TVMODE_NTSC_PROG)
-	//	////	progressive = true;
-	//	////else
-	//	////	progressive = false;
-	//
-	//
-	//	bool bPalMode( mode == &TVPal528IntDf );
-	//
-	////////if( CONF_GetAspectRatio()== CONF_ASPECT_16_9 )
-	////////{
-	////////	mode->viWidth = 678;
-	////////	mode->viXOrigin = (VI_MAX_WIDTH_PAL - 678)/2;
-	////////}
-	//
-	//
-	//////????????
-	//
-	//	if (CONF_GetAspectRatio() == CONF_ASPECT_16_9)
-	//	{
-	//		static const float ratio( 16.0f / 9.0f ); 
-	//		float width (680.0f);
-	//
-	//		float height = width / ratio;
-	//
-	//		height+=60;
-	//
-	//		mode->fbWidth = 640;
-	//		mode->efbHeight = height;
-	//		mode->viWidth = width;
-	//
-	//		//mode->fbWidth = 640;
-	//		//mode->efbHeight = 456;
-	//		//mode->viWidth = 686;
-	//
-	//		mode->xfbHeight = height;
-	//		mode->viHeight = height;
-	//	}
-	//	else
-	//	{
-	//		static const float ratio( 4.0f / 3.0f );
-	//		if (bPalMode)
-	//			mode = &TVPal574IntDfScale;
-	//
-	//		mode->viWidth = 672;
-	//	}
-	//
-	//
-	//		// centre picture
-	//		if (bPalMode)
-	//		{
-	//			mode->viXOrigin = (VI_MAX_WIDTH_PAL - mode->viWidth) / 2;
-	//			mode->viYOrigin = (VI_MAX_HEIGHT_PAL - mode->viHeight) / 2;
-	//		}
-	//		else
-	//		{
-	//			mode->viXOrigin = (VI_MAX_WIDTH_NTSC - mode->viWidth) / 2;
-	//			mode->viYOrigin = (VI_MAX_HEIGHT_NTSC - mode->viHeight) / 2;
-	//		}
-	//
-	//
-	//	return mode;
 }
 
 
@@ -577,7 +486,7 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 
 			// Catch things like;
 			// <Graphics FileName="new.tga">
-			//	 <AddImage Name="ShipFrames"  StartX="0" StartY="0"	ItemWidth="32" ItemHeight="32" NumberItems="4"/>
+			//	 <AddImage Name="PlayersShip32x32"  StartX="0" StartY="0"	ItemWidth="32" ItemHeight="32" NumberItems="4"/>
 			//	 ... </Graphics>
 			//
 
@@ -851,22 +760,17 @@ void WiiManager::TextBox(float x, float y, int w, int h, EAlign eAlign, const ch
 void WiiManager::InitDebugConsole(int ScreenOriginX, int ScreenOriginY)
 {	
 #ifndef BUILD_FINAL_RELEASE
-#warning *** DONT FORGET TO REMOVE THIS IN THE FINAL BUILDS ***
-	//noticed 'InitDebugConsole' clears the given buffer with black
 
 	// Initialise the console, required for printf (hopefully this can be called more than once, can't find any uninit?)
 	console_init(	m_pFrameBuffer[0],
 		ScreenOriginX,
 		ScreenOriginY,
-		640,480,
-		//m_pGXRMode->fbWidth,
-		//m_pGXRMode->xfbHeight,
-		m_pGXRMode->fbWidth * VI_DISPLAY_PIX_SZ);
+		m_pGXRMode->fbWidth,
+		m_pGXRMode->xfbHeight,
+		(m_pGXRMode->fbWidth) * VI_DISPLAY_PIX_SZ);
 
 	VIDEO_ClearFrameBuffer (m_pGXRMode, m_pFrameBuffer[0], COLOUR_FOR_WIPE );  // put back the orginal wipe
-
-	//CON_InitEx(GetGXRMode(), ScreenOriginX,ScreenOriginY,m_pGXRMode->fbWidth,m_pGXRMode->xfbHeight);
-
+	//printf("\x1b[4;1H");
 	printf("InitDebugConsole\n\n");
 #endif
 }
@@ -876,7 +780,7 @@ void WiiManager::ProgramStartUp()
 	// *** fonts ***
 	for ( vector<FileInfo>::iterator Iter( GetFontInfoBegin());	Iter !=  GetFontInfoEnd() ; ++Iter )
 	{
-		GetFontManager()->LoadFont(Util::GetGamePath() + Iter->FileName, Iter->LogicName);
+		GetFontManager()->LoadFont(WiiFile::GetGamePath() + Iter->FileName, Iter->LogicName);
 	}
 	
 //	GetCamera()->InitialiseCamera();
@@ -886,7 +790,7 @@ void WiiManager::ProgramStartUp()
 	for ( vector<FileInfo>::iterator Iter( GetLwoInfoBegin());	Iter !=  GetLwoInfoEnd() ; ++Iter )
 	{
 	
-		Render.Add3DObject( Util::GetGamePath() + Iter->FileName, !Iter->m_bNorms ) 
+		Render.Add3DObject( WiiFile::GetGamePath() + Iter->FileName, !Iter->m_bNorms ) 
 			->SetName(Iter->LogicName);
 			Render.CreateDisplayList(Iter->LogicName);  
 
@@ -894,7 +798,7 @@ void WiiManager::ProgramStartUp()
 		if (Iter->m_IndexLayerForBones != -1)
 		{
 			// We don't create a display list for this part, holds BONEs
-			Render.Add3DObject( Util::GetGamePath() + Iter->FileName, !Iter->m_bNorms, Iter->m_IndexLayerForBones) 
+			Render.Add3DObject( WiiFile::GetGamePath() + Iter->FileName, !Iter->m_bNorms, Iter->m_IndexLayerForBones) 
 					->SetName(Iter->LogicName+"[BONE]");
 		}
 	
@@ -904,14 +808,14 @@ void WiiManager::ProgramStartUp()
 	//***  Sounds, WAV or OGG ***
 	for ( vector<FileInfo>::iterator SoundInfoIter( GetSoundinfoBegin()); SoundInfoIter !=  GetSoundinfoEnd() ; ++SoundInfoIter )
 	{
-		GetSoundManager()->LoadSound(Util::GetGamePath()+SoundInfoIter->FileName,SoundInfoIter->LogicName);
+		GetSoundManager()->LoadSound(WiiFile::GetGamePath()+SoundInfoIter->FileName,SoundInfoIter->LogicName);
 	}
 
 	// *** Raw tga ***
 	for ( vector<FileInfo>::iterator SoundInfoIter( GetRawTgaInfoBegin()); SoundInfoIter !=  GetRawTgaInfoEnd() ; ++SoundInfoIter )
 	{
 		RawTgaInfo Info;
-		Info.m_pTinyLogo = (Tga::PIXEL*) Tga::LoadTGA( Util::GetGamePath() + SoundInfoIter->FileName, Info.m_pTinyLogoHeader ); 
+		Info.m_pTinyLogo = (Tga::PIXEL*) Tga::LoadTGA( WiiFile::GetGamePath() + SoundInfoIter->FileName, Info.m_pTinyLogoHeader ); 
 		m_RawTgaInfoContainer[(HashLabel)SoundInfoIter->LogicName] = Info;
 	}
 
@@ -927,7 +831,7 @@ void WiiManager::ProgramStartUp()
 	for (std::set<std::string>::iterator NameIter(ContainerOfUnqueFileNames.begin()); NameIter != ContainerOfUnqueFileNames.end(); ++NameIter )
 	{
 		// pick the one's that match the current file being looked at
-		if (pImageManager->BeginGraphicsFile(Util::GetGamePath() + *NameIter ))
+		if (pImageManager->BeginGraphicsFile(WiiFile::GetGamePath() + *NameIter ))
 		{
 			// Cut-out sprite graphics into memory from graphic file
 			for ( map<HashLabel,FrameInfo>::iterator FrameInfoIter( GetFrameinfoBegin() );FrameInfoIter !=  GetFrameinfoEnd() ; ++FrameInfoIter )
@@ -954,13 +858,12 @@ void WiiManager::ProgramStartUp()
 		}
 	}
 
-
 	BuildMenus();
 
 	//Get the tracker module into memory
 	for ( vector<FileInfo>::iterator Iter( GetModInfoBegin());	Iter !=  GetModInfoEnd() ; ++Iter )
 	{
-		string name( Util::GetGamePath() + Iter->FileName );
+		string name( WiiFile::GetGamePath() + Iter->FileName );
 		FILE* pFile( WiiFile::FileOpenForRead(name.c_str()) );
 		fseek (pFile , 0, SEEK_END);
 		uint FileSize( ftell (pFile) );
