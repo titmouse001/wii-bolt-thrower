@@ -131,3 +131,11 @@ u64 Util::timer_gettime()
 {
 	return gettime();
 }
+
+
+void Util::Replace(std::string& str,const std::string& from,const std::string& to)
+{
+	std::string::size_type pos( str.find(from) );
+	if ( pos != std::string::npos )
+		str.replace(pos,from.length(),to);
+}

@@ -30,6 +30,9 @@ namespace Util
 	u32 ENDIAN32(u32 Value);
 
 	u64 timer_gettime();
+
+	
+	void Replace(std::string& str,const std::string& from,const std::string& to);
 }
 
 

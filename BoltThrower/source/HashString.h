@@ -36,6 +36,13 @@ public:
 	// graphics names
 	const static HashLabel PlayersShip32x32;
 	const static HashLabel AimingPointer32x32;
+
+	
+	const static HashLabel MediumEnemyShipType01_32x32;
+	const static HashLabel MediumEnemyShipType02_32x32;
+	const static HashLabel MediumEnemyShipType03_32x32;
+	const static HashLabel MediumEnemyShipType04_32x32;
+
 	const static HashLabel SmallMissile16x16;
 	const static HashLabel SmallWhiteEnemyShip16x16x2;
 	const static HashLabel SmallRedEnemyShip16x16x2;

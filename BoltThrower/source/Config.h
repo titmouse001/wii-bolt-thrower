@@ -1,6 +1,10 @@
 #ifndef Config_H
 #define Config_H
 
+#include <string>
+
+static const std::string s_ReleaseVersion("1.66");
+static const std::string s_DateOfRelease("Oct 2011");
 
 //--------------------------------------------------------------------------------------------------------------
 // NOTE 1:

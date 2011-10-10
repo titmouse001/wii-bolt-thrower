@@ -404,7 +404,7 @@
 					</File>
 				</Filter>
 				<Filter
-					Name="Hash"
+					Name="HashStrings"
 					>
 					<File
 						RelativePath=".\source\HashString.cpp"

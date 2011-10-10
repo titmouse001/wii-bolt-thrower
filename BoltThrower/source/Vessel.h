@@ -113,7 +113,7 @@ public:
 	// timer section
 	void InitTimer();
 	void SetTimerMillisecs(u32 t);
-	bool IsTimerDone();
+	bool IsTimerDone() const;
 
 private:
 	guVector	m_Pos;
@@ -126,16 +126,13 @@ private:
 	int			m_LockOntoVesselIndex;
 	HashLabel	m_LockOntoVesselType;
 
-
 	Timer*		m_pTimer;
-
 };
 
 enum EDetailLevelFor3D { High, Medium, Low, Auto } ;
 
 class  MoonItem3D : public Item3D
 {
-
 public:
 	MoonItem3D() : m_AmountOfRocks(0), m_eDetailLevel(Auto) {;}
 
@@ -148,31 +145,31 @@ public:
 private:
 	u32		m_AmountOfRocks;
 	EDetailLevelFor3D 	m_eDetailLevel;
-
 };
 
-
-// TODO - REMOVE
-// get rid of this class... Item3D to use a 'has-a' timer
 class  TurretItem3D : public Item3D
 {
-private:
-
-	Timer*		m_pTimer;
-
 public:
+	TurretItem3D()
+	{
+		m_WorkingTarget.x=0;
+		m_WorkingTarget.y=0;
+		m_WorkingTarget.z=0;
+		m_CurrentTarget.x=0;
+		m_CurrentTarget.y=0;
+		m_CurrentTarget.z=0;
+	}
 
-	void InitTimer();
-	void SetTimerMillisecs(u32 t);
-	bool IsTimerDone();
+	void SetWorkingTarget(guVector& WorkingTarget) { m_WorkingTarget = WorkingTarget; }
+	void SetCurrentTarget(guVector& CurrentTarget) { m_CurrentTarget = CurrentTarget; }
+	guVector& GetWorkingTarget() { return m_WorkingTarget; }
+	guVector& GetCurrentTarget() { return m_CurrentTarget; }
 
-	//todo - class needs to clear these, bad things will happen with floats i.e. 142.300247 1.#QNAN0 112.880287
+private:
+	guVector m_WorkingTarget;
+	guVector m_CurrentTarget;
 
-	guVector WorkingTarget;
-	guVector CurrentTarget;
 };
-
-
 
 class Vessel
 {

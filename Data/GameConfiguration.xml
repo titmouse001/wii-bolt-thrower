@@ -1,6 +1,9 @@
 <?xml version="1.0" standalone="yes"?>
-<!-- 'Wii Bolt Thrower' - game configurtion file --> 
+<!-- 'Wii Bolt Thrower' - game configurtion file -->
+
+
 <Data>
+ 
 	<Variables>
 	
 		<!-- Difficulty factors - applied to things like Enemy units (large than 1.0 is OK) -->
@@ -99,8 +102,15 @@
 		<AddImage Name="SmallMissile16x16"  StartX="0" StartY="32" ItemWidth="16" ItemHeight="16" NumberItems="1"/>
 		<AddImage Name="SmallWhiteEnemyShip16x16x2"     StartX="0" StartY="48" ItemWidth="16" ItemHeight="16" NumberItems="2"/>
 		<AddImage Name="SmallRedEnemyShip16x16x2"     StartX="0" StartY="64" ItemWidth="16" ItemHeight="16" NumberItems="2"/>
-		
-		<AddImage Name="MiniMoon16x16"     StartX="32" StartY="32" ItemWidth="16" ItemHeight="16" NumberItems="1"/>
+
+
+    <AddImage Name="MediumEnemyShipType01_32x32x2"     StartX="0" StartY="448" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+    <AddImage Name="MediumEnemyShipType02_32x32x2"     StartX="32" StartY="448" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+    <AddImage Name="MediumEnemyShipType03_32x32x2"     StartX="64" StartY="448" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+    <AddImage Name="MediumEnemyShipType04_32x32x2"     StartX="96" StartY="448" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+
+
+    <AddImage Name="MiniMoon16x16"     StartX="32" StartY="32" ItemWidth="16" ItemHeight="16" NumberItems="1"/>
 		<AddImage Name="YellowRadarPing32x32"     StartX="48" StartY="32" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
 
 		<AddImage Name="ExplosionFire1Type16x16x9"     StartX="0" StartY="80" ItemWidth="16" ItemHeight="16" NumberItems="9"/>
@@ -222,7 +232,7 @@
       <AddText Credits10 = ""  />
       <AddText Credits11 = "-=Testers=- Tom, Harry, Mr C" />
       <AddText Credits12 = "" />
-      <AddText Credits13 = "Release v0.60 | August 2011" />
+      <AddText Credits13 = "Release v%%RELEASE_VERSION%% %%DATE_OF_BUILT%%" />
       <AddText Credits14 = "Built using libs: -lfat -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm " />
       <AddText Credits15 = "TAG-END" />
     </English>
@@ -272,6 +282,8 @@
       <AddText Your_Score = "&lt;-- lIj mI'" />
       <AddText ScrapPartsCollected = "&lt;-- mI' vo' qab chopta' tu'ta'" />
 
+      <!-- Code looks for CreditsNN and displays each line until we hit the end teg (limit of 99) -->
+      <!-- TODO code needs to support scroll when count exceeds the screen area-->
       <AddText Credits01 = "-=QoQ=- mach QoQ Sum HoD Qot"/>
       <AddText Credits02 = "legh http://modarchive.org/  vaD QaQ chang'eng vo' QoQ"/>
       <AddText Credits03 = "" />
@@ -284,7 +296,7 @@
       <AddText Credits10 = ""  />
       <AddText Credits11 = "-=vItHay'=- Tom, Harry, Mr C" />
       <AddText Credits12 = "" />
-      <AddText Credits13 = "lel v0.60 | HovpoH 2011" />
+      <AddText Credits13 = "lel v%%RELEASE_VERSION%% %%DATE_OF_BUILT%%" />
       <AddText Credits14 = "chenta' tlhej: -lfat -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm" />
       <AddText Credits15 = "TAG-END" />
     </Klingon>

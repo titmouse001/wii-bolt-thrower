@@ -1268,9 +1268,9 @@ void GameLogic::GunTurretLogic()
 		static float CurrentLockOnSpeed( 0.085f ); // Damps the first set - reduces seeing a jumpy 3d object 
 		if (pTarget==NULL)
 		{
-			iter->CurrentTarget.x += ( 0 - iter->CurrentTarget.x ) * CurrentLockOnSpeed;
-			iter->CurrentTarget.y += ( 0 - iter->CurrentTarget.y ) * CurrentLockOnSpeed;
-			iter->CurrentTarget.z += ( 0 - iter->CurrentTarget.z ) * CurrentLockOnSpeed;
+			iter->GetCurrentTarget().x += ( 0 - iter->GetCurrentTarget().x ) * CurrentLockOnSpeed;
+			iter->GetCurrentTarget().y += ( 0 - iter->GetCurrentTarget().y ) * CurrentLockOnSpeed;
+			iter->GetCurrentTarget().z += ( 0 - iter->GetCurrentTarget().z ) * CurrentLockOnSpeed;
 			continue;		
 		}
 
@@ -1299,22 +1299,21 @@ void GameLogic::GunTurretLogic()
 			LockOnto.y += pTarget->GetVelY() * div;
 		}
 	
-
 		// use this for lock on
-		iter->WorkingTarget.x += ( LockOnto.x - iter->WorkingTarget.x ) * LockOnSpeed;
-		iter->WorkingTarget.y += ( LockOnto.y - iter->WorkingTarget.y ) * LockOnSpeed;
-		iter->WorkingTarget.z += ( LockOnto.z - iter->WorkingTarget.z ) * LockOnSpeed;
+		iter->GetWorkingTarget().x += ( LockOnto.x - iter->GetWorkingTarget().x ) * LockOnSpeed;
+		iter->GetWorkingTarget().y += ( LockOnto.y - iter->GetWorkingTarget().y ) * LockOnSpeed;
+		iter->GetWorkingTarget().z += ( LockOnto.z - iter->GetWorkingTarget().z ) * LockOnSpeed;
 
 		// use this for drawing angles
-		iter->CurrentTarget.x += ( iter->WorkingTarget.x - iter->CurrentTarget.x ) * CurrentLockOnSpeed;
-		iter->CurrentTarget.y += ( iter->WorkingTarget.y - iter->CurrentTarget.y ) * CurrentLockOnSpeed;
-		iter->CurrentTarget.z += ( iter->WorkingTarget.z - iter->CurrentTarget.z ) * CurrentLockOnSpeed;
+		iter->GetCurrentTarget().x += ( iter->GetWorkingTarget().x - iter->GetCurrentTarget().x ) * CurrentLockOnSpeed;
+		iter->GetCurrentTarget().y += ( iter->GetWorkingTarget().y - iter->GetCurrentTarget().y ) * CurrentLockOnSpeed;
+		iter->GetCurrentTarget().z += ( iter->GetWorkingTarget().z - iter->GetCurrentTarget().z ) * CurrentLockOnSpeed;
 
 		// Get Direction Vector for the Turret
 		guVector DirectionVector; 
-		DirectionVector.x = (iter->CurrentTarget.x  - iter->GetX() ); 
-		DirectionVector.y = (iter->CurrentTarget.y  - iter->GetY() );
-		DirectionVector.z = (iter->CurrentTarget.z  - iter->GetZ() );
+		DirectionVector.x = (iter->GetCurrentTarget().x  - iter->GetX() ); 
+		DirectionVector.y = (iter->GetCurrentTarget().y  - iter->GetY() );
+		DirectionVector.z = (iter->GetCurrentTarget().z  - iter->GetZ() );
 		guVecNormalize(&DirectionVector);
 
 		float Roll  = (M_PI) + atan2( DirectionVector.y, sqrt( DirectionVector.x * DirectionVector.x + DirectionVector.z * DirectionVector.z) ); 
@@ -1349,9 +1348,9 @@ void GameLogic::GunTurretLogic()
 			//	guVecNormalize(&ShotVelocity);
 
 				float ShipDistPredict (	
-					(pTarget->GetX() - iter->WorkingTarget.x) * (pTarget->GetX() - iter->WorkingTarget.x)  + 
-					(pTarget->GetY() - iter->WorkingTarget.y) * (pTarget->GetY() - iter->WorkingTarget.y)  +
-					(pTarget->GetZ() - iter->WorkingTarget.z) * (pTarget->GetZ() - iter->WorkingTarget.z)  );
+					(pTarget->GetX() - iter->GetWorkingTarget().x) * (pTarget->GetX() - iter->GetWorkingTarget().x)  + 
+					(pTarget->GetY() - iter->GetWorkingTarget().y) * (pTarget->GetY() - iter->GetWorkingTarget().y)  +
+					(pTarget->GetZ() - iter->GetWorkingTarget().z) * (pTarget->GetZ() - iter->GetWorkingTarget().z)  );
 
 				float OneVesselStep =  ( (pTarget->GetVelX() * pTarget->GetVelX()) + (pTarget->GetVelY() * pTarget->GetVelY()) );
 
@@ -1377,6 +1376,8 @@ void GameLogic::GunTurretShotsLogic( std::vector<Vessel>* pEnemy )
 {
 	for (std::vector<Item3D>::iterator iter(m_ShotForGunTurretContainer->begin()); iter!= m_ShotForGunTurretContainer->end(); /*NOP*/  )
 	{
+		iter->GetPos();
+
 		if ( iter->IsTimerDone() )
 		{
 			iter = m_ShotForGunTurretContainer->erase(iter);  // remove shot from list
@@ -1581,14 +1582,14 @@ void GameLogic::InitialiseSmallGunTurret(int Amount, float Dist, float x1, float
 		//int index( rand()%GetSmallEnemiesContainerSize()  );
 		Item.SetLockOntoVesselIndex( -1 );
 
-		Item.WorkingTarget.x = 0;
-		Item.WorkingTarget.y = 0;
-		Item.WorkingTarget.z = 0;
+		Item.GetWorkingTarget().x = 0;
+		Item.GetWorkingTarget().y = 0;
+		Item.GetWorkingTarget().z = 0;
 		
 		// missing this causes things like 142.300247 1.#QNAN0 112.880287 in calculations later!!!!
-		Item.CurrentTarget.x = 0;  // using shorter ={0,0,0} gives a warning 
-		Item.CurrentTarget.y = 0;
-		Item.CurrentTarget.z = 0;
+		Item.GetCurrentTarget().x = 0;  // using shorter ={0,0,0} gives a warning 
+		Item.GetCurrentTarget().y = 0;
+		Item.GetCurrentTarget().z = 0;
 
 		m_pGunTurretContainer->push_back(Item);
 	}

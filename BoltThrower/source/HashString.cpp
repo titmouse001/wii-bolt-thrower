@@ -31,6 +31,11 @@ const HashLabel HashString::hitmetal("hitmetal");
 const HashLabel HashString::PlayersShip32x32("PlayersShip32x32");
 const HashLabel HashString::AimingPointer32x32("AimingPointer32x32");
 
+const HashLabel HashString::MediumEnemyShipType01_32x32("MediumEnemyShipType01_32x32" );
+const HashLabel HashString::MediumEnemyShipType02_32x32("MediumEnemyShipType02_32x32" );
+const HashLabel HashString::MediumEnemyShipType03_32x32("MediumEnemyShipType03_32x32" );
+const HashLabel HashString::MediumEnemyShipType04_32x32("MediumEnemyShipType04_32x32" );
+
 const HashLabel HashString::SmallMissile16x16("SmallMissile16x16" );
 const HashLabel HashString::SmallWhiteEnemyShip16x16x2("SmallWhiteEnemyShip16x16x2");
 const HashLabel HashString::SmallRedEnemyShip16x16x2("SmallRedEnemyShip16x16x2");

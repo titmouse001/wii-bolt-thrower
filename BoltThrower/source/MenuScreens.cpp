@@ -289,32 +289,20 @@ void MenuScreens::DoCreditsScreen()
 	{
 		// 'GetText' - all text comes from the GameConfiguration.xml file, i.e get text labeled 'Credits01'
 		string Message(m_pWii->GetText( "Credits" + Util::NumberToString(i)) );
+
+		Util::Replace(Message,"%%RELEASE_VERSION%%", s_ReleaseVersion);
+		Util::Replace(Message,"%%DATE_OF_BUILT%%", s_DateOfRelease);
+
 		if (Message != "TAG-END")
 			m_pWii->GetFontManager()->DisplaySmallTextCentre( Message,0,y+=19,200);
 		else
 			break;
 	} 
 
-	////m_pWii->GetFontManager()->DisplaySmallTextCentre("-=Music=- 'Space Debris' from the Amiga by Captain/Image",0,y+=19,200);
-	////m_pWii->GetFontManager()->DisplaySmallTextCentre("Visit http://modarchive.org/ for a distinctive collection of modules",0,y+=19,180);
-	////y+=20;
-	////m_pWii->GetFontManager()->DisplaySmallTextCentre("-=3D Models=  WiiMote by Patrick Grubb",0,y+=19,200);
-	////m_pWii->GetFontManager()->DisplaySmallTextCentre("Viper(MK2) by Karl Stocker (UV textures by Titmouse)",0,y+=19,200);
-	////y+=20;
-	////m_pWii->GetFontManager()->DisplaySmallTextCentre("-=2D Art=- Most by Lee Marks / few by Danc - www.lostgarden.com",0,y+=19,200);
-	////y+=20;
-	////m_pWii->GetFontManager()->DisplaySmallTextCentre("-=Programmer=- Paul Overy, alias TitMouse",0,y+=19,200);
-	////y+=20;
-	////m_pWii->GetFontManager()->DisplaySmallTextCentre("-= Testers=- Tom, Harry, Mr C",0,y+=19,200);
-	////y+=20;
-	////m_pWii->GetFontManager()->DisplaySmallTextCentre("Release v0.60 | August 2011",0,y+=19,200);
-	////m_pWii->GetFontManager()->DisplaySmallTextCentre("Built using libs: -lfat -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm",0,y+=19,160);
-
 	{
 		static float wobble	(0);
 		wobble+=0.05;
 		m_pWii->GetFontManager()->DisplayLargeTextCentre(m_pWii->GetText("PressButtonAToContinueMessage"),0,exp(sin(wobble)*2.8f)+330.0f,128);
-	
 	}
 
 	

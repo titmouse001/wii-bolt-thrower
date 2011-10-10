@@ -126,6 +126,8 @@ int main(int /* argc */, char** /* argv */)
 	rWiiManager.ProgramStartUp();
 
 
+	// http://code.google.com/p/wii-bolt-thrower/source/browse/Data/GameConfiguration.xml
+
 	
 
 //	printf("   START URLManager  ");
