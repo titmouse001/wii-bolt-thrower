@@ -2,11 +2,24 @@
 
 <!-- This file looks after updates for Wii Bolt Thrower -->
 <Data>
-	<latestReleaseAvailable>0.60</latestReleaseAvailable>
+	<LatestReleaseAvailable>0.60</LatestReleaseAvailable>
+	
+	<ReleaseNotes>
+	Release 0.60 supports these new features
+	* some more things
+	* stuff
+	* other bits
+	* all new ...
+	</ReleaseNotes>
+	
 	<Updates>
+		
 		<AddFile 	URI="http://code.google.com/p/wii-bolt-thrower/source/browse/Data/BoltThrower_LatestVersion/boot.dol" 
 					Path="/boot.dol" />
+					
 		<DeleteFile Path="Test02.txt" />
-	<Updates>
+		
+	</Updates>
+	
 </Data>
 	
