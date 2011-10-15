@@ -153,3 +153,11 @@ const HashLabel HashString::ViewRadiusForAsteroids("ViewRadiusForAsteroids");
 
 const HashLabel HashString::TurretTarget_SmallShip("TurretTarget_SmallShip");
 const HashLabel HashString::TurretTarget_GunShip("TurretTarget_GunShip");
+
+
+
+const HashLabel HashString::OptionsPopUpMessage("OptionsPopUpMessage");
+const HashLabel HashString::Start_GamePopUpMessage("Start_GamePopUpMessage");
+const HashLabel HashString::IntroPopUpMessage("IntroPopUpMessage");
+
+const HashLabel HashString::Version("Version");

@@ -139,3 +139,22 @@ void Util::Replace(std::string& str,const std::string& from,const std::string& t
 	if ( pos != std::string::npos )
 		str.replace(pos,from.length(),to);
 }
+
+
+std::string Util::urlDecode(std::string Text) 
+{     
+	std::string BuildString;     
+	for (std::string::iterator iter(Text.begin()); iter!=Text.end(); ++iter)
+	{         
+		char Character( *iter );  
+		if (Character == '%')
+		{           
+			int Temp;     
+			sscanf( Text.substr(distance(Text.begin(),iter)+1,2).c_str() , "%x", &Temp);     
+			Character = static_cast<char>(Temp); 
+			iter += 2;  // fudge, should realy error check this 
+		} 
+		BuildString += Character;
+	}    
+	return BuildString; 
+} 

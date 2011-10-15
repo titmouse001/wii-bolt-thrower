@@ -1085,6 +1085,101 @@ bool TiXmlDocument::LoadFile( FILE* file, TiXmlEncoding encoding )
 }
 
 
+
+
+
+bool TiXmlDocument::LoadMem( char* pFreshData, long length, TiXmlEncoding encoding )
+{
+	if ( pFreshData==NULL )
+	{
+		SetError( TIXML_ERROR_OPENING_FILE, 0, 0, TIXML_ENCODING_UNKNOWN );  //really need to add a new error for this
+		return false;
+	}
+
+	// Delete the existing data:
+	Clear();
+	location.Clear();
+
+	//////// Get the file size, so we can pre-allocate the string. HUGE speed impact.
+	//////long length = 0;
+	//////fseek( file, 0, SEEK_END );
+	//////length = ftell( file );
+	//////fseek( file, 0, SEEK_SET );
+
+	// Strange case, but good to handle up front.
+	if ( length <= 0 )
+	{
+		SetError( TIXML_ERROR_DOCUMENT_EMPTY, 0, 0, TIXML_ENCODING_UNKNOWN );
+		return false;
+	}
+
+	TIXML_STRING data;
+	data.reserve( length );
+
+	char* buf = pFreshData ; //new char[ length+1 ];
+	//buf[0] = 0;
+
+	////if ( fread( buf, length, 1, file ) != 1 ) {
+	////	delete [] buf;
+	////	SetError( TIXML_ERROR_OPENING_FILE, 0, 0, TIXML_ENCODING_UNKNOWN );
+	////	return false;
+	////}
+
+	const char* lastPos = buf;
+	const char* p = buf;
+
+	buf[length] = 0;
+	while( *p ) {
+		assert( p < (buf+length) );
+		if ( *p == 0xa ) {
+			// Newline character. No special rules for this. Append all the characters
+			// since the last string, and include the newline.
+			data.append( lastPos, (p-lastPos+1) );	// append, include the newline
+			++p;									// move past the newline
+			lastPos = p;							// and point to the new buffer (may be 0)
+			assert( p <= (buf+length) );
+		}
+		else if ( *p == 0xd ) {
+			// Carriage return. Append what we have so far, then
+			// handle moving forward in the buffer.
+			if ( (p-lastPos) > 0 ) {
+				data.append( lastPos, p-lastPos );	// do not add the CR
+			}
+			data += (char)0xa;						// a proper newline
+
+			if ( *(p+1) == 0xa ) {
+				// Carriage return - new line sequence
+				p += 2;
+				lastPos = p;
+				assert( p <= (buf+length) );
+			}
+			else {
+				// it was followed by something else...that is presumably characters again.
+				++p;
+				lastPos = p;
+				assert( p <= (buf+length) );
+			}
+		}
+		else {
+			++p;
+		}
+	}
+	// Handle any left over characters.
+	if ( p-lastPos ) {
+		data.append( lastPos, p-lastPos );
+	}
+
+//	delete [] buf;
+//	buf = 0;
+
+
+	Parse( data.c_str(), 0, encoding );
+
+	return ( !Error() );
+}
+
+
+
 bool TiXmlDocument::SaveFile( const char * filename ) const
 {
 	// The old c stuff lives on...

@@ -16,12 +16,15 @@ Menu* MenuManager::AddMenu(int x, int y, int w, int h, std::string Name, bool bS
 	WiiManager& Wii( Singleton<WiiManager>::GetInstanceByRef() );
 
 	Menu* pMenu( new Menu );
+
+	//printf("___2___");
 	pMenu->SetMenu(x,y,w,h);
 	pMenu->SetText(Wii.GetText(Name));
 	pMenu->SetHashLabel( HashLabel(Name) );
 	pMenu->SetShowTextOnly( bShowTextOnly );
 	pMenu->SetJustifyLeft( bJustifyLeft );
 	m_MenuContainer[ GetMenuGroup() ].push_back( pMenu );
+	//printf("___2___");
 	return pMenu;
 }
 

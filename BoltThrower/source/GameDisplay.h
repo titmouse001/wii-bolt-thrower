@@ -18,6 +18,7 @@ public:
 	void DisplayAllForIntro();
 
 	void DisplaySimpleMessage(std::string Text);
+	void DisplaySmallSimpleMessage(std::string Text);
 
 	void DisplayMoon();
 

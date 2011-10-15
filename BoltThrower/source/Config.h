@@ -2,9 +2,16 @@
 #define Config_H
 
 #include <string>
+#include <stdlib.h>
+#include <stdio.h>
 
-static const std::string s_ReleaseVersion("1.66");
+
+static const std::string s_ReleaseVersion("0.59");
 static const std::string s_DateOfRelease("Oct 2011");
+
+static const float s_fVersion( atof( s_ReleaseVersion.c_str() ) );
+
+
 
 //--------------------------------------------------------------------------------------------------------------
 // NOTE 1:

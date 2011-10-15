@@ -106,10 +106,30 @@ void MenuScreens::DoMenuScreen()
 	m_pWii->GetFontManager()->DisplayLargeTextCentre( m_pWii->GetText("MainMenuScreenTopTitle") ,0,-180,190); 
 
 	
-	//string Language(m_pWii->GetMenuManager()->GetMenuItemText(HashString::LanguageSetting));
-	m_pWii->GetFontManager()->DisplaySmallTextVertCentre( m_pWii->GetLanguage(),-300,160,144); 
-	m_pWii->GetFontManager()->DisplaySmallTextVertCentre( m_pWii->GetText(m_pWii->GetDifficulty()),-200,160,144); 
 
+//	m_pWii->GetFontManager()->DisplaySmallTextVertCentre( m_pWii->GetLanguage(),-300,160,144); 
+
+	m_pWii->DrawRectangle( -240, 160, 480, 20, 55, 0,0,0 );
+
+
+	HashLabel Name = m_pWii->GetMenuManager()->GetSelectedMenu();
+	if (Name == HashString::Options)
+	{
+		m_pWii->GetFontManager()->DisplaySmallTextCentre(  m_pWii->GetText("OptionsPopUpMessage"),0,170,222); 
+	}
+	else if (Name == HashString::Start_Game)
+	{
+		m_pWii->GetFontManager()->DisplaySmallTextCentre( m_pWii->GetText("Start_GamePopUpMessage") + m_pWii->GetDifficulty() ,0,170,222); 
+	}
+	else if (Name == HashString::Intro)
+	{
+		m_pWii->GetFontManager()->DisplaySmallTextCentre( m_pWii->GetText("IntroPopUpMessage"),0,170,222); 
+	}
+	else
+	{
+		extern string MesageHack;
+		m_pWii->GetFontManager()->DisplaySmallTextCentre( MesageHack,0,170,222); 
+	}
 
 	//----------------------------------------------------------
 	Util3D::TransRot(320-50,240-50,-3.14f/4.0f);

@@ -12,6 +12,7 @@
 #include "ogcsys.h"
 #include "network.h"
 
+#define URL_DEBUG (false)
 
 
 #include "URIManager.h"
@@ -82,8 +83,8 @@ string URLManager::CreateHttpRequest(const string& CommandWithSpace, const strin
 
 void URLManager::SaveURI(string URI, string DestinationPath )
 {
-	printf("SaveURI");
-	MemoryInfo* pMeminfo( NewFromURI( URI ) );
+//	printf("SaveURI");
+	MemoryInfo* pMeminfo( GetFromURI( URI ) );
 	if (pMeminfo!=NULL)
 	{
 		pMeminfo->SavePath( DestinationPath );
@@ -96,7 +97,7 @@ void URLManager::SaveURI(string URI, string DestinationPath )
 }
 
 
-MemoryInfo* URLManager::NewFromURI(string URI)
+MemoryInfo* URLManager::GetFromURI(string URI)
 {
 	
 	string SiteName( GetHostNameFromUrl(URI) );
@@ -120,12 +121,12 @@ MemoryInfo* URLManager::NewFromURI(string URI)
 	// ------------------------------------------------------------
 	// DEBUG section
 #if URL_DEBUG
-	OutputDebugString("\n");
-	OutputDebugString(host->h_name); 
+	printf("\n");
+	printf(host->h_name); 
 	in_addr** addr_list = (in_addr**)host->h_addr_list;  
 	for ( int i = 0; addr_list[i] != NULL; i++ ) 
 	{
-		OutputDebugString( (string("\n")+ string(inet_ntoa(*addr_list[i])) + string("\n") ).c_str() );
+		printf( (string("\n")+ string(inet_ntoa(*addr_list[i])) + string("\n") ).c_str() );
 	}
 #endif
 	// ------------------------------------------------------------
@@ -141,11 +142,11 @@ MemoryInfo* URLManager::NewFromURI(string URI)
 
 	int BytesRemaining( RequestPacket.length() );
 
-#if URL_DEBUG
-	std::ostringstream  osstream;
-	osstream << BytesRemaining;
-	OutputDebugString( ("Sending\n" + RequestPacket + "You sent a RequestPacket using " + osstream.str() + " bytes\n\n").c_str() );
-#endif 
+//#if URL_DEBUG
+//	std::ostringstream  osstream;
+//	osstream << BytesRemaining;
+//	printf( ("Sending\n" + RequestPacket + "You sent a RequestPacket using " + osstream.str() + " bytes\n\n").c_str() );
+//#endif 
 
 	do{
 		int BytesSent = net_send(sockfd, RequestPacket.c_str(), BytesRemaining, 0); // My tests under windows found that just one packet is needed - even when I made the packet really big!
@@ -190,7 +191,7 @@ MemoryInfo* URLManager::NewFromURI(string URI)
 					reallocAmount = -1;  // cancel the realloc later on 
 #if URL_DEBUG
 					char a[128]; sprintf(a,"realloc using Content-Length: value %d, total %d \n", Value , Value + WorkingString.length() + 1) ;
-					OutputDebugString( a);
+					printf( a);
 #endif
 				}
 			}
@@ -209,7 +210,7 @@ MemoryInfo* URLManager::NewFromURI(string URI)
 			{
 #if URL_DEBUG
 				char a[128]; sprintf(a,"Content-Length: not found yet %d\n",(int)BytesRead) ;
-				OutputDebugString( a);
+				printf( a);
 #endif
 				BufferSize += reallocAmount ; //1024*4;
 				TempStoreForReadData = (u8*)realloc(TempStoreForReadData, BufferSize);  // memory block may be in a new location
@@ -236,12 +237,12 @@ MemoryInfo* URLManager::NewFromURI(string URI)
 
 
 #if URL_DEBUG
-	OutputDebugString("\n-----------------------\n");
-	OutputDebugString( WorkingString.c_str()  );
-	OutputDebugString("\n-----------------------\n");
-	osstream.str("");
-	osstream << "total header size: " <<  HeaderLength << " Body size:" << (BodyBytes) << "\n";
-	OutputDebugString( osstream.str().c_str()  );
+	printf("\n-----------------------\n");
+	printf( WorkingString.c_str()  );
+	printf("\n-----------------------\n");
+	//osstream.str("");
+	//osstream << "total header size: " <<  HeaderLength << " Body size:" << (BodyBytes) << "\n";
+	//printf( osstream.str().c_str()  );
 #endif
 
 	MemoryInfo* MemInfo( new MemoryInfo );
@@ -254,7 +255,7 @@ MemoryInfo* URLManager::NewFromURI(string URI)
 	if (BytesRead<0)
 		MemInfo->SetFileNameWithExtension( URI.substr(Pos, Length) + ".Bad" );
 
-	printf("%s", URI.c_str() );
+//	printf("%s", URI.c_str() );
 
 	return MemInfo;
 }

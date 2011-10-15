@@ -15,7 +15,7 @@ public:
 	URLManager();
 	~URLManager();
 
-	MemoryInfo* NewFromURI(string URI);
+	MemoryInfo* GetFromURI(string URI);
 	void SaveURI(string URI, string DestinationPath = "c:\\" );
 
 private:
@@ -34,6 +34,10 @@ public:
 
 	void SetData(u8* pData) { m_pData = pData; }
 	void SetSize(u32 uSize) { m_uSize = uSize; }
+
+	u8* GetData() const { return m_pData; }
+	u32 GetSize() const { return m_uSize; }
+
 
 	void Save(string FullPathFileName);
 	void SavePath(string PathName);

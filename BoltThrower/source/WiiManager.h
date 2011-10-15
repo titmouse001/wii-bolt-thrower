@@ -66,6 +66,7 @@ public:
 	FileInfo() {;}
 	string FileName;
 	string LogicName;
+	string DownloadDir;
 	bool m_bNorms;
 	int m_IndexLayerForBones;
 };
@@ -175,6 +176,9 @@ public:
 	//RawTga's
 	vector<FileInfo>::iterator GetRawTgaInfoBegin() { return m_RawTgainfoContainer.begin(); }
 	vector<FileInfo>::iterator GetRawTgaInfoEnd()   { return m_RawTgainfoContainer.end(); }
+	//Ogg's
+	vector<FileInfo>::iterator GetOggInfoBegin() { return m_MusicOgginfoContainer.begin(); }
+	vector<FileInfo>::iterator GetOggInfoEnd() { return m_MusicOgginfoContainer.end(); }
 
 	//Image*					m_pSpaceBackground;
 	struct RawTgaInfo
@@ -245,7 +249,7 @@ public:
 
 	void BuildMenus(bool KeepSettings = false);
 
-	void DisplaySimpleMessage(std::string Text);
+//	void DisplaySimpleMessage(std::string Text);
 	
 	int GetConfigValueWithDifficultyApplied(HashLabel Name);
 	float ApplyDifficultyFactor(float Value);
@@ -304,6 +308,8 @@ private:
 	vector<FileInfo> m_LwoinfoContainer;
 	vector<FileInfo> m_ModinfoContainer;
 	vector<FileInfo> m_RawTgainfoContainer;
+
+	vector<FileInfo> m_MusicOgginfoContainer;
 
 
 //	vector<string> m_SupportedLanguages;

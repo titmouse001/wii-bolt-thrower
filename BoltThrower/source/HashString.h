@@ -158,7 +158,11 @@ public:
 	const static HashLabel TurretTarget_SmallShip;
 	const static HashLabel TurretTarget_GunShip;
 
+	const static HashLabel OptionsPopUpMessage;
+	const static HashLabel Start_GamePopUpMessage;
+	const static HashLabel IntroPopUpMessage;
 
+	const static HashLabel Version;
 };
 
 

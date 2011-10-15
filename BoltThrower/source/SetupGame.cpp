@@ -10,7 +10,7 @@
 #include <gcmodplay.h>
 #include <wiiuse/wpad.h>
 #include  "SetupGame.h"
-//#include "debug.h"
+#include "debug.h"
 //#include "config.h"
 
 
@@ -46,6 +46,7 @@ void SetUpGame::Intro()
 				//MODPlay_Stop( &m_pWii->m_ModuleTrackerPlayerInterface );
 				//MODPlay_Unload( &m_pWii->m_ModuleTrackerPlayerInterface );
 				//-------------
+				
 				OggPlayer Ogg;
 				string FullFileName = WiiFile::GetGamePath() + "03-Law of One-Indidginus.ogg"; // "09-Faerie tale-Indidginus.ogg";
 				FILE* pOggFile( WiiFile::FileOpenForRead( FullFileName.c_str() ) );
@@ -53,6 +54,7 @@ void SetUpGame::Intro()
 				u8* pOggData = (u8*) malloc(OggSize);
 				fread( pOggData, OggSize, 1, pOggFile);
 				Ogg.PlayOgg(pOggData, OggSize, 0, OGG_ONE_TIME);
+
 			}
 			m_pWii->SetGameState(WiiManager::eIntro); 
 		}
@@ -67,7 +69,7 @@ void SetUpGame::Menus()
 	m_pWii->SetGameState(WiiManager::eMenu);
 	m_pWii->GetCamera()->SetCameraView( 0, 0, -(579.4f));
 	m_pWii->GetMenuScreens()->SetTimeOutInSeconds();
-	m_pWii->GetGameLogic()->CreateIntroScene();
+	m_pWii->GetGameLogic()->InitMenu();
 
 	while (1) 
 	{	

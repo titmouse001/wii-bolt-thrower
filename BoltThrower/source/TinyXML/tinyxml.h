@@ -1399,6 +1399,9 @@ public:
 
 	virtual ~TiXmlDocument() {}
 
+
+	bool LoadMem( char* pFreshData, long length, TiXmlEncoding encoding = TIXML_DEFAULT_ENCODING  );
+
 	/** Load a file using the current document value.
 		Returns true if successful. Will delete any existing
 		document data before loading.

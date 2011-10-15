@@ -58,6 +58,7 @@ WiiManager::WiiManager() :	m_pGXRMode(NULL), m_gp_fifo(NULL),
 							m_ViewportX(0),
 							m_ViewportY(0),
 							m_GameState(eIntro),
+							m_Difficulty("medium"),
 							m_Language("English")
 { 
 	m_pFrameBuffer[0] = NULL;
@@ -154,6 +155,7 @@ void WiiManager::InitWii()
 	{
 		WPAD_SetIdleTimeout(Timeout); 
 	}
+
 }
 
 GXRModeObj* WiiManager::GetBestVideoMode()
@@ -452,7 +454,7 @@ void WiiManager::Printf(int x, int y, const char* pFormat, ...)
 	va_end(tArgs);
 
 	Util3D::Trans(GetCamera()->GetCamX(),GetCamera()->GetCamY());
-	GetFontManager()->DisplaySmallText(Buffer,x,y);
+	GetFontManager()->DisplaySmallText(Buffer,x,y,200);
 }
 
 void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
@@ -591,6 +593,21 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 				}
 			}
 
+			// *** Ogg's ***
+			TiXmlElement* pOgg =  Data.FirstChild( "OggMusic" ).FirstChildElement().ToElement();
+			for( TiXmlElement* pElement(pOgg); pElement!=NULL; pElement=pElement->NextSiblingElement() )
+			{
+				string Key(pElement->Value());
+				if (Key=="AddOgg") 
+				{
+					FileInfo Info( pElement->Attribute("URI"), Util::urlDecode( pElement->Attribute("URI") ) );
+					Info.DownloadDir = pElement->Attribute("DownloadDir");
+
+					m_MusicOgginfoContainer.push_back( Info );
+				}
+			}
+
+
 			// *** Raw tga's ***
 			TiXmlElement* pRawTga =  Data.FirstChild( "RawTga" ).FirstChildElement().ToElement();
 			for( TiXmlElement* pElement(pRawTga); pElement!=NULL; pElement=pElement->NextSiblingElement() )
@@ -663,7 +680,8 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 	if (m_FontinfoContainer.empty()) ExitPrintf(ErrorString.c_str(),"fonts");
 	if (m_LwoinfoContainer.empty()) ExitPrintf(ErrorString.c_str(),"lwo's");
 	if (m_ModinfoContainer.empty()) ExitPrintf(ErrorString.c_str(),"mod's");
-
+	if (m_MusicOgginfoContainer.empty()) ExitPrintf(ErrorString.c_str(),"ogg's");
+	// oggs can be empty
 	
 
 }
@@ -827,6 +845,8 @@ void WiiManager::ProgramStartUp()
 		ContainerOfUnqueFileNames.insert( FrameInfoIter->second.FileName );
 	}
 
+			
+
 	ImageManager* pImageManager( GetImageManager() );
 	for (std::set<std::string>::iterator NameIter(ContainerOfUnqueFileNames.begin()); NameIter != ContainerOfUnqueFileNames.end(); ++NameIter )
 	{
@@ -858,7 +878,10 @@ void WiiManager::ProgramStartUp()
 		}
 	}
 
+
 	BuildMenus();
+
+
 
 	//Get the tracker module into memory
 	for ( vector<FileInfo>::iterator Iter( GetModInfoBegin());	Iter !=  GetModInfoEnd() ; ++Iter )
@@ -877,6 +900,8 @@ void WiiManager::ProgramStartUp()
 
 		break; // TODO - store more then one - just for now take the first one we find
 	}
+
+
 }
 
 void WiiManager::BuildMenus(bool KeepSettings)
@@ -905,6 +930,7 @@ void WiiManager::BuildMenus(bool KeepSettings)
 	GetMenuManager()->SetMenuGroup("MainMenu");
 
 	GetMenuManager()->AddMenu(-width*0.20, y, width,height,"Start_Game",false,true);
+	
 	y+=step;
 	GetMenuManager()->AddMenu(-width*0.30, y, width,height,"Options",false,true);
 	y+=step;
@@ -954,7 +980,6 @@ void WiiManager::BuildMenus(bool KeepSettings)
 		}
 		NextItem->SetCurrentItemIndex(Language); // set the fisrt one as the default language
 	}
-
 	y+=step+30;
 	GetMenuManager()->AddMenu(0, y , 600, height, "Back");
 

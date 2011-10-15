@@ -56,9 +56,12 @@ int WiiFile::GetFileSize(FILE* pFile)
 	return FileLength;
 }
 
+FILE* WiiFile::FileOpenForRead(string FileName)
+{
+	FileOpenForRead( FileName.c_str() );
+}
 
 FILE* WiiFile::FileOpenForRead(const char* const pFileName)
-
 {
 //	const char* name; 
 //	char* label;
@@ -82,6 +85,11 @@ FILE* WiiFile::FileOpenForRead(const char* const pFileName)
 	//fseek(pFile,0,SEEK_SET);
 
 	return pFile;
+}
+
+bool WiiFile::CheckFileExist(std::string FileName)
+{
+	CheckFileExist(FileName.c_str());
 }
 
 bool WiiFile::CheckFileExist(const char* FileName)
@@ -153,4 +161,11 @@ void WiiFile::WriteInt16(s16 Value, FILE* pFile)
 
 	if ( fwrite ( &Value, sizeof(Value), 1, pFile ) != 1 )
 		exit(1);
+}
+
+string	WiiFile::GetFileNameWithoutPath(string FullFileName)
+{
+	size_t Pos( FullFileName.rfind("/") + 1 );
+	size_t Length( FullFileName.length() - Pos );
+	return FullFileName.substr(Pos, Length)	;
 }

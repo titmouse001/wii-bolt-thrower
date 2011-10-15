@@ -48,7 +48,6 @@ Bolt Thrower - Games design notes
 #include "debug.h"
 #include "Util.h"
 #include "Util3d.h"
-
 #include "HashString.h"
 #include <math.h>
 #include "WiiFile.h"
@@ -58,42 +57,28 @@ Bolt Thrower - Games design notes
 #include "ImageManager.h"
 #include "SoundManager.h"
 #include "JPEGDEC.h"
-
 #include "Image.h"
 #include "GameDisplay.h"
 #include "MenuScreens.h"
-
 //#include  "HTTP/HTTP_Util.h"
 #include <network.h>
-
 #include  "URIManager.h"
-
-
 #include <ogc/machine/processor.h>
 #include <ogc/lwp_watchdog.h>
 #include "ogc/lwp.h"
 #include <ogcsys.h>
-
 #include <unistd.h>
 //#include <sys/types.h>
 //#include <sys/stat.h>
 #include <fcntl.h>
-
-
 #include  "vessel.h"
-
-
 #include "oggplayer/oggplayer.h"
-
 #include  "SetupGame.h"
-
-
 #include  "util.h"
+#include "TinyXML/TinyXML.h"
 
-
-extern "C" {  extern void __exception_setreload(int t); }
-
-extern void OggTest();
+#include "MessageBox.h"
+//extern void OggTest();
 
 //
 ////Wiilight stuff  
@@ -111,24 +96,155 @@ extern void OggTest();
 #include "CullFrustum\Vec3.h"
 #include "CullFrustum\FrustumR.h"
 
-
 // TODO: main is getting nasty - needs a big refactor
 
+void QUICKHACK_UpdateMessage(string Message,string Heading);
+void CheckForUpdate();
+
+string MesageHack = "";
+
+extern "C" {  extern void __exception_setreload(int t); }
 int main(int /* argc */, char** /* argv */) 
 {	
+
 
 	__exception_setreload(6);
 	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
 
 	rWiiManager.InitWii();
 
-
 	rWiiManager.ProgramStartUp();
 
 
-	// http://code.google.com/p/wii-bolt-thrower/source/browse/Data/GameConfiguration.xml
+	rWiiManager.GetCamera()->InitialiseCamera(); // 3D View
+
+
+	MesageHack = rWiiManager.GetText("Version")  + s_ReleaseVersion + " - " + s_DateOfRelease;
+	CheckForUpdate();
+
+
+
+	rWiiManager.GetSetUpGame()->MainLoop();
+
+	rWiiManager.GetGameDisplay()->DisplaySimpleMessage(rWiiManager.GetText("QuitMessage"));
+	rWiiManager.UnInitWii();
+	return 0;
+}
+
+
+void CheckForUpdate()
+{
+	URLManager* pURLManager( new URLManager );
+
+	// download missing music
+	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
+
+	rWiiManager.GetCamera()->SetCameraView(0,0) ;
+
+	for ( vector<FileInfo>::iterator Iter( rWiiManager.GetOggInfoBegin()); Iter !=  rWiiManager.GetOggInfoEnd() ; ++Iter )
+	{
+		string MusicPath(WiiFile::GetGamePath() + Iter->DownloadDir );
+
+		string URI_FilePath ( Iter->LogicName.c_str() );
+		//printf( "URI: %s", URI_FilePath.c_str() );
+		string FileName ( MusicPath + WiiFile::GetFileNameWithoutPath( URI_FilePath ) );
+
+		if ( !(WiiFile::CheckFileExist(FileName)) )
+		{
+				rWiiManager.GetGameDisplay()->DisplaySmallSimpleMessage("downloading and caching " + FileName);
+			//printf("____missing... downloading and caching____ %s",FileName.c_str());
+			pURLManager->SaveURI(URI_FilePath , MusicPath );
+		}
+	}
 
 	
+	//Check version number
+
+
+	// pURLManager->SaveURI("http://wii-bolt-thrower.googlecode.com/hg/LatestVersion.xml",WiiFile::GetGamePath() );
+	MemoryInfo* pData(pURLManager->GetFromURI("http://wii-bolt-thrower.googlecode.com/hg/LatestVersion.xml"));
+
+	//// TEST CODE - usefull when testing from emulator (put file on SD rather than http site)
+	//FILE* pFile( WiiFile::FileOpenForRead( WiiFile::GetGamePath() +  "LatestVersion.xml" )  );
+	//fseek (pFile , 0, SEEK_END);
+	//uint FileSize( ftell (pFile) );
+	//rewind(pFile); 
+	//u8* ptestdata = (u8*) malloc (sizeof(char) * FileSize);
+	//size_t TestSize = fread (ptestdata,1,FileSize,pFile);
+
+	TiXmlDocument doc;
+	if ( doc.LoadMem( (char*)pData->GetData(), pData->GetSize() ) )   // from file test 
+//	if ( doc.LoadMem( (char*) ptestdata, TestSize ) )
+	{
+		TiXmlHandle docHandle( &doc );
+		TiXmlHandle Data( docHandle.FirstChild( "Data" ) );
+		if (Data.Element() != NULL)  // check for valid xml root
+		{
+			TiXmlElement* pElem=Data.FirstChild("LatestReleaseAvailable").Element();
+			if (pElem)
+			{
+				double fLatestReleaseAvailable( atof(pElem->GetText()) );
+				printf("LatestReleaseAvailable = %f", fLatestReleaseAvailable );
+				if ( fLatestReleaseAvailable > s_fVersion )
+				{
+					//printf("New Version Available %f",s_fVersion );
+					QUICKHACK_UpdateMessage((string)"visit http://wiibrew.org/wiki/BoltThrower for download (sorry no auto update yet)",
+						pElem->GetText() + (string)" Available");
+
+					MesageHack = (string) "visit http://wiibrew.org/wiki/BoltThrower " + pElem->GetText() + " is available";
+				}
+				else
+				{
+					QUICKHACK_UpdateMessage((string)"No update available \n \n You are running latest version" , "Information");
+				}
+			}
+
+			TiXmlElement* Updates =  Data.FirstChild( "Updates" ).FirstChildElement().ToElement();
+			for( TiXmlElement* pElement(Updates); pElement!=NULL; pElement=pElement->NextSiblingElement() )
+			{
+				string Key(pElement->Value());
+				if (Key=="AddFile") 
+				{
+					string a = pElement->Attribute("URI");
+					string b= pElement->Attribute("Path");
+					printf("URI=%s PATH=%s", a.c_str(), b.c_str() );
+				}
+			}
+		}
+	}
+
+
+
+	delete pURLManager;
+}
+
+
+void QUICKHACK_UpdateMessage(string Message,string Heading)
+{
+	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
+
+	//rWiiManager.GetCamera()->SetCameraView( 0, 0, -(579.4f));
+	rWiiManager.GetMessageBox()->SetUpMessageBox(Heading, Message  );				
+	rWiiManager.GetCamera()->SetCameraView(0,0) ;
+	do
+	{
+		WPAD_ScanPads();
+		static float spin=0.0f;
+		spin+=0.01f;
+		GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
+		Util3D::Trans(rWiiManager.GetScreenWidth()/2.0f, rWiiManager.GetScreenHeight()/2.0f);
+
+		// image is 1024x1024  ((100-n)% more zoomed in)
+		rWiiManager.GetSpaceBackground()->DrawImageXYZ(0,0, 0.95f * (579.4f * (579.4f/1024.0f)) ,255);
+
+		rWiiManager.GetMessageBox()->DisplayMessageBox(); //DoMessageBox();
+		GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
+		rWiiManager.SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
+		GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
+	} while( (WPAD_ButtonsUp(0) & (WPAD_BUTTON_A | WPAD_BUTTON_B) )== 0 );
+
+}
+
 
 //	printf("   START URLManager  ");
 //	URLManager* pURLManager( new URLManager );
@@ -145,109 +261,6 @@ int main(int /* argc */, char** /* argv */)
 
 //	delete pURLManager;
 
-
-
-	rWiiManager.GetSetUpGame()->MainLoop();
-
-	rWiiManager.GetGameDisplay()->DisplaySimpleMessage(rWiiManager.GetText("Quit_Message"));
-	rWiiManager.UnInitWii();
-	return 0;
-}
-
-////////////////
-////////////////static lwp_t networkthread = LWP_THREAD_NULL;
-////////////////static bool networkHalt = true;
-////////////////static bool exitRequested = false;
-////////////////static u8 * ThreadStack = NULL;
-////////////////
-////////////////
-////////////////static void * networkinitcallback(void *arg )
-////////////////{
-////////////////	while(!exitRequested)
-////////////////	{
-////////////////		if(networkHalt)
-////////////////		{
-////////////////			LWP_SuspendThread(networkthread);
-////////////////			usleep(100);
-////////////////			continue;
-////////////////		}
-////////////////
-////////////////		////if(!networkinit)
-////////////////		////	Initialize_Network();
-////////////////
-////////////////		//if(!firstRun)
-////////////////		//{
-////////////////		//	ConnectSMBShare();
-////////////////		//	if(Settings.FTPServer.AutoStart)
-////////////////		//		FTPServer::Instance()->StartupFTP();
-////////////////
-////////////////		//	ConnectFTP();
-////////////////		//	CheckForUpdate();
-////////////////
-////////////////		//	LWP_SetThreadPriority(networkthread, 0);
-////////////////		//	firstRun = true;
-////////////////		//}
-////////////////
-////////////////		//if(Receiver.CheckIncomming())
-////////////////		//{
-////////////////		//	IncommingConnection(Receiver);
-////////////////		//}
-////////////////
-////////////////		usleep(200000);
-////////////////	}
-////////////////	return NULL;
-////////////////}
-////////////////void ResumeNetworkThread()
-////////////////{
-////////////////	networkHalt = false;
-////////////////	LWP_ResumeThread(networkthread);
-////////////////}
-////////////////
-////////////////
-////////////////void InitNetworkThread()
-////////////////{
-////////////////	ThreadStack = (u8 *) memalign(32, 16384);
-////////////////	if(!ThreadStack)
-////////////////		return;
-////////////////
-////////////////	LWP_CreateThread (&networkthread, networkinitcallback, NULL, ThreadStack, 16384, 30);
-////////////////	ResumeNetworkThread();
-////////////////}
-////////////////
-////////////////void ShutdownNetworkThread()
-////////////////{
-////////////////	//Receiver.FreeData();
-////////////////	//Receiver.CloseConnection();
-////////////////	exitRequested = true;
-////////////////
-////////////////	if(networkthread != LWP_THREAD_NULL)
-////////////////	{
-////////////////		ResumeNetworkThread();
-////////////////		LWP_JoinThread (networkthread, NULL);
-////////////////		networkthread = LWP_THREAD_NULL;
-////////////////	}
-////////////////
-////////////////	if(ThreadStack)
-////////////////		free(ThreadStack);
-////////////////	ThreadStack = NULL;
-////////////////}
-////////////////
-////////////////
-////////////////
-
-
-
-//inline float absf(float f)
-//{
-//	volatile float tmp = f; 
-//	// This MUST be "volatile"! Without it the compiler will try to
-//	// optimize it and ends up using 13 instructions!
-//	asm("fabs 	  %0, %0     		\n\t" 
-//		 :   "=f" (tmp)             //output        
-//		 :   "f"  (tmp)             //input
-//	);	
-//	return tmp;
-//}
 
 
 // Buzz words for web search

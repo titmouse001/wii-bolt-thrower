@@ -187,7 +187,7 @@ public:
 	// mission logic
 	bool IsBaseShieldOnline();
 
-	void CreateIntroScene();
+	void InitMenu();
 
 
 	// view clipping

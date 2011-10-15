@@ -80,8 +80,16 @@
    <TrackerModules>
 		<AddMod Name="SpaceDebris"	FileName="music/SpaceDebris.mod" Loop="true"/>
 	</TrackerModules>
-   
-    <Sounds>
+
+
+  <OggMusic>
+    <AddOgg URI="http://he3.magnatune.com/all/03-Law%20of%20One-Indidginus.ogg" DownloadDir="music/" Loop="true"/>
+    <AddOgg URI="http://www.fnordware.com/superpng/pngtest8rgba.png" DownloadDir="music/" Loop="true"/>
+  </OggMusic>
+  
+  
+
+  <Sounds>
 		<AddSound Name="Explode11"	FileName="Sounds/Explode11.wav" />
 		<AddSound Name="hitmetal"	FileName="Sounds/hitmetal.wav" />
 		<AddSound Name="Explode01"	FileName="Sounds/Explode01.wav" />
@@ -235,6 +243,14 @@
       <AddText Credits13 = "Release v%%RELEASE_VERSION%% %%DATE_OF_BUILT%%" />
       <AddText Credits14 = "Built using libs: -lfat -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm " />
       <AddText Credits15 = "TAG-END" />
+
+      <AddText OptionsPopUpMessage = "Change various settings like the Difficulty" />
+      <AddText Start_GamePopUpMessage = "Play game - Difficulty " />
+      <AddText IntroPopUpMessage = "Navigate me to the intro screen" />
+      
+      <AddText Version = "Version " />
+
+      
     </English>
 
     <Klingon>
@@ -260,7 +276,7 @@
       <AddText Start_Game = "Tagh Quj" />
       <AddText Quit = "Bup" />
 
-      <AddText Back = "Back" />
+      <AddText Back = "DoH" />
 
 
       <AddText Ingame_Music = " Daq Quj QoQ" />
@@ -290,7 +306,7 @@
       <AddText Credits04 = "-=3D Doch=- Qep jan Sum Patrick Grubb" />
       <AddText Credits05 =  "Duj(MK2) sum Karl Stocker (UV textures by Titmouse)" />
       <AddText Credits06 = "" />
-      <AddText Credits07 = "-= cha'D Art=- M HochHom Sum Lee Marks / 'op Sum Danc - www.lostgarden.com" />
+      <AddText Credits07 = "-=cha'D=- M HochHom Sum Lee Marks / 'op Sum Danc - www.lostgarden.com" />
       <AddText Credits08 = "" />
       <AddText Credits09 = "-=chenmoH=- Paul Overy, cha'DIch pong TitMouse" />
       <AddText Credits10 = ""  />
@@ -299,6 +315,14 @@
       <AddText Credits13 = "lel v%%RELEASE_VERSION%% %%DATE_OF_BUILT%%" />
       <AddText Credits14 = "chenta' tlhej: -lfat -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm" />
       <AddText Credits15 = "TAG-END" />
+
+
+      <AddText OptionsPopUpMessage = "choH SeH" />
+      <AddText Start_GamePopUpMessage = "Quj - Qatlh " />
+      <AddText IntroPopUpMessage = "chIj QI'lop jIH" />
+
+      <AddText Version = "De' " />
+      
     </Klingon>
 
     <!-- character set net yet supported-->

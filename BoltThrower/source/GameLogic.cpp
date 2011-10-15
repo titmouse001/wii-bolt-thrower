@@ -528,9 +528,10 @@ void GameLogic::ProjectileLogic()
 void GameLogic::ExhaustLogic()
 {
 	u8 fps = Util::CalculateFrameRate(true);
-	while ((fps<60) && (m_ExhaustContainer->size() > 550))  //should donly kick in for the intro as it uses lots and drags the frame rate down!
+	if ((fps<60) && (m_ExhaustContainer->size() > 550))  //should donly kick in for the intro as it uses lots and drags the frame rate down!
 	{
-		u32 ReduceAmount = min((60-fps)*5,0);  // best guess amount to drop
+		u32 ReduceAmount = (60-fps)*5;  // best guess amount to drop
+//		printf("%d %d,",fps,ReduceAmount);
 		m_ExhaustContainer->erase(m_ExhaustContainer->begin(), (m_ExhaustContainer->begin() + ReduceAmount  ));
 	}
 
@@ -1090,7 +1091,11 @@ void GameLogic::BadShipsLogic()
 
 void GameLogic::DyingShipsLogic()
 {
-	for (std::vector<Vessel>::iterator BadIter(m_DyingEnemiesContainer->begin()); BadIter!= m_DyingEnemiesContainer->end(); /* ++BadIter */ )
+
+ // bad BUG HERE
+
+	for (std::vector<Vessel>::iterator BadIter(m_DyingEnemiesContainer->begin());
+		BadIter!= m_DyingEnemiesContainer->end(); /* ++BadIter */ )
 	{
 		float spin = BadIter->GetSpin();
 		BadIter->AddFacingDirection( spin );
@@ -1556,6 +1561,7 @@ int GameLogic::GetShotForGunTurretContainerSize() { return (int)m_ShotForGunTurr
 int GameLogic::GetMaterialPickUpContainerSize() { return (int)m_pMaterialPickUpContainer->size(); }
 int GameLogic::GetExplosionsContainerSize() { return (int)m_ExplosionsContainer->size(); }
 int GameLogic::GetCelestialBodyContainerSize() { return (int)m_CelestialBodyContainer->size(); }
+int GameLogic::GetDyingEnemiesContainerSize() { return (int)m_DyingEnemiesContainer->size(); }
 
 void GameLogic::InitialiseSmallGunTurret(int Amount, float Dist, float x1, float y1, float z1 , float StartingAngleOffset )
 {
@@ -1717,7 +1723,7 @@ void GameLogic::Intro()
 {
 	WPAD_ScanPads();
 
-	m_pWii->GetInputDeviceManager()->Store();
+	//m_pWii->GetInputDeviceManager()->Store();   // dont call this without using the other half to empty it!!!!!
 
 	static f32 sx=0;
 	sx+=0.01;
@@ -1796,7 +1802,7 @@ void GameLogic::Intro()
 	
 	MoonRocksLogic();
 
-	DyingShipsLogic();
+	DyingShipsLogic();   // this hash bad bug
 
 	CelestialBodyLogic();
 
@@ -1809,7 +1815,7 @@ void GameLogic::Intro()
 }
 
 
-void GameLogic::CreateIntroScene()
+void GameLogic::InitMenu()
 {
 	m_CelestialBodyContainer->clear();
 	MoonItem3D Moon;
@@ -1946,7 +1952,7 @@ void GameLogic::InitialiseGame()
 	Moon.SetPos(0,0,600);
 	Moon.SetRotateAmount(0.005f,0.005f,0.005f);
 	Moon.SetDetailLevel(Low);
-	Moon.SetAmountOfRocks(120);  // TODO - thins above need to work with this
+	Moon.SetAmountOfRocks(120);  // TODO - things above need to work with this
 	m_CelestialBodyContainer->push_back(Moon);
 
 	//--------------

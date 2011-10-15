@@ -31,8 +31,9 @@ namespace Util
 
 	u64 timer_gettime();
 
-	
 	void Replace(std::string& str,const std::string& from,const std::string& to);
+
+	std::string urlDecode(std::string Text);
 }
 
 

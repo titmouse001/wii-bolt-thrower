@@ -194,6 +194,12 @@ int ImageManager::AddImage( u32 StartX, u32 StartY, u32 CutSizeWidth, u32 CutSiz
 	{
 		CutSizeWidth = m_TgaHeader.width;
 	}
+	
+	if (CutSizeHeight==0)
+	{
+		CutSizeHeight = m_TgaHeader.height;
+	}
+
 
 	int uCount(uTotal);
 	if (uTotal==0)

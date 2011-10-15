@@ -29,16 +29,17 @@ void GameDisplay::Init()
 }
 
 void GameDisplay::DisplayAllForIntro()
-{
+{	
 	Util::CalculateFrameRate();
 
 	GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
 
-	static float bbb(0);
-	m_pWii->GetSpaceBackground()->DrawImageXYZ(0,0, 9400,255,bbb*0.025,25.0f );
-	bbb+=0.005f;
+	m_pWii->GetSpaceBackground()->DrawImageXYZ(0,0, 14000,255,0,26.0f );
 	GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
 	m_pWii->GetCamera()->SetLightOn2();
+
+	static float bbb(0);
+	bbb+=0.005f;
 
 	{
 		// Viper
@@ -58,8 +59,10 @@ void GameDisplay::DisplayAllForIntro()
 
 	// 3D section
 	DisplayMoon();
+
 	
 	//DisplayGunTurrets();
+
 	DisplayShotForGunTurret();
 
 //	DisplayAsteroids();
@@ -69,11 +72,19 @@ void GameDisplay::DisplayAllForIntro()
 	m_pWii->GetCamera()->SetLightOff();
 	GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
 
+	
+
+
 //	DisplayGunShips();
 //	DisplaySporeThings();
 //	DisplayRadar();
 
 	DisplayProbMines();
+
+	
+
+
+
 
 	DisplayProjectile();
 //	DisplayMissile();
@@ -109,7 +120,9 @@ void GameDisplay::DisplayAllForIngame()
 
 
 	GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
-	m_pWii->GetSpaceBackground()->DrawImageXYZ(0,0, 9400,255,0, 28.0f );
+	//m_pWii->GetSpaceBackground()->DrawImageXYZ(0,0, 9400,255,0, 28.0f );
+	
+	m_pWii->GetSpaceBackground()->DrawImageXYZ(0,0, 12000 ,255, 0 ,28.0f );
 
 	GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
 	m_pWii->GetCamera()->SetLightOn2();
@@ -294,7 +307,7 @@ void GameDisplay::DisplayPickUps()
 void GameDisplay::DisplayMoon()
 {
 	for (std::vector<MoonItem3D>::iterator MoonIter(m_pGameLogic->GetCelestialBodyContainerBegin()); 
-		MoonIter!= m_pGameLogic->GetCelestialBodyContainerEnd(); ++MoonIter )
+				MoonIter!= m_pGameLogic->GetCelestialBodyContainerEnd(); ++MoonIter )
 	{
 		Vec3 v( MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ() );
 		float r = m_pWii->Render.GetDispayListModelRadius(HashString::MoonShield);  // just using MoonShield for anything inside it, i.e the moon
@@ -303,7 +316,7 @@ void GameDisplay::DisplayMoon()
 			// moon
 			Mtx Model,mat;
 			Util3D::MatrixRotateY(Model, MoonIter->GetRotateY());
-//			guMtxRotRad( Model,'y', MoonIter->GetRotateY() ) ;
+			//			guMtxRotRad( Model,'y', MoonIter->GetRotateY() ) ;
 			guMtxTrans( mat, MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ() );  // distance back
 			guMtxConcat(mat,Model,Model);
 			guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
@@ -319,7 +332,7 @@ void GameDisplay::DisplayMoon()
 				GX_SetCullMode(GX_CULL_NONE);
 				GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_FALSE);
 				Util3D::MatrixRotateY(Model, MoonIter->GetRotateY()*8);
-//				guMtxRotRad(Model,'y', MoonIter->GetRotateY()*8) ;
+				//				guMtxRotRad(Model,'y', MoonIter->GetRotateY()*8) ;
 				guMtxTrans(mat, 0, 0, MoonIter->GetZ());
 				guMtxConcat(mat,Model,Model);
 				guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
@@ -328,6 +341,7 @@ void GameDisplay::DisplayMoon()
 				GX_SetCullMode(GX_CULL_BACK);
 			}
 		}
+
 
 		// moon rocks
 		if (m_pWii->m_Frustum.sphereInFrustum(v,m_pGameLogic->GetClippingRadiusNeededForMoonRocks()) != FrustumR::OUTSIDE)
@@ -338,21 +352,19 @@ void GameDisplay::DisplayMoon()
 			u32 WorkingStep(Step);
 
 			m_pWii->Render.RenderModelPreStage(HashString::Rock1);  // rock1 & rock2 use the same texture
+
 			for (std::vector<Item3D>::iterator iter(m_pGameLogic->GetMoonRocksContainerBegin()); 
 				iter!= m_pGameLogic->GetMoonRocksContainerEnd(); ++iter)
 			{
 
-						//IDEA- create rocks in random order then this bit is not needed!!!
-		
+				//IDEA- create rocks in random order then this bit is not needed!!!
 
-			//can't just take the first amount we need as the rocks will clump - since they have been created in squence
-			WorkingStep--;
-			if (WorkingStep<=0)   // throw some away (rocks are shared across all moons - but some have less) 
-				WorkingStep=Step; 
-			else
-				continue;
-
-
+				//can't just take the first amount we need as the rocks will clump - since they have been created in squence
+				WorkingStep--;
+				if (WorkingStep<=0)   // throw some away (rocks are shared across all moons - but some have less) 
+					WorkingStep=Step; 
+				else
+					continue;
 
 				Mtx Model,mat;
 				Util3D::MatrixRotateZ(Model, iter->GetRotateZ());
@@ -389,6 +401,7 @@ void GameDisplay::DisplayMoon()
 			}
 		}
 	}
+
 }
 
 
@@ -946,13 +959,31 @@ void GameDisplay::DisplayShotForGunTurret()
 	}
 } 
 
-void GameDisplay::DisplaySimpleMessage(std::string Text)
+void GameDisplay::DisplaySmallSimpleMessage(std::string Text)
 {
-	m_pWii->GetCamera()->SetCameraView( 0, 0, -(579.4f*0.75f));
-	Util3D::TransRot(0,0,-3.14f/12.0f);
+	//m_pWii->GetCamera()->SetCameraView( 0, 0); //, -(579.4f*0.75f));
+	Util3D::TransRot(0,0,0); //,-3.14f/12.0f);
 	for (int i=0 ;i<2; ++i)
 	{	
-		m_pWii->DrawRectangle(-320,-240,640,480,255,0,0,80,40,0,0);
+		m_pWii->DrawRectangle(-320,-240,640,480,255 
+						 ,0,0,0, 
+						 0,0,40);
+		m_pWii->GetFontManager()->DisplaySmallTextCentre(Text, 0,0,255);
+		GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
+		m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
+	}
+}
+
+void GameDisplay::DisplaySimpleMessage(std::string Text)
+{
+	m_pWii->GetCamera()->SetCameraView( 0, 0 ) ;//, -(579.4f*0.75f));
+	
+	for (int i=0 ;i<2; ++i)
+	{	
+		Util3D::TransRot(0,0,0);
+		m_pWii->DrawRectangle(-320,-240,640,480,255,0,0,0,0,0,40);
+
+		Util3D::TransRot(0,0,-3.14f/12.0f);
 		m_pWii->GetFontManager()->DisplayLargeTextCentre(Text, 0,0,255);
 		GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
 		m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
@@ -966,8 +997,8 @@ void GameDisplay::DebugInformation()
 #ifndef LAUNCH_VIA_WII
 
 	static int DroppedFrames(0);
-	int y=-180;
-	int x=0;
+	int y=-200;
+	int x=-290;
 
 	u8 FPS( Util::CalculateFrameRate(true) );
 	if (FPS<60) ++DroppedFrames;
@@ -987,6 +1018,8 @@ void GameDisplay::DebugInformation()
 	m_pWii->Printf(x,y+=22,"Projectiles: %d",m_pGameLogic->GetProjectileContainerSize());
 	m_pWii->Printf(x,y+=22,"CurrentMission: %d",m_pWii->GetMissionManager()->GetCurrentMission() );
 	m_pWii->Printf(x,y+=22,"Turret shots: %d",m_pGameLogic->GetShotForGunTurretContainerSize() );
+
+		m_pWii->Printf(x,y+=22,"Dying Enemies: %d",m_pGameLogic->GetDyingEnemiesContainerSize() );
 	
 #endif
 
