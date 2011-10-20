@@ -58,7 +58,11 @@ public:
 	void SetCurrentItemIndex(int Value) { m_CurrentItemIndex = Value; SetText(GetCurrentTextItem()) ; }
 	void NextItem();
 
+	HashLabel		m_TextSize;
 private:
+
+	//one big hacky mess... need to redo the lot from scratch
+
 	Menu*		m_ChildMenu;
 	SDL_Rect	m_Rect;
 	std::string	m_Name;
@@ -71,6 +75,7 @@ private:
 	u32		 m_CurrentItemIndex;
 	bool		m_bShowTextOnly;
 	bool		m_bJustifyLeft;
+
 };
 
 

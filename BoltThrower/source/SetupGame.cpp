@@ -12,6 +12,9 @@
 #include  "SetupGame.h"
 #include "debug.h"
 //#include "config.h"
+#include "MessageBox.h"
+#include "Util3D.h"
+#include "FontManager.h"
 
 
 void SetUpGame::Init()
@@ -38,26 +41,22 @@ void SetUpGame::Intro()
 			return;
 		}
 
-		if ( (WPAD_ButtonsUp(0) & WPAD_BUTTON_1)!= 0 )
-		{
-			m_pWii->SetGameState(WiiManager::eGame);   // this is shit ... disable sounds needed, not this fudge
-			{
-				//-------------
-				//MODPlay_Stop( &m_pWii->m_ModuleTrackerPlayerInterface );
-				//MODPlay_Unload( &m_pWii->m_ModuleTrackerPlayerInterface );
-				//-------------
-				
-				OggPlayer Ogg;
-				string FullFileName = WiiFile::GetGamePath() + "03-Law of One-Indidginus.ogg"; // "09-Faerie tale-Indidginus.ogg";
-				FILE* pOggFile( WiiFile::FileOpenForRead( FullFileName.c_str() ) );
-				u32 OggSize = WiiFile::GetFileSize(pOggFile);
-				u8* pOggData = (u8*) malloc(OggSize);
-				fread( pOggData, OggSize, 1, pOggFile);
-				Ogg.PlayOgg(pOggData, OggSize, 0, OGG_ONE_TIME);
+		//if ( (WPAD_ButtonsUp(0) & WPAD_BUTTON_1)!= 0 )
+		//{
+		//		//-------------
+		//		//MODPlay_Stop( &m_pWii->m_ModuleTrackerPlayerInterface );
+		//		//MODPlay_Unload( &m_pWii->m_ModuleTrackerPlayerInterface );
+		//		//-------------
+		//		
+		//		OggPlayer Ogg;
+		//		string FullFileName = WiiFile::GetGamePath() + "03-Law of One-Indidginus.ogg"; // "09-Faerie tale-Indidginus.ogg";
+		//		FILE* pOggFile( WiiFile::FileOpenForRead( FullFileName.c_str() ) );
+		//		u32 OggSize = WiiFile::GetFileSize(pOggFile);
+		//		u8* pOggData = (u8*) malloc(OggSize);
+		//		fread( pOggData, OggSize, 1, pOggFile);
+		//		Ogg.PlayOgg(pOggData, OggSize, 0, OGG_ONE_TIME);
+		//}
 
-			}
-			m_pWii->SetGameState(WiiManager::eIntro); 
-		}
 	} while( (WPAD_ButtonsUp(0) & (WPAD_BUTTON_A | WPAD_BUTTON_B) )== 0 );
 
 	m_pWii->SetGameState(WiiManager::eMenu);
@@ -82,6 +81,8 @@ void SetUpGame::Menus()
 			m_pWii->GetGameLogic()->MoonRocksLogic();
 			m_pWii->GetGameLogic()->CelestialBodyLogic();
 			m_pWii->GetMenuScreens()->DoMenuScreen();
+	
+
 
 			if ( (WPAD_ButtonsUp(0) & WPAD_BUTTON_B) || (m_pWii->GetMenuScreens()->HasMenuTimedOut()) )  
 			{
@@ -92,6 +93,7 @@ void SetUpGame::Menus()
 			if ( (WPAD_ButtonsUp(0) & WPAD_BUTTON_A) != 0) 
 			{
 				HashLabel Name = m_pWii->GetMenuManager()->GetSelectedMenu();
+
 
 				if (Name == HashString::Options)
 				{
@@ -107,7 +109,41 @@ void SetUpGame::Menus()
 					m_pWii->SetGameState(WiiManager::eIntro);
 					break;
 				}
+				else if (Name == HashLabel("Change_Tune"))
+				{
+	
+					Util3D::TransRot(-280,-150,0, M_PI *0.5f );
+					m_pWii->GetFontManager()->DisplayTextCentre("Loading...", 
+						0,0,
+						200,HashString::SmallFont);
+					GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
+					m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
+
+					m_pWii->GetMenuScreens()->DoMenuScreen();
+					Util3D::TransRot(-280,-150,0, M_PI *0.5f );
+					m_pWii->GetFontManager()->DisplayTextCentre("Loading...", 
+						0,0,
+						200,HashString::SmallFont);
+					GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
+					m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
+
+
+					m_pWii->NextMusic();
+
+					continue; // don't do the loops screen swap since its already do just above
+				}
+				else if (Name == HashString::Credits)
+				{
+					m_pWii->SetGameState(WiiManager::eCredits);
+				}
+				else if (Name == HashString::Controls)
+				{
+					m_pWii->SetGameState(WiiManager::eControls);
+				}
 			}
+			
+			GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
+			m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
 		}
 
 		// ***************
@@ -119,7 +155,7 @@ void SetUpGame::Menus()
 			if ( WPAD_ButtonsUp(0) & (WPAD_BUTTON_A|WPAD_BUTTON_B) )
 			{
 				//m_pWii->GetMenuScreens()->SetTimeOutInSeconds();
-				m_pWii->SetGameState(WiiManager::eOptions);
+				m_pWii->SetGameState(WiiManager::eMenu);
 			}
 		}
 
@@ -132,7 +168,7 @@ void SetUpGame::Menus()
 			if ( WPAD_ButtonsUp(0) & (WPAD_BUTTON_A|WPAD_BUTTON_B) )
 			{
 				//m_pWii->GetMenuScreens()->SetTimeOutInSeconds();
-				m_pWii->SetGameState(WiiManager::eOptions);
+				m_pWii->SetGameState(WiiManager::eMenu);
 			}
 		}
 
@@ -157,15 +193,15 @@ void SetUpGame::Menus()
 
 				m_pWii->GetMenuManager()->SetMenuGroup("OptionsMenu");
 
-				if (Name == HashString::Credits)
-				{
-					m_pWii->SetGameState(WiiManager::eCredits);
-				}
-				else if (Name == HashString::Controls)
-				{
-					m_pWii->SetGameState(WiiManager::eControls);
-				}
-				else if (Name == (HashLabel)"Ingame_Music")
+				//if (Name == HashString::Credits)
+				//{
+				//	m_pWii->SetGameState(WiiManager::eCredits);
+				//}
+				//else if (Name == HashString::Controls)
+				//{
+				//	m_pWii->SetGameState(WiiManager::eControls);
+				//}
+				if (Name == (HashLabel)"Ingame_Music")
 				{
 					m_pWii->GetMenuManager()->AdvanceMenuItemText(HashString::IngameMusicState);
 				}
@@ -235,18 +271,20 @@ void SetUpGame::Play()
 
 void SetUpGame::MainLoop() 
 {	
-	MODPlay_Init(&m_pWii->m_ModuleTrackerPlayerInterface);
+	//MODPlay_Init(&m_pWii->m_ModuleTrackerPlayerInterface);
 	
 	m_pWii->SetGameState(WiiManager::eIntro);
 
 	while (1)
 	{
-		if (!m_pWii->m_ModuleTrackerPlayerInterface.playing)
-		{
-			MODPlay_SetMOD(&m_pWii->m_ModuleTrackerPlayerInterface, m_pWii->m_pModuleTrackerData);
-			MODPlay_Start(&m_pWii->m_ModuleTrackerPlayerInterface); 
-			MODPlay_SetVolume( &m_pWii->m_ModuleTrackerPlayerInterface, 100,100);    
-		}
+		//if (!m_pWii->m_ModuleTrackerPlayerInterface.playing)
+		//{
+		//	MODPlay_SetMOD(&m_pWii->m_ModuleTrackerPlayerInterface, m_pWii->m_pModuleTrackerData);
+		//	MODPlay_Start(&m_pWii->m_ModuleTrackerPlayerInterface); 
+		//	MODPlay_SetVolume( &m_pWii->m_ModuleTrackerPlayerInterface, 100,100);    
+		//}
+
+
 
 		switch( (int)m_pWii->GetGameState() )
 		{

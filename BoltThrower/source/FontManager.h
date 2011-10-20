@@ -26,14 +26,18 @@ public:
 	GXColor GetFontColour() const  { return M_FontColour; }
 
 
-	void DisplayLargeText(const string& Text, int uXpos, int uYpos,u8 Alpha=128);
-	void DisplaySmallText(const string& Text, int uXpos, int uYpos, u8 Alpha=128);
+	void DisplayText(const string& Text, int uXpos, int uYpos,u8 Alpha=128,HashLabel FontSize = HashString::LargeFont);
+	//void DisplaySmallText(const string& Text, int uXpos, int uYpos, u8 Alpha=128);
+
+	void	DisplayTextCentre(const string& Text, int uXpos, int uYpos, u8 Alpha=222, HashLabel FontType = HashString::LargeFont);
+	void	DisplayTextVertCentre(const string& Text, int uXpos, int uYpos, u8 Alpha=222, HashLabel FontType = HashString::LargeFont);
+
 
 	int GetTextWidth(const string& Text, HashLabel FontType = HashString::SmallFont);
-	void	DisplayLargeTextCentre(const string& Text, int uXpos, int uYpos, u8 Alpha=222);
-	void	DisplaySmallTextCentre(const string& Text, int uXpos, int uYpos, u8 Alpha=222);
-	void	DisplayLargeTextVertCentre(const string& Text, int uXpos, int uYpos, u8 Alpha=222);
-	void	DisplaySmallTextVertCentre(const string& Text, int uXpos, int uYpos, u8 Alpha=222);
+	////void	DisplayLargeTextCentre(const string& Text, int uXpos, int uYpos, u8 Alpha=222);
+	////void	DisplaySmallTextCentre(const string& Text, int uXpos, int uYpos, u8 Alpha=222);
+	////void	DisplayLargeTextVertCentre(const string& Text, int uXpos, int uYpos, u8 Alpha=222);
+	////void	DisplaySmallTextVertCentre(const string& Text, int uXpos, int uYpos, u8 Alpha=222);
 
 private:
 

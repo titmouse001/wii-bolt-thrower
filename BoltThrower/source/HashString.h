@@ -15,6 +15,7 @@ public:
 	const static HashLabel Intro;
 	const static HashLabel Controls;
 	const static HashLabel Options;
+	const static HashLabel Change_Tune;
 	
 	// Option menu buttons
 	const static HashLabel IngameMusicState;

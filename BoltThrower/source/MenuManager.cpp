@@ -11,20 +11,21 @@ MenuManager::MenuManager() : m_MenuGroupName("")
 {
 }
 
-Menu* MenuManager::AddMenu(int x, int y, int w, int h, std::string Name, bool bShowTextOnly, bool bJustifyLeft)
+Menu* MenuManager::AddMenu(int x, int y, int w, int h, std::string Name, bool bShowTextOnly, bool bJustifyLeft, HashLabel FontSize )
 {
 	WiiManager& Wii( Singleton<WiiManager>::GetInstanceByRef() );
 
 	Menu* pMenu( new Menu );
 
-	//printf("___2___");
+	pMenu->m_TextSize = FontSize;
+
 	pMenu->SetMenu(x,y,w,h);
 	pMenu->SetText(Wii.GetText(Name));
 	pMenu->SetHashLabel( HashLabel(Name) );
 	pMenu->SetShowTextOnly( bShowTextOnly );
 	pMenu->SetJustifyLeft( bJustifyLeft );
 	m_MenuContainer[ GetMenuGroup() ].push_back( pMenu );
-	//printf("___2___");
+
 	return pMenu;
 }
 
@@ -147,6 +148,18 @@ void MenuManager::Draw()
 
 	std::vector<Menu*> thing(m_MenuContainer[ GetMenuGroup() ]);
 
+	int Down( 0);
+//	int Up( 0);
+
+	for (std::vector<Menu*>::iterator Iter(thing.begin()); Iter!=thing.end(); ++Iter)
+	{
+		if ((*Iter)->IsHighLight())
+		{
+		//	Down = -30;
+			break;
+		}
+	}
+
 	for (std::vector<Menu*>::iterator Iter(thing.begin()); Iter!=thing.end(); ++Iter)
 	{
 		Menu* pWorkingItem = *Iter; 
@@ -155,46 +168,48 @@ void MenuManager::Draw()
 			SDL_Rect rect = pWorkingItem->GetRect();
 			if (pWorkingItem->GetShowTextOnly())
 			{
-				Wii.GetFontManager()->DisplaySmallTextCentre(pWorkingItem->GetText().c_str(),rect.x, rect.y,180);
+				Wii.GetFontManager()->DisplayTextCentre(pWorkingItem->GetText().c_str(),rect.x, rect.y,180,HashString::SmallFont);
 			}
 			else
 			{
 				if (pWorkingItem->IsHighLight())
 				{
-					Wii.DrawRectangle(rect.x -(rect.w/2), rect.y- (rect.h/2), rect.w, rect.h, 160, 20,20,60);
+				//	Down = rect.h;
+
+					//Wii.DrawRectangle(rect.x -(rect.w/2), rect.y- (rect.h/2), rect.w, rect.h, 160, 20,20,60);
+					Wii.DrawRectangle(rect.x -(rect.w/2), rect.y - rect.h * (0.5f*1.4f), rect.w, rect.h*1.4f, 160, 20,20,60);
 
 // add yet aother hack to this lot  ... all this is bad code, needs refactor big time
-
 //NEED TO DO SOMETHING LIKE THIS...
 // TL, TM, TR
 // CL, CM, CR
 // BL, BM, BR
-
+					HashLabel Size = HashString::SmallFont; //pWorkingItem->m_TextSize;
 					if ( pWorkingItem->GetJustifyLeft() )
 					{
 						float w =( rect.w * (1.0f-0.9f))*0.5f;
 						w+=28.0f;
-						Wii.GetFontManager()->DisplayLargeTextVertCentre(pWorkingItem->GetText().c_str(),w+rect.x-(rect.w/2), rect.y,222);
+						Wii.GetFontManager()->DisplayTextVertCentre(pWorkingItem->GetText().c_str(),w+rect.x-(rect.w/2), rect.y,222, Size);
 					}
 					else
-						Wii.GetFontManager()->DisplayLargeTextCentre(pWorkingItem->GetText().c_str(),rect.x, rect.y,222);
+						Wii.GetFontManager()->DisplayTextCentre(pWorkingItem->GetText().c_str(),rect.x, rect.y,222,Size);
 				}
 				else
 				{
 					rect.w*=0.9f;  // fudge something todo later, if I ever do!
 
-					Wii.DrawRectangle(rect.x-(rect.w/2), rect.y- (rect.h/2), rect.w, rect.h, 120,10,10,30);
+					Wii.DrawRectangle(rect.x-(rect.w/2), Down + rect.y- (rect.h/2), rect.w, rect.h, 120,10,10,30);
 					if ( pWorkingItem->GetJustifyLeft() )
 					{
 						float w = 28.0f;
-						Wii.GetFontManager()->DisplayLargeTextVertCentre(pWorkingItem->GetText().c_str(),w+rect.x-(rect.w/2), rect.y,128);
+						Wii.GetFontManager()->DisplayTextVertCentre(pWorkingItem->GetText().c_str(),
+							w+rect.x-(rect.w/2), Down + rect.y,128,pWorkingItem->m_TextSize);
 					}
 					else
-						Wii.GetFontManager()->DisplayLargeTextCentre(pWorkingItem->GetText().c_str(),rect.x, rect.y,128);
-
+						Wii.GetFontManager()->DisplayTextCentre(pWorkingItem->GetText().c_str(),
+						rect.x, Down + rect.y,128,pWorkingItem->m_TextSize);
 				}
 			}
-		
 			pWorkingItem = pWorkingItem->GetChildMenu();  // any children to work through
 		}
 	}

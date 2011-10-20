@@ -3,6 +3,7 @@
 
 #include "GCTypes.h"
 #include "HashLabel.h"
+#include "HashString.h"
 #include <string>
 #include <map>
 #include <vector>
@@ -15,7 +16,8 @@ class MenuManager
 {
 public:
 	MenuManager();
-	Menu*		AddMenu(int x, int y, int w, int h, std::string Name, bool m_bShowTextOnly = false, bool m_JustifyLeft= false);
+	Menu*		AddMenu(int x, int y, int w, int h, 
+		std::string Name, bool m_bShowTextOnly = false, bool m_JustifyLeft= false, HashLabel FontSize = HashString::SmallFont );
 
 	void		Draw();
 	void		MenuLogic();

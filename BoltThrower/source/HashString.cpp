@@ -9,6 +9,7 @@ const HashLabel HashString::Quit("Quit");
 const HashLabel HashString::Intro("Intro");
 const HashLabel HashString::Controls("Controls");
 const HashLabel HashString::Options("Options");
+const HashLabel HashString::Change_Tune("Change_Tune");
 
 // Option menu buttons
 const HashLabel HashString::IngameMusicState("IngameMusicState");

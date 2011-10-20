@@ -80,6 +80,17 @@ Bolt Thrower - Games design notes
 #include "MessageBox.h"
 //extern void OggTest();
 
+
+//#include <fat.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string.h>
+//#include <dirent.h>
+//
+//#include <sys/stat.h>
+//
+
+
 //
 ////Wiilight stuff  
 //static vu32 *_wiilight_reg = (u32*)0xCD0000C0;  
@@ -100,32 +111,27 @@ Bolt Thrower - Games design notes
 
 void QUICKHACK_UpdateMessage(string Message,string Heading);
 void CheckForUpdate();
+//void GetFolderFileNames(string, vector<string>* );
+
 
 string MesageHack = "";
 
 extern "C" {  extern void __exception_setreload(int t); }
 int main(int /* argc */, char** /* argv */) 
 {	
-
-
 	__exception_setreload(6);
 	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
 
 	rWiiManager.InitWii();
-
-	rWiiManager.ProgramStartUp();
-
-
+	
+	rWiiManager.InitGameResources();
 	rWiiManager.GetCamera()->InitialiseCamera(); // 3D View
 
 
 	MesageHack = rWiiManager.GetText("Version")  + s_ReleaseVersion + " - " + s_DateOfRelease;
-	CheckForUpdate();
-
-
+	//CheckForUpdate();
 
 	rWiiManager.GetSetUpGame()->MainLoop();
-
 	rWiiManager.GetGameDisplay()->DisplaySimpleMessage(rWiiManager.GetText("QuitMessage"));
 	rWiiManager.UnInitWii();
 	return 0;
@@ -141,25 +147,33 @@ void CheckForUpdate()
 
 	rWiiManager.GetCamera()->SetCameraView(0,0) ;
 
-	for ( vector<FileInfo>::iterator Iter( rWiiManager.GetOggInfoBegin()); Iter !=  rWiiManager.GetOggInfoEnd() ; ++Iter )
+	//mkdir("sd://apps/BoltThrower/stuff", 0777);
+
+
+	for ( vector<FileInfo>::iterator Iter( rWiiManager.GetDownloadInfoBegin()); Iter !=  rWiiManager.GetDownloadInfoEnd() ; ++Iter )
 	{
-		string MusicPath(WiiFile::GetGamePath() + Iter->DownloadDir );
+		string DownloadDir(WiiFile::GetGamePath() + Iter->DownloadDir );
 
 		string URI_FilePath ( Iter->LogicName.c_str() );
 		//printf( "URI: %s", URI_FilePath.c_str() );
-		string FileName ( MusicPath + WiiFile::GetFileNameWithoutPath( URI_FilePath ) );
+		string FileName ( DownloadDir + "/"+ WiiFile::GetFileNameWithoutPath( URI_FilePath ) );
+
+		if ( !(WiiFile::CheckFileExist(DownloadDir)) )
+		{
+		//	printf("____%s___",DownloadDir.c_str());
+			mkdir(DownloadDir.c_str(), 0777);
+		}
 
 		if ( !(WiiFile::CheckFileExist(FileName)) )
 		{
-				rWiiManager.GetGameDisplay()->DisplaySmallSimpleMessage("downloading and caching " + FileName);
-			//printf("____missing... downloading and caching____ %s",FileName.c_str());
-			pURLManager->SaveURI(URI_FilePath , MusicPath );
+			rWiiManager.GetGameDisplay()->DisplaySmallSimpleMessage("downloading " + URI_FilePath);
+		//	printf("____missing... downloading and caching____ %s",FileName.c_str());
+			pURLManager->SaveURI(URI_FilePath , DownloadDir + "/");
 		}
 	}
-
 	
-	//Check version number
 
+	//Check version number
 
 	// pURLManager->SaveURI("http://wii-bolt-thrower.googlecode.com/hg/LatestVersion.xml",WiiFile::GetGamePath() );
 	MemoryInfo* pData(pURLManager->GetFromURI("http://wii-bolt-thrower.googlecode.com/hg/LatestVersion.xml"));
@@ -212,9 +226,6 @@ void CheckForUpdate()
 			}
 		}
 	}
-
-
-
 	delete pURLManager;
 }
 

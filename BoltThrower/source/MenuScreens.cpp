@@ -103,39 +103,44 @@ void MenuScreens::DoMenuScreen()
 	m_pWii->DrawRectangle( -320, -200+42, 640,  4,	 112, 0,0,0 );
 
 	// "B O L T    T H R O W E R"
-	m_pWii->GetFontManager()->DisplayLargeTextCentre( m_pWii->GetText("MainMenuScreenTopTitle") ,0,-180,190); 
+	m_pWii->GetFontManager()->DisplayTextCentre( m_pWii->GetText("MainMenuScreenTopTitle") ,0,-180,190); 
 
 	
 
 //	m_pWii->GetFontManager()->DisplaySmallTextVertCentre( m_pWii->GetLanguage(),-300,160,144); 
 
-	m_pWii->DrawRectangle( -240, 160, 480, 20, 55, 0,0,0 );
+	
 
+	extern string MesageHack;
+	string BarText = MesageHack;
 
 	HashLabel Name = m_pWii->GetMenuManager()->GetSelectedMenu();
 	if (Name == HashString::Options)
 	{
-		m_pWii->GetFontManager()->DisplaySmallTextCentre(  m_pWii->GetText("OptionsPopUpMessage"),0,170,222); 
+		BarText= m_pWii->GetText("OptionsPopUpMessage");
 	}
 	else if (Name == HashString::Start_Game)
 	{
-		m_pWii->GetFontManager()->DisplaySmallTextCentre( m_pWii->GetText("Start_GamePopUpMessage") + m_pWii->GetDifficulty() ,0,170,222); 
+		BarText= m_pWii->GetText("Start_GamePopUpMessage");
 	}
 	else if (Name == HashString::Intro)
 	{
-		m_pWii->GetFontManager()->DisplaySmallTextCentre( m_pWii->GetText("IntroPopUpMessage"),0,170,222); 
+		BarText= m_pWii->GetText("IntroPopUpMessage");
 	}
-	else
+	else if (Name == HashString::Change_Tune)
 	{
-		extern string MesageHack;
-		m_pWii->GetFontManager()->DisplaySmallTextCentre( MesageHack,0,170,222); 
+		BarText = m_pWii->GetNameOfCurrentMusic();
 	}
+
+	m_pWii->DrawRectangle( -240, 200, 480, 20, 55, 0,0,0 );
+	m_pWii->GetFontManager()->DisplayTextCentre( BarText,0,210,222,HashString::SmallFont); 
+
 
 	//----------------------------------------------------------
 	Util3D::TransRot(320-50,240-50,-3.14f/4.0f);
 	char Text[8];
 	sprintf(Text,"%0d",m_pTimer->GetTimerSeconds());
-	m_pWii->GetFontManager()->DisplayLargeTextCentre(Text,0,0,80);
+	m_pWii->GetFontManager()->DisplayTextCentre(Text,0,0,80,HashString::SmallFont);
 	//----------------------------------------------------------
 
 	m_pWii->GetMenuManager()->SetMenuGroup("MainMenu");
@@ -171,8 +176,10 @@ void MenuScreens::DoMenuScreen()
 			m_pWii->GetCamera()->GetCamY() + WiiMote->y - (m_pWii->GetScreenHeight()/2),
 			WiiMote->z, 255, 0) ; //GetPlrVessel()->GetFacingDirection() );
 	}
-	GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
-	m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
+
+	//GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
+	//m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
+
 }
 
 void MenuScreens::DoControlsScreen()
@@ -220,7 +227,7 @@ void MenuScreens::DoControlsScreen()
 	m_pWii->DrawRectangle( -320, -200+42, 640,  4,	 112, 0,0,0 );
 
 	// "C O N T R O L S"
-	m_pWii->GetFontManager()->DisplayLargeTextCentre( m_pWii->GetText("ControlsMenuScreenTopTitle"),0,-180,190);
+	m_pWii->GetFontManager()->DisplayTextCentre( m_pWii->GetText("ControlsMenuScreenTopTitle"),0,-180,190,HashString::LargeFont);
 
 
 	ImageManager* pImageManager = m_pWii->GetImageManager();
@@ -234,26 +241,26 @@ void MenuScreens::DoControlsScreen()
 	int step = 55;
 
 	pImageManager->GetImage(HashString::WiiMoteButtonA)->DrawImage(x,y+=step);
-	m_pWii->GetFontManager()->DisplaySmallTextVertCentre(m_pWii->GetText("WiiMoteButtonA"),32,0,200); //"Fire Missile"
+	m_pWii->GetFontManager()->DisplayTextVertCentre(m_pWii->GetText("WiiMoteButtonA"),32,0,200,HashString::SmallFont); //"Fire Missile"
 
 	pImageManager->GetImage(HashString::WiiMoteButtonB)->DrawImage(x,y+=step);
-	m_pWii->GetFontManager()->DisplaySmallTextVertCentre(m_pWii->GetText("WiiMoteButtonB"),32,0,200);  // "Thrusters"
+	m_pWii->GetFontManager()->DisplayTextVertCentre(m_pWii->GetText("WiiMoteButtonB"),32,0,200,HashString::SmallFont);  // "Thrusters"
 
 	pImageManager->GetImage(HashString::WiiMoteDirectionDownMarkedRed)->DrawImage(x,y+=step);
-	m_pWii->GetFontManager()->DisplaySmallTextVertCentre(m_pWii->GetText("WiiMoteDirectionDown"),32,0,200); // "Drop Mine"
+	m_pWii->GetFontManager()->DisplayTextVertCentre(m_pWii->GetText("WiiMoteDirectionDown"),32,0,200,HashString::SmallFont); // "Drop Mine"
 
 	pImageManager->GetImage(HashString::WiiMoteInfraRedPointer)->DrawImage(x,y+=step);
-	m_pWii->GetFontManager()->DisplaySmallTextVertCentre(m_pWii->GetText("WiiMoteInfraRedPointer"),32,0,200); //"Aim"
+	m_pWii->GetFontManager()->DisplayTextVertCentre(m_pWii->GetText("WiiMoteInfraRedPointer"),32,0,200,HashString::SmallFont); //"Aim"
 
 	pImageManager->GetImage(HashString::WiiMoteButtonHome)->DrawImage(x,y+=step);
-	m_pWii->GetFontManager()->DisplaySmallTextVertCentre(m_pWii->GetText("WiiMoteButtonHome"),32,0,200);  //"Quit"
+	m_pWii->GetFontManager()->DisplayTextVertCentre(m_pWii->GetText("WiiMoteButtonHome"),32,0,200,HashString::SmallFont);  //"Quit"
 
 	Util3D::Identity();
 	{
 		static float wobble	(0);
 		wobble+=0.015;
 		// "PRESS A TO CONTINUE" 
-		m_pWii->GetFontManager()->DisplayLargeTextCentre(m_pWii->GetText("PressButtonAToContinueMessage"),0,200.0f,50 + fabs(cos(wobble)*60.0f));
+		m_pWii->GetFontManager()->DisplayTextCentre(m_pWii->GetText("PressButtonAToContinueMessage"),0,200.0f,50 + fabs(cos(wobble)*60.0f),HashString::LargeFont);
 	}
 	
 	GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
@@ -301,7 +308,7 @@ void MenuScreens::DoCreditsScreen()
 	m_pWii->DrawRectangle( -320, -200+42, 640,  4,	 112, 0,0,0 );
 
 	//"C R E D I T S"
-	m_pWii->GetFontManager()->DisplayLargeTextCentre(m_pWii->GetText("CreditsMenuScreenTopTitle"),0,-180,190);
+	m_pWii->GetFontManager()->DisplayTextCentre(m_pWii->GetText("CreditsMenuScreenTopTitle"),0,-180,190,HashString::LargeFont);
 
 	Util3D::TransRot(0,-160,0,0);
 	int y(0);
@@ -314,7 +321,7 @@ void MenuScreens::DoCreditsScreen()
 		Util::Replace(Message,"%%DATE_OF_BUILT%%", s_DateOfRelease);
 
 		if (Message != "TAG-END")
-			m_pWii->GetFontManager()->DisplaySmallTextCentre( Message,0,y+=19,200);
+			m_pWii->GetFontManager()->DisplayTextCentre( Message,0,y+=19,200,HashString::SmallFont);
 		else
 			break;
 	} 
@@ -322,7 +329,7 @@ void MenuScreens::DoCreditsScreen()
 	{
 		static float wobble	(0);
 		wobble+=0.05;
-		m_pWii->GetFontManager()->DisplayLargeTextCentre(m_pWii->GetText("PressButtonAToContinueMessage"),0,exp(sin(wobble)*2.8f)+330.0f,128);
+		m_pWii->GetFontManager()->DisplayTextCentre(m_pWii->GetText("PressButtonAToContinueMessage"),0,exp(sin(wobble)*2.8f)+330.0f,128,HashString::LargeFont);
 	}
 
 	
@@ -370,7 +377,7 @@ void MenuScreens::DoOptionsScreen()
 	m_pWii->DrawRectangle( -320, -200,	  640, 42,	  88, 0,0,0 );
 	m_pWii->DrawRectangle( -320, -200+42, 640,  4,	 112, 0,0,0 );
 	// "O P T I O N S"
-	m_pWii->GetFontManager()->DisplayLargeTextCentre(m_pWii->GetText("OptionsMenuScreenTopTitle"),0,-180,190);
+	m_pWii->GetFontManager()->DisplayTextCentre(m_pWii->GetText("OptionsMenuScreenTopTitle"),0,-180,190,HashString::LargeFont);
 		//=========================
 
 	m_pWii->GetMenuManager()->SetMenuGroup("OptionsMenu");

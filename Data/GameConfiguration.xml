@@ -1,10 +1,30 @@
 <?xml version="1.0" standalone="yes"?>
 <!-- 'Wii Bolt Thrower' - game configurtion file -->
 
-
 <Data>
- 
-	<Variables>
+
+  <DownloadFiles>
+    <AddURI URI="http://he3.magnatune.com/all/03-Law%20of%20One-Indidginus.ogg" DownloadDir="music" />
+  </DownloadFiles>
+  
+<!--  TEST - any old file will do
+  <DownloadFiles>
+    <AddURI URI="http://he3.magnatune.com/all/03-Law%20of%20One-Indidginus.ogg" DownloadDir="music" />
+    <AddURI URI="http://www.fnordware.com/superpng/pngtest8rgba.png" DownloadDir="music/fred" />
+    <AddURI URI="http://www.fnordware.com/superpng/pngtest8rgba.png" DownloadDir="music3" />
+    <AddURI URI="http://sidney.mirror.modarchive.org/42289/MOD/S/spacedeb.mod.zip" DownloadDir="music" />
+  </DownloadFiles>
+  -->
+
+  <TrackerModules>
+
+    <AddMod Name="SpaceDebris"	FileName="music/SpaceDebris.mod" Loop="true"/>
+    <AddMod Name="Stardust Memories"	FileName="music/stardstm.mod" Loop="true"/>
+    <AddMod Name="Tilbury Fair"	FileName="music/tilbury_fair.mod" Loop="true"/>
+
+  </TrackerModules>
+
+  <Variables>
 	
 		<!-- Difficulty factors - applied to things like Enemy units (large than 1.0 is OK) -->
 		<easy>0.25</easy>   	<!-- i.e.  25% of the original value will be used-->
@@ -27,7 +47,7 @@
 		<AmountOfGunShipsAtStartUp>6</AmountOfGunShipsAtStartUp>
 
 		<EnermyAmardaArroundLastShieldGenerator>10</EnermyAmardaArroundLastShieldGenerator>
-		
+	
 		
 		<!-- Shields -->
 		<PlayerMaxShieldLevel>64</PlayerMaxShieldLevel>
@@ -58,7 +78,8 @@
 		<AreaToCoverForGunShipsAtStartUp>3000</AreaToCoverForGunShipsAtStartUp>		
 					
 	</Variables>
-	
+
+  
    <LightWaveObjects>
 		<AddLWO Name="MoonLowRess"	FileName="lwo/Moon_lowres.LWO" 						UseModelsNormalData="0"/>
 		<AddLWO Name="MoonHiRess"	FileName="lwo/Moon_medress.LWO"						UseModelsNormalData="0"/>
@@ -76,18 +97,6 @@
 		<AddLWO Name="Material_PickUp"	FileName="lwo/Material_PickUP.lwo" 				UseModelsNormalData="1"/>
 		<AddLWO Name="Shot"	FileName="lwo/Shot.lwo" 									UseModelsNormalData="1"/>
 	</LightWaveObjects>	
-	
-   <TrackerModules>
-		<AddMod Name="SpaceDebris"	FileName="music/SpaceDebris.mod" Loop="true"/>
-	</TrackerModules>
-
-
-  <OggMusic>
-    <AddOgg URI="http://he3.magnatune.com/all/03-Law%20of%20One-Indidginus.ogg" DownloadDir="music/" Loop="true"/>
-    <AddOgg URI="http://www.fnordware.com/superpng/pngtest8rgba.png" DownloadDir="music/" Loop="true"/>
-  </OggMusic>
-  
-  
 
   <Sounds>
 		<AddSound Name="Explode11"	FileName="Sounds/Explode11.wav" />
@@ -111,12 +120,10 @@
 		<AddImage Name="SmallWhiteEnemyShip16x16x2"     StartX="0" StartY="48" ItemWidth="16" ItemHeight="16" NumberItems="2"/>
 		<AddImage Name="SmallRedEnemyShip16x16x2"     StartX="0" StartY="64" ItemWidth="16" ItemHeight="16" NumberItems="2"/>
 
-
     <AddImage Name="MediumEnemyShipType01_32x32x2"     StartX="0" StartY="448" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
     <AddImage Name="MediumEnemyShipType02_32x32x2"     StartX="32" StartY="448" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
     <AddImage Name="MediumEnemyShipType03_32x32x2"     StartX="64" StartY="448" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
     <AddImage Name="MediumEnemyShipType04_32x32x2"     StartX="96" StartY="448" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
-
 
     <AddImage Name="MiniMoon16x16"     StartX="32" StartY="32" ItemWidth="16" ItemHeight="16" NumberItems="1"/>
 		<AddImage Name="YellowRadarPing32x32"     StartX="48" StartY="32" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
@@ -196,29 +203,22 @@
       <AddText WiiMoteInfraRedPointer = "Aim" />
       <AddText WiiMoteButtonHome = "Quit" />
       <AddText PressButtonAToContinueMessage = "PRESS A TO CONTINUE" />
-
-
-      <AddText QuitMessage = "Bye" />
-      
+      <AddText QuitMessage = "Bye" />   
       <AddText Options = "Options" />
       <AddText Controls = "Controls" />
       <AddText Credits= "Credits" />
       <AddText Intro = "Intro" />
       <AddText Start_Game = "Start Game" />
       <AddText Quit = "Quit" />
-      
       <AddText Back = "Back" />
-
       <AddText Ingame_Music = "In-game Music" />
       <AddText Difficulty_Level = "Difficulty Level" />
       <AddText Set_Language = "Set Language" />
-      
       <AddText off = "off" />
       <AddText on = "on" />
       <AddText easy = "easy" />
       <AddText medium = "medium" />
       <AddText hard = "hard" />
-
       <AddText attract_mode = "attract mode" />
       <AddText GAME_PAUSED = "GAME PAUSED" />
       <AddText Press_PLUS_To_Play =  "Press (+) To Play" />
@@ -228,6 +228,8 @@
       <AddText Your_Score = "&lt;-- Your Score" />
       <AddText ScrapPartsCollected = "&lt;-- Amount of scrap parts collected" />
 
+      <!-- Code looks for CreditsNN and displays each line until we hit the end teg (limit of 99) -->
+      <!-- TODO code needs to support scroll when count exceeds the screen area-->
       <AddText Credits01 = "-=Music=- 'Space Debris' from the Amiga by Captain/Image" />
       <AddText Credits02 = "Visit http://modarchive.org/ for a distinctive collection of modules" />
       <AddText Credits03 = "" />
@@ -243,14 +245,17 @@
       <AddText Credits13 = "Release v%%RELEASE_VERSION%% %%DATE_OF_BUILT%%" />
       <AddText Credits14 = "Built using libs: -lfat -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm " />
       <AddText Credits15 = "TAG-END" />
-
+      
       <AddText OptionsPopUpMessage = "Change various settings like the Difficulty" />
       <AddText Start_GamePopUpMessage = "Play game - Difficulty " />
       <AddText IntroPopUpMessage = "Navigate me to the intro screen" />
-      
       <AddText Version = "Version " />
 
-      
+
+      <AddText Last = "Last" />
+      <AddText Change_Tune = "Change Tune" />
+
+
     </English>
 
     <Klingon>
@@ -265,30 +270,22 @@
       <AddText WiiMoteInfraRedPointer = "Qeq" />
       <AddText WiiMoteButtonHome = "mej" />
       <AddText PressButtonAToContinueMessage = "BING A DAQ VIH" />
-
       <AddText QuitMessage = "Qapla'" />
-      
-      
       <AddText Options = "DuH" />
       <AddText Controls = "RuQ" />
       <AddText Credits= "Tlho'" />
       <AddText Intro = "VeQDuj" />
       <AddText Start_Game = "Tagh Quj" />
       <AddText Quit = "Bup" />
-
       <AddText Back = "DoH" />
-
-
       <AddText Ingame_Music = " Daq Quj QoQ" />
       <AddText Difficulty_Level = "SuD" />
       <AddText Set_Language = "Cher Hol" />
-
       <AddText off = "lItha'" />
       <AddText on = "daq" />
       <AddText easy = "ngeD" />
       <AddText medium = "botlh" />
       <AddText hard = "let" />
-
       <AddText attract_mode = "ghoS Daq" />
       <AddText GAME_PAUSED = "ghobe' jaH" />
       <AddText Press_PLUS_To_Play =  "bIng (+) Daq jaH" />
@@ -316,13 +313,14 @@
       <AddText Credits14 = "chenta' tlhej: -lfat -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm" />
       <AddText Credits15 = "TAG-END" />
 
-
       <AddText OptionsPopUpMessage = "choH SeH" />
       <AddText Start_GamePopUpMessage = "Quj - Qatlh " />
       <AddText IntroPopUpMessage = "chIj QI'lop jIH" />
-
       <AddText Version = "De' " />
       
+      <AddText Last = "Last" />
+      <AddText Change_Tune = "Next Tune" />
+
     </Klingon>
 
     <!-- character set net yet supported-->

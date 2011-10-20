@@ -20,74 +20,59 @@ Font* FontManager::GetFont(HashLabel Font)
 	return m_FontContainer[ Font ];
 }
 
-//hack
-void FontManager::DisplayLargeTextVertCentre(const string& Text, int uXpos, int uYpos, u8 Alpha)
+void FontManager::DisplayTextVertCentre(const string& Text, int uXpos, int uYpos, u8 Alpha, HashLabel FontSize)
 {
-	uYpos -= GetFont(HashString::LargeFont)->GetHeight()/2;
-	DisplayLargeText(Text, uXpos,uYpos,Alpha);
+	uYpos -= GetFont(FontSize)->GetHeight()/2;
+	DisplayText(Text, uXpos,uYpos,Alpha,FontSize);
 }
-void FontManager::DisplayLargeTextCentre(const string& Text, int uXpos, int uYpos, u8 Alpha)
+void FontManager::DisplayTextCentre(const string& Text, int uXpos, int uYpos, u8 Alpha, HashLabel FontSize)
 {
-	uXpos -= GetTextWidth(Text,HashString::LargeFont)/2;
-	uYpos -= GetFont(HashString::LargeFont)->GetHeight()/2;
-	DisplayLargeText(Text, uXpos,uYpos,Alpha);
-}
-
-void FontManager::DisplaySmallTextCentre(const string& Text, int uXpos, int uYpos, u8 Alpha)
-{
-	uXpos -= GetTextWidth(Text,HashString::SmallFont)/2;
-	uYpos -= GetFont(HashString::SmallFont)->GetHeight()/2;
-	DisplaySmallText(Text, uXpos,uYpos,Alpha);
+	uXpos -= GetTextWidth(Text,FontSize)/2;
+	uYpos -= GetFont(FontSize)->GetHeight()/2;
+	DisplayText(Text, uXpos,uYpos,Alpha,FontSize);
 }
 
-void FontManager::DisplaySmallTextVertCentre(const string& Text, int uXpos, int uYpos, u8 Alpha)
-{
-	//uXpos -= GetTextWidth(Text,HashString::SmallFont)/2;
-	uYpos -= GetFont(HashString::SmallFont)->GetHeight()/2;
-	DisplaySmallText(Text, uXpos,uYpos,Alpha);
-}
+//////hack
+////void FontManager::DisplayLargeTextVertCentre(const string& Text, int uXpos, int uYpos, u8 Alpha)
+////{
+////	uYpos -= GetFont(HashString::LargeFont)->GetHeight()/2;
+////	DisplayText(Text, uXpos,uYpos,Alpha,HashString::LargeFont);
+////}
+////void FontManager::DisplayLargeTextCentre(const string& Text, int uXpos, int uYpos, u8 Alpha)
+////{
+////	uXpos -= GetTextWidth(Text,HashString::LargeFont)/2;
+////	uYpos -= GetFont(HashString::LargeFont)->GetHeight()/2;
+////	DisplayText(Text, uXpos,uYpos,Alpha,HashString::LargeFont);
+////}
+////
+////void FontManager::DisplaySmallTextCentre(const string& Text, int uXpos, int uYpos, u8 Alpha)
+////{
+////	uXpos -= GetTextWidth(Text,HashString::SmallFont)/2;
+////	uYpos -= GetFont(HashString::SmallFont)->GetHeight()/2;
+////	DisplayText(Text, uXpos,uYpos,Alpha,HashString::SmallFont);
+////}
+////
+////void FontManager::DisplaySmallTextVertCentre(const string& Text, int uXpos, int uYpos, u8 Alpha)
+////{
+////	uYpos -= GetFont(HashString::SmallFont)->GetHeight()/2;
+////	DisplayText(Text, uXpos,uYpos,Alpha,HashString::SmallFont);
+////}
 
-void FontManager::DisplayLargeText(const string& Text, int uXpos, int uYpos, u8 Alpha)
+void FontManager::DisplayText(const string& Text, int uXpos, int uYpos, u8 Alpha, HashLabel FontSize)
 {
 	WiiManager& Wii(Singleton<WiiManager>::GetInstanceByRef());
-	Font* pFont(Wii.GetFontManager()->GetFont( HashString::LargeFont));
+	Font* pFont(Wii.GetFontManager()->GetFont( FontSize ));
 
-	//GX_LoadPosMtxImm (Singleton<WiiManager>::GetInstanceByRef().GetCamera()->GetcameraMatrix(), GX_PNMTX0); 
-
-	int x(uXpos);
 	for (string::const_iterator Iter(Text.begin()); Iter!=Text.end(); ++Iter )
 	{
 		const CharInfo* const  pChar ( pFont->GetChar( *Iter ) );
 
-		x += pChar->m_iWidthA;
+		uXpos += pChar->m_iWidthA;
 		if (pChar->GetImage() != NULL)
 		{
-			pChar->Draw(x, uYpos + pChar->m_iTopOffset,Alpha);
+			pChar->Draw(uXpos, uYpos + pChar->m_iTopOffset,Alpha);
 		}
-		x += pChar->m_uWidthB; 
-		x += pChar->m_iWidthC;
-	}
-}
-
-void FontManager::DisplaySmallText(const string& Text, int uXpos, int uYpos, u8 Alpha)
-{
-	WiiManager& Wii(Singleton<WiiManager>::GetInstanceByRef());
-	Font* pFont(Wii.GetFontManager()->GetFont(HashString::SmallFont));
-
-	//GX_LoadPosMtxImm (Singleton<WiiManager>::GetInstanceByRef().GetCamera()->GetcameraMatrix(), GX_PNMTX0); 
-
-	int x(uXpos);
-	for (string::const_iterator Iter(Text.begin()); Iter!=Text.end(); ++Iter )
-	{
-		const CharInfo* const  pChar ( pFont->GetChar( *Iter ) );
-
-		x += pChar->m_iWidthA;
-		if (pChar->GetImage() != NULL)
-		{
-			pChar->Draw(x, uYpos + pChar->m_iTopOffset,Alpha);
-		}
-		x += pChar->m_uWidthB; 
-		x += pChar->m_iWidthC;
+		uXpos += pChar->m_uWidthB + pChar->m_iWidthC;
 	}
 }
 

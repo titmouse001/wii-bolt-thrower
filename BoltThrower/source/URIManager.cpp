@@ -16,6 +16,7 @@
 
 
 #include "URIManager.h"
+#include "Config.h"
 
 URLManager::URLManager()
 {
@@ -66,7 +67,7 @@ string URLManager::CreateHttpRequest(const string& CommandWithSpace, const strin
 	BuildPacket +=  "Referer: " + RefererPath + "\r\n";  // (misspelled) This is the address of the previous web page from which a link to the currently requested page was followed.
 
 	//BuildPacket +=  "User-Agent: Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET4.0C; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; InfoPath.2)\r\n";
-	BuildPacket +=  "User-Agent: WiiBoltThrower/0.6 libogc/1.8.7\r\n"; //User agents SHOULD include this field with requests
+	BuildPacket +=  "User-Agent: WiiBoltThrower/" + s_ReleaseVersion + "\r\n"; //User agents SHOULD include this field with requests
 
 	BuildPacket +=  "Connection: close\r\n\r\n";  //HTTP/1.1 applications that do not support persistent connections MUST include the "close" connection option in every message. 
 	return BuildPacket;

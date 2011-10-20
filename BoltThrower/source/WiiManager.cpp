@@ -41,8 +41,17 @@
 #include "debug.h"
 
 
+//#include <fat.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+#include <string>
+#include <dirent.h>
+#include <sys/stat.h>
 
-#define DEBUGCONSOLESTATE	( eDebugConsoleOn )  // its ignored (off) in final release
+#include "oggplayer/oggplayer.h"
+
+
+#define DEBUGCONSOLESTATE	( eDebugConsoleOn )  // it's ignored (off) in final release
 #define COLOUR_FOR_WIPE		( COLOR_BLACK )  // crash at startup colour
 
 
@@ -119,6 +128,12 @@ void WiiManager::UnInitWii()
 	{
 		free(MEM_K1_TO_K0(m_pFrameBuffer[1]));
 		m_pFrameBuffer[1] = NULL;
+	}
+
+	if (m_ModuleTrackerPlayerInterface.mod.modraw!=NULL)
+	{
+		MODPlay_Stop( &m_ModuleTrackerPlayerInterface );
+		MODPlay_Unload( &m_ModuleTrackerPlayerInterface );
 	}
 }
 
@@ -421,13 +436,18 @@ u32 WiiManager::GetScreenBufferId() const
 	return m_uScreenBufferId; 
 }
 
-void WiiManager::SwapScreen()
+void WiiManager::SwapScreen(bool bState)
 {
 
+	//TODO - Time this waste???
 	GX_DrawDone();  // flush & wait for the pipline (could use callback here)
 
 
-	GX_CopyDisp( GetCurrentFrame() , GX_TRUE); // mainly to clear the z buffer (don't think its possible to clear just the Z buffer ? )
+	if (bState)
+		GX_CopyDisp( GetCurrentFrame() , GX_TRUE); // mainly to clear the z buffer (don't think its possible to clear just the Z buffer ? )
+	else
+		GX_CopyDisp( GetCurrentFrame() , GX_FALSE);
+
 	GX_Flush();
 
 	++m_uScreenBufferId; 
@@ -454,7 +474,7 @@ void WiiManager::Printf(int x, int y, const char* pFormat, ...)
 	va_end(tArgs);
 
 	Util3D::Trans(GetCamera()->GetCamX(),GetCamera()->GetCamY());
-	GetFontManager()->DisplaySmallText(Buffer,x,y,200);
+	GetFontManager()->DisplayText(Buffer,x,y,200,HashString::SmallFont);
 }
 
 void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
@@ -581,29 +601,29 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 				}
 			}
 
-			// *** Mod's ***
-			TiXmlElement* pMod =  Data.FirstChild( "TrackerModules" ).FirstChildElement().ToElement();
-			for( TiXmlElement* pElement(pMod); pElement!=NULL; pElement=pElement->NextSiblingElement() )
-			{
-				string Key(pElement->Value());
-				if (Key=="AddMod") 
-				{
-					FileInfo Info(pElement->Attribute("FileName"),pElement->Attribute("Name"));
-					m_ModinfoContainer.push_back( Info );
-				}
-			}
+			//////// *** Mod's ***
+			//////TiXmlElement* pMod =  Data.FirstChild( "TrackerModules" ).FirstChildElement().ToElement();
+			//////for( TiXmlElement* pElement(pMod); pElement!=NULL; pElement=pElement->NextSiblingElement() )
+			//////{
+			//////	string Key(pElement->Value());
+			//////	if (Key=="AddMod") 
+			//////	{
+			//////		FileInfo Info(pElement->Attribute("FileName"),pElement->Attribute("Name"));
+			//////		m_ModinfoContainer.push_back( Info );
+			//////	}
+			//////}
 
-			// *** Ogg's ***
-			TiXmlElement* pOgg =  Data.FirstChild( "OggMusic" ).FirstChildElement().ToElement();
+			// *** Downloads ***
+			TiXmlElement* pOgg =  Data.FirstChild( "DownloadFiles" ).FirstChildElement().ToElement();
 			for( TiXmlElement* pElement(pOgg); pElement!=NULL; pElement=pElement->NextSiblingElement() )
 			{
 				string Key(pElement->Value());
-				if (Key=="AddOgg") 
+				if (Key=="AddURI") 
 				{
 					FileInfo Info( pElement->Attribute("URI"), Util::urlDecode( pElement->Attribute("URI") ) );
 					Info.DownloadDir = pElement->Attribute("DownloadDir");
 
-					m_MusicOgginfoContainer.push_back( Info );
+					m_DownloadinfoContainer.push_back( Info );
 				}
 			}
 
@@ -679,8 +699,8 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 	if (m_SoundinfoContainer.empty()) ExitPrintf(ErrorString.c_str(),"sound");
 	if (m_FontinfoContainer.empty()) ExitPrintf(ErrorString.c_str(),"fonts");
 	if (m_LwoinfoContainer.empty()) ExitPrintf(ErrorString.c_str(),"lwo's");
-	if (m_ModinfoContainer.empty()) ExitPrintf(ErrorString.c_str(),"mod's");
-	if (m_MusicOgginfoContainer.empty()) ExitPrintf(ErrorString.c_str(),"ogg's");
+//	if (m_ModinfoContainer.empty()) ExitPrintf(ErrorString.c_str(),"mod's");
+	if (m_DownloadinfoContainer.empty()) ExitPrintf(ErrorString.c_str(),"ogg's");
 	// oggs can be empty
 	
 
@@ -747,19 +767,19 @@ void WiiManager::TextBox(const std::string& rText, float x, float y, int w, int 
 	// maybe add both aligns as enums later if needed?
 	if (eAlign==eCentre)
 	{
-		GetFontManager()->DisplaySmallTextCentre(rText, w/2,h/2, 222);
+		GetFontManager()->DisplayTextCentre(rText, w/2,h/2, 222,HashString::SmallFont);
 	}
 	else if (eAlign==eRight)
 	{
 		int Diffx = w - TextWidth;
 		int Diffy = (h - TextHeight)/2;
-		GetFontManager()->DisplaySmallText(rText, Diffx - 4, Diffy,222);
+		GetFontManager()->DisplayText(rText, Diffx - 4, Diffy,222,HashString::SmallFont);
 	}
 	else if (eAlign==eLeft)
 	{
 		int Diffx = 0;
 		int Diffy = (h - TextHeight)/2;
-		GetFontManager()->DisplaySmallText(rText, Diffx + 4, Diffy,222);
+		GetFontManager()->DisplayText(rText, Diffx + 4, Diffy,222,HashString::SmallFont);
 	}
 
 	
@@ -793,7 +813,7 @@ void WiiManager::InitDebugConsole(int ScreenOriginX, int ScreenOriginY)
 #endif
 }
 
-void WiiManager::ProgramStartUp()
+void WiiManager::InitGameResources()
 {
 	// *** fonts ***
 	for ( vector<FileInfo>::iterator Iter( GetFontInfoBegin());	Iter !=  GetFontInfoEnd() ; ++Iter )
@@ -877,31 +897,114 @@ void WiiManager::ProgramStartUp()
 			pImageManager->EndGraphicsFile();
 		}
 	}
-
-
+	
 	BuildMenus();
 
+	
+	InitMusic();
+	PlayMusic();
+}
 
+void WiiManager::InitMusic()
+{
+	WiiFile::GetFolderFileNames( WiiFile::GetGameMusicPath(), &m_MusicFilesContainer );
 
-	//Get the tracker module into memory
-	for ( vector<FileInfo>::iterator Iter( GetModInfoBegin());	Iter !=  GetModInfoEnd() ; ++Iter )
+	if ( m_MusicFilesContainer.empty() )
+		return;
+
+	m_MusicFilesContainer.begin()->b_ThisSlotIsBeingUsed = true; // tag one tune to start with
+
+	LoadMusic();
+}
+
+void WiiManager::LoadMusic()
+{
+	FileInfo* pInfo( GetCurrentMusicInfo() );
+	if (pInfo!=NULL)
 	{
-		string name( WiiFile::GetGamePath() + Iter->FileName );
-		FILE* pFile( WiiFile::FileOpenForRead(name.c_str()) );
-		fseek (pFile , 0, SEEK_END);
-		uint FileSize( ftell (pFile) );
-		rewind(pFile); 
-		m_pModuleTrackerData = (u8*) malloc (sizeof(char) * FileSize);
-		size_t result = fread (m_pModuleTrackerData,1,FileSize,pFile);
-		if (result != FileSize) 
-			ExitPrintf ("mod/Music Reading error"); 
-		else
-			fclose(pFile); 
+		m_pModuleTrackerData = WiiFile::ReadFile(pInfo->FileName);
+	}
+}
 
-		break; // TODO - store more then one - just for now take the first one we find
+FileInfo* WiiManager::GetCurrentMusicInfo()
+{
+	for ( vector<FileInfo>::iterator Iter( m_MusicFilesContainer.begin() ); Iter != m_MusicFilesContainer.end() ; ++Iter )
+	{
+		if (Iter->b_ThisSlotIsBeingUsed == true)
+			return &(*Iter);
+	}
+	return NULL;
+}
+
+void WiiManager::PlayMusic()
+{
+	char* pTemp = new char[5];
+	memset (pTemp,0,5);
+	memcpy (pTemp,m_pModuleTrackerData,4);
+	string Header2 = pTemp;
+	if (Header2 == "OggS")
+	{
+		//-------------
+		if (m_ModuleTrackerPlayerInterface.playing)
+		{
+			MODPlay_Stop( &m_ModuleTrackerPlayerInterface );
+			MODPlay_Unload( &m_ModuleTrackerPlayerInterface );
+		}
+		//-------------
+		
+		FileInfo* Info = GetCurrentMusicInfo();
+
+		if (Info != NULL)
+		{
+			OggPlayer Ogg;
+			Ogg.PlayOgg(m_pModuleTrackerData, (s32)Info->Size, 0, OGG_ONE_TIME);
+		}
+	}
+	else
+	{
+		MODPlay_Init(&m_ModuleTrackerPlayerInterface);
+
+		MODPlay_SetMOD(&m_ModuleTrackerPlayerInterface, m_pModuleTrackerData);
+		MODPlay_Start(&m_ModuleTrackerPlayerInterface); 
+		MODPlay_SetVolume( &m_ModuleTrackerPlayerInterface, 100,100);
+	}
+}
+
+void WiiManager::NextMusic()
+{
+	for ( vector<FileInfo>::iterator Iter( m_MusicFilesContainer.begin() ); Iter != m_MusicFilesContainer.end() ; ++Iter )
+	{
+		if (Iter->b_ThisSlotIsBeingUsed == true)
+		{
+			Iter->b_ThisSlotIsBeingUsed = false;
+
+			// get the next module in the list to play, it wraps back to the start when needed
+			++Iter;
+			if (Iter == m_MusicFilesContainer.end())
+				Iter = m_MusicFilesContainer.begin();
+
+			Iter->b_ThisSlotIsBeingUsed = true;
+			free(m_pModuleTrackerData);
+
+			LoadMusic();
+			PlayMusic();
+
+			break;
+		}
 	}
 
 
+
+}
+
+string WiiManager::GetNameOfCurrentMusic()
+{
+	for ( vector<FileInfo>::iterator Iter( m_MusicFilesContainer.begin() ); Iter != m_MusicFilesContainer.end() ; ++Iter )
+	{
+		if (Iter->b_ThisSlotIsBeingUsed)
+			return Iter->LogicName;
+	}
+	return "nothing";
 }
 
 void WiiManager::BuildMenus(bool KeepSettings)
@@ -923,21 +1026,24 @@ void WiiManager::BuildMenus(bool KeepSettings)
 	//========================================
 	// Main Menu - one time setup
 	int y=-36;
-	int step=64;
-	int height=56;
-	float width=340;
+	int step=24+8;
+	int height=24;
+	float width=200;
 	
 	GetMenuManager()->SetMenuGroup("MainMenu");
 
-	GetMenuManager()->AddMenu(-width*0.20, y, width,height,"Start_Game",false,true);
-	
+	GetMenuManager()->AddMenu(-width*0.10, y, width,height,"Start_Game",false,true);
 	y+=step;
-	GetMenuManager()->AddMenu(-width*0.30, y, width,height,"Options",false,true);
+	GetMenuManager()->AddMenu(-width*0.15, y, width,height,"Options",false,true);
 	y+=step;
-	GetMenuManager()->AddMenu(-width*0.40, y, width,height,"Intro",false,true);
-
-//	y+=step*1.5;
-//	GetMenuManager()->AddMenu(-width*0.50, y, width,height,"Quit");
+	GetMenuManager()->AddMenu(-width*0.20, y, width,height,"Intro",false,true);
+	y+=step;
+	//move this one into options
+	GetMenuManager()->AddMenu( -width*0.25, y, width,height,"Change_Tune",false,true);
+	y+=step;
+	GetMenuManager()->AddMenu( -width*0.30, y, width,height ,"Controls",false,true );
+	y+=step;
+	GetMenuManager()->AddMenu( -width*0.35, y, width,height ,"Credits",false,true );
 
 	//==========================================================
 
@@ -946,11 +1052,11 @@ void WiiManager::BuildMenus(bool KeepSettings)
 
 	int x=0; // centre of screen
 	y=-98;
-	height=52;
-	step=60;
+	height=26;
+	step=26+8;
 
-	GetMenuManager()->AddMenu( x - 108, y, 200, height ,"Credits" );
-	GetMenuManager()->AddMenu( x + 108, y, 200, height ,"Controls" );
+	//GetMenuManager()->AddMenu( x - 108, y, 200, height ,"Credits" );
+	//GetMenuManager()->AddMenu( x + 108, y, 200, height ,"Controls" );
 	y+=step;
 
 	GetMenuManager()->AddMenu(x, y, 600, height, "Ingame_Music",false,true);

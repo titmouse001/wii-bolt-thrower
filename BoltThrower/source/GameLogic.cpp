@@ -414,14 +414,14 @@ void GameLogic::InGameLogic()
 
 		GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
 		Util3D::TransRot(GetPlrVessel()->GetX()-600,GetPlrVessel()->GetY(),700,-M_PI/8);
-		m_pWii->GetFontManager()->DisplayLargeTextCentre("Visit",									344,-290,166);
-		m_pWii->GetFontManager()->DisplayLargeTextCentre("http://wiibrew.org/wiki/BoltThrower",		344,-250,166);
-		m_pWii->GetFontManager()->DisplayLargeTextCentre("to  add  your  ideas",					344,-210,166);
+		m_pWii->GetFontManager()->DisplayTextCentre("Visit",									344,-290,166,HashString::LargeFont);
+		m_pWii->GetFontManager()->DisplayTextCentre("http://wiibrew.org/wiki/BoltThrower",		344,-250,166,HashString::LargeFont);
+		m_pWii->GetFontManager()->DisplayTextCentre("to  add  your  ideas",					344,-210,166,HashString::LargeFont);
 
 		if (IsEndLevelTrigger())
 		{
 			Util3D::Trans(GetPlrVessel()->GetX(),GetPlrVessel()->GetY(),0);
-			m_pWii->GetFontManager()->DisplayLargeTextCentre("PRESS A TO CONTINUE",exp(sin(wobble)*2.8f),220,128);
+			m_pWii->GetFontManager()->DisplayTextCentre("PRESS A TO CONTINUE",exp(sin(wobble)*2.8f),220,128,HashString::LargeFont);
 		}
 
 		GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);

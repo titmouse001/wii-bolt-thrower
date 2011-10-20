@@ -95,12 +95,12 @@ void MessageBox::DisplayMessageBox()
 	
 	Util3D::Trans(0, 0 + moveoff);
 	int h = m_pWii->GetFontManager()->GetFont(HashString::SmallFont)->GetHeight();
-	m_pWii->GetFontManager()->DisplayLargeTextCentre(m_MessageHeading, 0,h+((-BoxHeight/2)*RoomAroundEdge),255*GetFadeValue());
+	m_pWii->GetFontManager()->DisplayTextCentre(m_MessageHeading, 0,h+((-BoxHeight/2)*RoomAroundEdge),255*GetFadeValue());
 
 	Util3D::Trans((-BoxWidth/2) * RoomAroundEdge, -38 + moveoff);
 	for (std::vector<std::string>::iterator iter(MessageContainer.begin()); iter!=MessageContainer.end(); ++iter)
 	{
-		m_pWii->GetFontManager()->DisplaySmallText(*iter, 0,std::distance(MessageContainer.begin(),iter)*22,255*GetFadeValue());
+		m_pWii->GetFontManager()->DisplayText(*iter, 0,std::distance(MessageContainer.begin(),iter)*22,255*GetFadeValue(),HashString::SmallFont);
 	}
 
 	Image* pWiiMoteButtonA = m_pWii->GetImageManager()->GetImage(HashString::WiiMoteButtonA);

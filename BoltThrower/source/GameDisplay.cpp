@@ -101,12 +101,12 @@ void GameDisplay::DisplayAllForIntro()
 
 	m_pWii->GetCamera()->SetCameraView(0,0);
 	Util3D::TransRot(-204,-128,-3.14f/4.0f);
-	m_pWii->GetFontManager()->DisplayLargeTextCentre(m_pWii->GetText("attract_mode"),0,0,fabs(sin(bbb)*80));
+	m_pWii->GetFontManager()->DisplayTextCentre(m_pWii->GetText("attract_mode"),0,0,fabs(sin(bbb)*80),HashString::LargeFont);
 
 	Util3D::Identity();
 	static float wobble	(0);
 	wobble+=0.05;
-	m_pWii->GetFontManager()->DisplayLargeTextCentre(m_pWii->GetText("PressButtonAToContinueMessage"),0, 145 + exp((sin(wobble)*2.8f)),110);
+	m_pWii->GetFontManager()->DisplayTextCentre(m_pWii->GetText("PressButtonAToContinueMessage"),0, 145 + exp((sin(wobble)*2.8f)),110,HashString::LargeFont);
 
 	DebugInformation();
 
@@ -194,8 +194,8 @@ void GameDisplay::DisplayAllForIngame()
 		ccc+=0.015;
 		Util3D::TransRot(m_pGameLogic->GetPlrVessel()->GetX(),m_pGameLogic->GetPlrVessel()->GetY(),0,(sin(ccc) - cos(ccc))*0.025f);
 		m_pWii->DrawRectangle( -160, -60, 320,  75, 112, 0,0,50 );
-		m_pWii->GetFontManager()->DisplayLargeTextCentre(m_pWii->GetText("GAME_PAUSED"),		0,-20,160+(cos(ccc*4)*44.0f));
-		m_pWii->GetFontManager()->DisplaySmallTextCentre(m_pWii->GetText("Press_PLUS_To_Play"),	0,+40, 230);
+		m_pWii->GetFontManager()->DisplayTextCentre(m_pWii->GetText("GAME_PAUSED"),		0,-20,160+(cos(ccc*4)*44.0f),HashString::LargeFont);
+		m_pWii->GetFontManager()->DisplayTextCentre(m_pWii->GetText("Press_PLUS_To_Play"),	0,+40, 230,HashString::SmallFont);
 	}
 	DebugInformation();
 }
@@ -436,8 +436,8 @@ void GameDisplay::DisplayInformationPanels()
 	if (m_pGameLogic->IsGamePausedByPopUp() && 
 		(m_pWii->GetMissionManager()->GetCurrentMission()==1) )
 	{
-		m_pWii->GetFontManager()->DisplaySmallText(m_pWii->GetText("Your_Score"),100,0,200);  // relative coords to last trans
-		m_pWii->GetFontManager()->DisplaySmallText(m_pWii->GetText("Press_PLUS_To_Pause_Game"),100,-100,200);  // relative coords to last trans
+		m_pWii->GetFontManager()->DisplayText(m_pWii->GetText("Your_Score"),100,0,200,HashString::SmallFont);  // relative coords to last trans
+		m_pWii->GetFontManager()->DisplayText(m_pWii->GetText("Press_PLUS_To_Pause_Game"),100,-100,200,HashString::SmallFont);  // relative coords to last trans
 	}
 
 	// Scrap parts
@@ -446,7 +446,7 @@ void GameDisplay::DisplayInformationPanels()
 	m_pWii->TextBox( x, y ,BoxWidth,BoxHeight,WiiManager::eCentre, "%06d", m_pGameLogic->GetPlrVessel()->GetPickUpTotal() );
 
 	if (m_pGameLogic->IsGamePausedByPopUp() && (m_pWii->GetMissionManager()->GetCurrentMission()==1) )
-		m_pWii->GetFontManager()->DisplaySmallText(m_pWii->GetText("ScrapPartsCollected"),100,0,200);
+		m_pWii->GetFontManager()->DisplayText(m_pWii->GetText("ScrapPartsCollected"),100,0,200,HashString::SmallFont);
 }
 
 
@@ -968,7 +968,7 @@ void GameDisplay::DisplaySmallSimpleMessage(std::string Text)
 		m_pWii->DrawRectangle(-320,-240,640,480,255 
 						 ,0,0,0, 
 						 0,0,40);
-		m_pWii->GetFontManager()->DisplaySmallTextCentre(Text, 0,0,255);
+		m_pWii->GetFontManager()->DisplayTextCentre(Text, 0,0,255,HashString::SmallFont);
 		GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
 		m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
 	}
@@ -984,7 +984,7 @@ void GameDisplay::DisplaySimpleMessage(std::string Text)
 		m_pWii->DrawRectangle(-320,-240,640,480,255,0,0,0,0,0,40);
 
 		Util3D::TransRot(0,0,-3.14f/12.0f);
-		m_pWii->GetFontManager()->DisplayLargeTextCentre(Text, 0,0,255);
+		m_pWii->GetFontManager()->DisplayTextCentre(Text, 0,0,255,HashString::LargeFont);
 		GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
 		m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
 	}

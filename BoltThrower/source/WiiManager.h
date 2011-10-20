@@ -51,25 +51,22 @@ struct FrameInfo
 	ImageManager::EDirection eDirection;
 };
 
-//////struct SoundInfo
-//////{
-//////	string FileName;
-//////	string LogicName;
-//////};
-
-class FileInfo
-{
-
-public:
-	FileInfo(string InFileName,string InLogicName) : 
-	  FileName(InFileName) , LogicName(InLogicName), m_bNorms(true), m_IndexLayerForBones(-1) {;}
-	FileInfo() {;}
-	string FileName;
-	string LogicName;
-	string DownloadDir;
-	bool m_bNorms;
-	int m_IndexLayerForBones;
-};
+////class FileInfo
+////{
+////public:
+////	FileInfo(string InFileName,string InLogicName) : 
+////			b_ThisSlotIsBeingUsed(false) ,
+////			FileName(InFileName) , LogicName(InLogicName), m_bNorms(true), m_IndexLayerForBones(-1) {;}
+////
+////	FileInfo() : b_ThisSlotIsBeingUsed(false) {;}
+////
+////	bool b_ThisSlotIsBeingUsed;
+////	string FileName;
+////	string LogicName;
+////	string DownloadDir;
+////	bool m_bNorms;
+////	int m_IndexLayerForBones;
+////};
 
  struct profiler_t
 {
@@ -108,7 +105,7 @@ public:
 
 	u32* GetCurrentFrame() const;
 	u32 GetScreenBufferId() const;
-	void SwapScreen(); 
+	void SwapScreen(bool bState = true); 
 
 	enum EScreenBuffer { eFrontScreenBuffer,eBackScreenBuffer, eMaxScreenBuffers };
 	u32 GetMaxScreenBuffers() const  {return eMaxScreenBuffers;}
@@ -142,9 +139,6 @@ public:
 
 	SetUpGame*			GetSetUpGame() const	{ return m_SetUpGame; }
 	
-
-	
-
 	s16 GetViewportX() const { return m_ViewportX; }
 	s16 GetViewportY() const { return m_ViewportY; }
 
@@ -170,15 +164,15 @@ public:
 	//LWO's
 	vector<FileInfo>::iterator GetLwoInfoBegin() { return m_LwoinfoContainer.begin(); }
 	vector<FileInfo>::iterator GetLwoInfoEnd() { return m_LwoinfoContainer.end(); }
-	//Mod's
-	vector<FileInfo>::iterator GetModInfoBegin() { return m_ModinfoContainer.begin(); }
-	vector<FileInfo>::iterator GetModInfoEnd() { return m_ModinfoContainer.end(); }
+	//////Mod's
+	////vector<FileInfo>::iterator GetModInfoBegin() { return m_ModinfoContainer.begin(); }
+	////vector<FileInfo>::iterator GetModInfoEnd() { return m_ModinfoContainer.end(); }
 	//RawTga's
 	vector<FileInfo>::iterator GetRawTgaInfoBegin() { return m_RawTgainfoContainer.begin(); }
 	vector<FileInfo>::iterator GetRawTgaInfoEnd()   { return m_RawTgainfoContainer.end(); }
 	//Ogg's
-	vector<FileInfo>::iterator GetOggInfoBegin() { return m_MusicOgginfoContainer.begin(); }
-	vector<FileInfo>::iterator GetOggInfoEnd() { return m_MusicOgginfoContainer.end(); }
+	vector<FileInfo>::iterator GetDownloadInfoBegin() { return m_DownloadinfoContainer.begin(); }
+	vector<FileInfo>::iterator GetDownloadInfoEnd() { return m_DownloadinfoContainer.end(); }
 
 	//Image*					m_pSpaceBackground;
 	struct RawTgaInfo
@@ -224,7 +218,7 @@ public:
 	bool	IsGameStateControls()				{ return m_GameState==eControls; }
 	bool	IsGameStateOptions()				{ return m_GameState==eOptions; }
 	bool	IsGameStateExit()					{ return m_GameState==eExit; }
-	void	ProgramStartUp();
+	void	InitGameResources();
 
 	std::map<HashLabel,FrameStartEnd> m_FrameEndStartConstainer;  
 	u8* m_pModuleTrackerData;
@@ -265,15 +259,26 @@ public:
 	{
 		//printf(Name.c_str());
 		map< string, string >* ptr( &m_SupportedLanguages[m_Language] );
-
 	//	printf((*ptr)[Name].c_str());
 		return (*ptr)[Name]; // todo  ... some checking needed here
 	}
 
 
+	void InitMusic();
+	void NextMusic();
+	void PlayMusic();
+	FileInfo* GetCurrentMusicInfo();
 
+	string GetNameOfCurrentMusic();
+
+	void GetFolderFileNames(string Path, vector<FileInfo>* rMusicFilesContainer);
+
+	vector<FileInfo> m_MusicFilesContainer;
 
 private:
+	
+	void LoadMusic();
+
 	void SetViewport(s16 x, s16 y) { m_ViewportX = x;m_ViewportY=y; }
 
 	u32* 					m_pFrameBuffer[2];
@@ -285,7 +290,6 @@ private:
 	FontManager*			m_FontManager;
 	InputDeviceManager*		m_InputDeviceManager;
 	MapManager*				m_MapManager;
-	//SpriteManager*			m_SpriteManager;
 	SoundManager*			m_SoundManager;
 	Camera*					m_Camera;
 	URLManager*				m_URLManager;
@@ -299,6 +303,8 @@ private:
 	s16						m_ViewportX;
 	s16						m_ViewportY;
 	EGameState				m_GameState;
+	string					m_Language;
+	string					m_Difficulty;
 
 
 	map<HashLabel,FrameInfo> m_FrameinfoContainer;
@@ -306,24 +312,16 @@ private:
 	// maybe use a <map> if this stuff gets out of hand
 	vector<FileInfo> m_FontinfoContainer;
 	vector<FileInfo> m_LwoinfoContainer;
-	vector<FileInfo> m_ModinfoContainer;
+	//vector<FileInfo> m_ModinfoContainer;
 	vector<FileInfo> m_RawTgainfoContainer;
-
-	vector<FileInfo> m_MusicOgginfoContainer;
-
-
-//	vector<string> m_SupportedLanguages;
+	vector<FileInfo> m_DownloadinfoContainer;
 
 	map< string, map< string, string > > m_SupportedLanguages;
 
-
 	map<HashLabel,float> m_VariablesContainer;
 
-	string m_Language;
-	string m_Difficulty;
 
+	
 };	
-
-
 
 #endif
