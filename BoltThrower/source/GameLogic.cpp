@@ -43,7 +43,7 @@
 GameLogic::GameLogic():	//m_bAddMoreShipsFlag(false), 
 m_bEndLevelTrigger(false), m_Score(0),
 m_ZoomAmountForSpaceBackground(3.1f),m_ClippingRadiusNeededForMoonRocks(0),  
-m_GamePaused(false),m_GamePausedByPlayer(false),m_IsBaseShieldOnline(false)
+m_GamePaused(false),m_GamePausedByPlayer(false),m_IsBaseShieldOnline(false),m_LastChanUsedForSoundAfterBurn(-1)
 {
 	m_Timer = new Timer;
 	m_MyVessel = new PlayerVessel;
@@ -118,9 +118,9 @@ void GameLogic::DoControls()
 
 		if (WPAD_ButtonsHeld(0) & WPAD_BUTTON_B)  // use thrusters
 		{
-			if (LastChanUsedForSoundAfterBurn == -1)
+			if (m_LastChanUsedForSoundAfterBurn == -1)
 			{
-				LastChanUsedForSoundAfterBurn = m_pSoundManager->PlaySound( HashString::AfterBurn,32,32,true);
+				m_LastChanUsedForSoundAfterBurn = m_pSoundManager->PlaySound( HashString::AfterBurn,32,32,true);
 			}
 
 			GetPlrVessel()->AddVel( sin(GetPlrVessel()->GetFacingDirection() )*0.075,-cos( GetPlrVessel()->GetFacingDirection() )*0.075,0);
@@ -137,10 +137,10 @@ void GameLogic::DoControls()
 		}
 		else
 		{
-			if (LastChanUsedForSoundAfterBurn != -1)		
+			if (m_LastChanUsedForSoundAfterBurn != -1)		
 			{
-				m_pSoundManager->StopSound(LastChanUsedForSoundAfterBurn);
-				LastChanUsedForSoundAfterBurn = -1;	
+				m_pSoundManager->StopSound(m_LastChanUsedForSoundAfterBurn);
+				m_LastChanUsedForSoundAfterBurn = -1;	
 			}
 		}
 
@@ -297,10 +297,10 @@ void GameLogic::StillAlive()
 
 	if ( IsGamePausedByPlayer() )
 	{
-		if (LastChanUsedForSoundAfterBurn != -1)		
+		if (m_LastChanUsedForSoundAfterBurn != -1)		
 		{
-			m_pSoundManager->StopSound(LastChanUsedForSoundAfterBurn);
-			LastChanUsedForSoundAfterBurn = -1;	
+			m_pSoundManager->StopSound(m_LastChanUsedForSoundAfterBurn);
+			m_LastChanUsedForSoundAfterBurn = -1;	
 		}
 	}
 	else
@@ -376,10 +376,10 @@ void GameLogic::InGameLogic()
 			m_bDoEndGameEventOnce = false;
 			AmountOfexplosionsToAddEachFrame = 20;
 
-			if ( LastChanUsedForSoundAfterBurn != -1)		
+			if ( m_LastChanUsedForSoundAfterBurn != -1)		
 			{
-				m_pSoundManager->StopSound(LastChanUsedForSoundAfterBurn);
-				LastChanUsedForSoundAfterBurn = -1;	
+				m_pSoundManager->StopSound(m_LastChanUsedForSoundAfterBurn);
+				m_LastChanUsedForSoundAfterBurn = -1;	
 				AmountOfexplosionsToAddEachFrame = 20;
 			}
 

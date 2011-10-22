@@ -70,19 +70,25 @@ void MenuManager::AdvanceMenuItemText(HashLabel Name)
 		}
 	}
 }
-	
+
 int MenuManager::GetMenuItemIndex(HashLabel Name)
 {
-	std::vector<Menu*> thing(m_MenuContainer[ GetMenuGroup() ]);
-	for (std::vector<Menu*>::iterator Iter(thing.begin()); Iter!=thing.end(); ++Iter)
-	{
-		if ( (*Iter)->GetHashLabel() == Name )
-		{
-			return (*Iter)->GetCurrentItemIndex();
-		}
-	}
+	Menu* pMenu( GetMenuItem(Name) );
+	if (pMenu!=NULL)
+		return pMenu->GetCurrentItemIndex();
+	else
+		return 0;
 
-	return 0;
+	//std::vector<Menu*> thing(m_MenuContainer[ GetMenuGroup() ]);
+	//for (std::vector<Menu*>::iterator Iter(thing.begin()); Iter!=thing.end(); ++Iter)
+	//{
+	//	if ( (*Iter)->GetHashLabel() == Name )
+	//	{
+	//		return (*Iter)->GetCurrentItemIndex();
+	//	}
+	//}
+
+	//return 90;
 }
 
 
@@ -174,10 +180,9 @@ void MenuManager::Draw()
 			{
 				if (pWorkingItem->IsHighLight())
 				{
-				//	Down = rect.h;
-
-					//Wii.DrawRectangle(rect.x -(rect.w/2), rect.y- (rect.h/2), rect.w, rect.h, 160, 20,20,60);
-					Wii.DrawRectangle(rect.x -(rect.w/2), rect.y - rect.h * (0.5f*1.4f), rect.w, rect.h*1.4f, 160, 20,20,60);
+					rect.w*=1.15f; 
+					rect.h*=1.10f; 
+					Wii.DrawRectangle(rect.x-(rect.w/2), Down + rect.y- (rect.h/2), rect.w, rect.h, 160, 20,20,60);
 
 // add yet aother hack to this lot  ... all this is bad code, needs refactor big time
 //NEED TO DO SOMETHING LIKE THIS...
@@ -196,7 +201,8 @@ void MenuManager::Draw()
 				}
 				else
 				{
-					rect.w*=0.9f;  // fudge something todo later, if I ever do!
+				//	rect.h*=0.9f;
+				//	rect.w*=0.9f;  // fudge something todo later, if I ever do!
 
 					Wii.DrawRectangle(rect.x-(rect.w/2), Down + rect.y- (rect.h/2), rect.w, rect.h, 120,10,10,30);
 					if ( pWorkingItem->GetJustifyLeft() )

@@ -244,11 +244,11 @@
 					>
 				</File>
 				<File
-					RelativePath=".\source\SpriteManager.cpp"
+					RelativePath=".\source\UpdateManager.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\source\SpriteManager.h"
+					RelativePath=".\source\UpdateManager.h"
 					>
 				</File>
 				<File
@@ -560,6 +560,10 @@
 			</File>
 			<File
 				RelativePath="..\Data\BoltThrower Ver0.59\icon.png"
+				>
+			</File>
+			<File
+				RelativePath="..\LatestVersion.xml"
 				>
 			</File>
 			<File

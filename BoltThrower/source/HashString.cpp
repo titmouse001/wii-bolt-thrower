@@ -10,9 +10,12 @@ const HashLabel HashString::Intro("Intro");
 const HashLabel HashString::Controls("Controls");
 const HashLabel HashString::Options("Options");
 const HashLabel HashString::Change_Tune("Change_Tune");
+const HashLabel HashString::download_extra_music("download_extra_music");
+
 
 // Option menu buttons
 const HashLabel HashString::IngameMusicState("IngameMusicState");
+const HashLabel HashString::IngameMusicVolumeState("IngameMusicVolumeState");
 const HashLabel HashString::DifficultySetting("DifficultySetting");
 const HashLabel HashString::LanguageSetting("LanguageSetting");
 

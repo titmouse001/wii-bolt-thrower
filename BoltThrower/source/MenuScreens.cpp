@@ -1,15 +1,11 @@
-#include "GameLogic.h"
+#include "Singleton.h"
 #include <gccore.h>
 #include <math.h>
-#include "Singleton.h"
 #include "WiiManager.h"
 #include "Image.h"
 #include "ImageManager.h"
 #include "InputDeviceManager.h"
 #include "FontManager.h"
-#include "SoundManager.h"
-#include "Vessel.h"
-#include "render3D.h"
 #include "Util.h"
 #include "Util3D.h"
 #include "debug.h"
@@ -17,11 +13,10 @@
 #include "Config.h"
 #include "Menu.h"
 #include "MenuManager.h"
-#include "ogc\lwp_watchdog.h"
 #include "MenuScreens.h"
 #include "Timer.h"
-
 #include "GameDisplay.h"
+#include "UpdateManager.h"
 
 MenuScreens::MenuScreens() :  m_ZoomAmountForSpaceBackground(3.1f), m_pTimer(NULL)
 {
@@ -104,40 +99,35 @@ void MenuScreens::DoMenuScreen()
 
 	// "B O L T    T H R O W E R"
 	m_pWii->GetFontManager()->DisplayTextCentre( m_pWii->GetText("MainMenuScreenTopTitle") ,0,-180,190); 
+	m_pWii->GetFontManager()->DisplayTextCentre( s_ReleaseVersion,280, -180,128, HashString::SmallFont); 
 
-	
-
-//	m_pWii->GetFontManager()->DisplaySmallTextVertCentre( m_pWii->GetLanguage(),-300,160,144); 
-
-	
-
-	extern string MesageHack;
-	string BarText = MesageHack;
+//	extern string MesageHack;
+	string BarText = m_pWii->GetUpdateManager()->GetMessageVersionReport();
 
 	HashLabel Name = m_pWii->GetMenuManager()->GetSelectedMenu();
 	if (Name == HashString::Options)
-	{
 		BarText= m_pWii->GetText("OptionsPopUpMessage");
-	}
 	else if (Name == HashString::Start_Game)
-	{
 		BarText= m_pWii->GetText("Start_GamePopUpMessage");
-	}
 	else if (Name == HashString::Intro)
-	{
 		BarText= m_pWii->GetText("IntroPopUpMessage");
-	}
 	else if (Name == HashString::Change_Tune)
-	{
 		BarText = m_pWii->GetNameOfCurrentMusic();
-	}
+	else if (Name == HashString::Controls)
+		BarText = m_pWii->GetText("ControlsPopMessage");
+	else if (Name == HashString::Credits)
+		BarText = m_pWii->GetText("CreditsPopMessage");
+	else if (Name == HashString::download_extra_music)
+		BarText = m_pWii->GetText("DownloadExtraMusicPopUpMessage");
+	
 
-	m_pWii->DrawRectangle( -240, 200, 480, 20, 55, 0,0,0 );
+
+	m_pWii->DrawRectangle( -300, 200, 600, 20, 55, 0,0,0 );
 	m_pWii->GetFontManager()->DisplayTextCentre( BarText,0,210,222,HashString::SmallFont); 
 
 
 	//----------------------------------------------------------
-	Util3D::TransRot(320-50,240-50,-3.14f/4.0f);
+	Util3D::TransRot(320-35,240-55,-3.14f/4.0f);
 	char Text[8];
 	sprintf(Text,"%0d",m_pTimer->GetTimerSeconds());
 	m_pWii->GetFontManager()->DisplayTextCentre(Text,0,0,80,HashString::SmallFont);

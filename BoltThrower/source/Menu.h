@@ -54,8 +54,8 @@ public:
 
 	Menu* AddTextItem(std::string Name) { m_TextItems.push_back(Name); return this; }
 	std::string GetCurrentTextItem() { return m_TextItems[m_CurrentItemIndex];  }
-	int  GetCurrentItemIndex() { return m_CurrentItemIndex;  }
-	void SetCurrentItemIndex(int Value) { m_CurrentItemIndex = Value; SetText(GetCurrentTextItem()) ; }
+	u32  GetCurrentItemIndex() { return m_CurrentItemIndex;  }
+	void SetCurrentItemIndex(u32 Value) { m_CurrentItemIndex = Value; SetText(GetCurrentTextItem()) ; }
 	void NextItem();
 
 	HashLabel		m_TextSize;
@@ -72,7 +72,7 @@ private:
 	bool		m_bSelected;
 	HashLabel	m_HashLabel;
 	std::vector<std::string> m_TextItems;
-	u32		 m_CurrentItemIndex;
+	u32			 m_CurrentItemIndex;
 	bool		m_bShowTextOnly;
 	bool		m_bJustifyLeft;
 

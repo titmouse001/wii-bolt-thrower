@@ -193,13 +193,13 @@ public:
 	// view clipping
 	float GetClippingRadiusNeededForMoonRocks()	const { return m_ClippingRadiusNeededForMoonRocks; }
 
-	int LastChanUsedForSoundAfterBurn;  // fudge
-
 	void MoonRocksLogic();
 
 	Vessel* GetGunTurretTarget(TurretItem3D* pTurret);
 
 private:
+
+	int m_LastChanUsedForSoundAfterBurn;  // fudge
 
 	void DyingShipsLogic();
 

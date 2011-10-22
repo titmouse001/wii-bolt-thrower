@@ -16,10 +16,12 @@ public:
 	const static HashLabel Controls;
 	const static HashLabel Options;
 	const static HashLabel Change_Tune;
+	const static HashLabel download_extra_music;
 	
 	// Option menu buttons
 	const static HashLabel IngameMusicState;
 	const static HashLabel DifficultySetting;
+	const static HashLabel IngameMusicVolumeState;
 	const static HashLabel LanguageSetting;
 
 	// fonts names

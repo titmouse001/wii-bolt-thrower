@@ -20,7 +20,7 @@ public:
 	bool b_ThisSlotIsBeingUsed;
 	string FileName;
 	string LogicName;
-	string DownloadDir;
+	string FullDownloadPath;
 	bool m_bNorms;
 	int m_IndexLayerForBones;
 	int Size;

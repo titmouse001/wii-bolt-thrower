@@ -5,21 +5,23 @@
 	<LatestReleaseAvailable>0.60</LatestReleaseAvailable>
 	
 	<ReleaseNotes>
-	Release 0.60 supports these new features
-	* some more things
-	* stuff
-	* other bits
-	* all new ...
-	</ReleaseNotes>
+visit http://wiibrew.org/wiki/BoltThrower for download (sorry no auto update yet)\n
+Release 0.60 supports these new features\n
+test1\n
+test2\n
+test3\test4\test5\n
+  </ReleaseNotes>
 	
 	<Updates>
-		
-		<AddFile 	URI="http://code.google.com/p/wii-bolt-thrower/source/browse/Data/BoltThrower_LatestVersion/boot.dol" 
-					Path="/boot.dol" />
+    <!-- 'FullDownloadPath' is relative to the executables path -->
+    <!-- Carefull currently only one deep dirs will be created if missing, (do things in order parent order, or create folders with dummy files) -->
+    <!-- so FullDownloadPath="newdir1/boot.dol" is ok, FullDownloadPath="newdir1/newdir2/boot.dol" will fail without using care -->
+    
+		<AddFile 	URI="http://code.google.com/p/wii-bolt-thrower/source/browse/Data/BoltThrower_LatestVersion/boot.dol"
+					    FullDownloadPath="/" 
+              OverwriteExistingFile="YES"/>
 					
-		<DeleteFile Path="Test02.txt" />
-		
 	</Updates>
 	
 </Data>
-	
+	  

@@ -15,7 +15,7 @@ public:
 	MessageBox();
 	void Init();
 	void SetUpMessageBox(std::string Heading, std::string Text);
-	void DisplayMessageBox();
+	void DisplayMessageBox(float BoxWidth=400, float BoxHeight=220 );
 	void DoMessageBox();
 	void SetEnabled(bool State) { m_Enabled = State; }
 	bool IsEnabled() { return m_Enabled; }
@@ -25,7 +25,7 @@ public:
 	void FadeOut();
 private:
 	vector<string> FitTextToBox(std::string Text,int BoxWidth, int BoxHeight);
-	void split_string(const string& Text,const string& delimitter,vector<string>& TextContainer);
+	void split_string(const string& Text,const string& delimitters,vector<string>& TextContainer);
 	bool IsMessageComplete();
 	void FadeLogic();
 	float GetFadeValue() { return m_FadeValue; }

@@ -26,7 +26,6 @@ using namespace std;
 class ImageManager;
 class FontManager;
 class InputDeviceManager;
-class SpriteManager;
 class SoundManager;
 class Camera;
 class MenuManager;
@@ -37,6 +36,7 @@ class MissionManager;
 class MessageBox;
 class GameDisplay;
 class URLManager;
+class UpdateManager;
 class SetUpGame;
 
 struct FrameInfo
@@ -50,23 +50,6 @@ struct FrameInfo
 	int iNumberItems;
 	ImageManager::EDirection eDirection;
 };
-
-////class FileInfo
-////{
-////public:
-////	FileInfo(string InFileName,string InLogicName) : 
-////			b_ThisSlotIsBeingUsed(false) ,
-////			FileName(InFileName) , LogicName(InLogicName), m_bNorms(true), m_IndexLayerForBones(-1) {;}
-////
-////	FileInfo() : b_ThisSlotIsBeingUsed(false) {;}
-////
-////	bool b_ThisSlotIsBeingUsed;
-////	string FileName;
-////	string LogicName;
-////	string DownloadDir;
-////	bool m_bNorms;
-////	int m_IndexLayerForBones;
-////};
 
  struct profiler_t
 {
@@ -128,7 +111,6 @@ public:
 	FontManager*		GetFontManager()		{ return m_FontManager; }
 	InputDeviceManager*	GetInputDeviceManager()	{ return m_InputDeviceManager; }
 	MapManager*			GetMapManager()			{ return m_MapManager; }
-//	SpriteManager*		GetSpriteManager()		{ return m_SpriteManager; }
 	SoundManager*		GetSoundManager()		{ return m_SoundManager; }
 	Camera*				GetCamera()	const		{ return m_Camera; }
 	GameLogic*			GetGameLogic()	const	{ return m_pGameLogic; }
@@ -136,6 +118,7 @@ public:
 	MessageBox*			GetMessageBox() const	{ return m_MessageBox; }
 	GameDisplay*		GetGameDisplay() const	{ return m_pGameDisplay; }
 	URLManager*			GetURLManager() const	{ return m_URLManager; }
+	UpdateManager*		GetUpdateManager() const	{ return m_UpdateManager; }
 
 	SetUpGame*			GetSetUpGame() const	{ return m_SetUpGame; }
 	
@@ -173,6 +156,7 @@ public:
 	//Ogg's
 	vector<FileInfo>::iterator GetDownloadInfoBegin() { return m_DownloadinfoContainer.begin(); }
 	vector<FileInfo>::iterator GetDownloadInfoEnd() { return m_DownloadinfoContainer.end(); }
+//	int GetSizeOfDownloadInfoContainer();
 
 	//Image*					m_pSpaceBackground;
 	struct RawTgaInfo
@@ -252,6 +236,11 @@ public:
 
 	void SetDifficulty(string Value) { m_Difficulty = Value; }
 	string GetDifficulty() { return m_Difficulty; }
+	void SetMusicEnabled(bool bState) { m_bMusicEnabled = bState; }
+	bool GetMusicEnabled() { return m_bMusicEnabled; }
+
+	void SetIngameMusicVolume(u8 Value) { m_IngameMusicVolume = Value; }
+	u8 GetIngameMusicVolume() { return m_IngameMusicVolume; }
 
 	void SetLanguage(string Language) { m_Language = Language; }
 	string GetLanguage() { return m_Language; }
@@ -264,7 +253,7 @@ public:
 	}
 
 
-	void InitMusic();
+	void ScanMusicFolder();
 	void NextMusic();
 	void PlayMusic();
 	FileInfo* GetCurrentMusicInfo();
@@ -274,6 +263,7 @@ public:
 	void GetFolderFileNames(string Path, vector<FileInfo>* rMusicFilesContainer);
 
 	vector<FileInfo> m_MusicFilesContainer;
+
 
 private:
 	
@@ -293,6 +283,7 @@ private:
 	SoundManager*			m_SoundManager;
 	Camera*					m_Camera;
 	URLManager*				m_URLManager;
+	UpdateManager*			m_UpdateManager;
 	SetUpGame*				m_SetUpGame;
 	MenuManager*			m_pMenuManager;
 	MissionManager*			m_MissionManager;
@@ -304,8 +295,12 @@ private:
 	s16						m_ViewportY;
 	EGameState				m_GameState;
 	string					m_Language;
+	bool					m_bMusicEnabled;
 	string					m_Difficulty;
-
+public:
+	bool					m_MusicStillLeftToDownLoad;
+	u8						m_IngameMusicVolume;
+private:
 
 	map<HashLabel,FrameInfo> m_FrameinfoContainer;
 	vector<FileInfo> m_SoundinfoContainer;

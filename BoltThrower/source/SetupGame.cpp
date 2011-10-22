@@ -70,6 +70,8 @@ void SetUpGame::Menus()
 	m_pWii->GetMenuScreens()->SetTimeOutInSeconds();
 	m_pWii->GetGameLogic()->InitMenu();
 
+	m_pWii->BuildMenus( true );
+
 	while (1) 
 	{	
 		Util::DoResetSystemCheck();
@@ -109,7 +111,7 @@ void SetUpGame::Menus()
 					m_pWii->SetGameState(WiiManager::eIntro);
 					break;
 				}
-				else if (Name == HashLabel("Change_Tune"))
+				else if ( Name ==  HashString::Change_Tune )
 				{
 	
 					Util3D::TransRot(-280,-150,0, M_PI *0.5f );
@@ -120,7 +122,6 @@ void SetUpGame::Menus()
 					m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
 
 					m_pWii->GetMenuScreens()->DoMenuScreen();
-					Util3D::TransRot(-280,-150,0, M_PI *0.5f );
 					m_pWii->GetFontManager()->DisplayTextCentre("Loading...", 
 						0,0,
 						200,HashString::SmallFont);
@@ -128,9 +129,17 @@ void SetUpGame::Menus()
 					m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
 
 
+					Util::SleepForMilisec(2000);
+
 					m_pWii->NextMusic();
 
 					continue; // don't do the loops screen swap since its already do just above
+				}
+				else if ( Name == HashString::download_extra_music )
+				{
+					extern bool DownloadFilesListedInConfiguration(bool);
+					DownloadFilesListedInConfiguration(false);
+					m_pWii->m_MusicStillLeftToDownLoad = false;
 				}
 				else if (Name == HashString::Credits)
 				{
@@ -204,7 +213,26 @@ void SetUpGame::Menus()
 				if (Name == (HashLabel)"Ingame_Music")
 				{
 					m_pWii->GetMenuManager()->AdvanceMenuItemText(HashString::IngameMusicState);
+					m_pWii->SetMusicEnabled( m_pWii->GetMenuManager()->GetMenuItemIndex(HashString::IngameMusicState) );
 				}
+				else if (Name == (HashLabel)"Ingame_MusicVolume")
+				{
+					m_pWii->GetMenuManager()->AdvanceMenuItemText(HashString::IngameMusicVolumeState);
+					m_pWii->SetIngameMusicVolume(m_pWii->GetMenuManager()->GetMenuItemIndex(HashString::IngameMusicVolumeState));
+
+					printf("%d",m_pWii->GetIngameMusicVolume());
+					if ( (m_pWii->GetIngameMusicVolume()==0) && (m_pWii->GetMusicEnabled()) )
+					{
+						m_pWii->SetMusicEnabled(false);
+						m_pWii->GetMenuManager()->AdvanceMenuItemText(HashString::IngameMusicState);
+					}
+					if ( (m_pWii->GetIngameMusicVolume()>0) && (!m_pWii->GetMusicEnabled()) )
+					{
+						m_pWii->SetMusicEnabled(true);
+						m_pWii->GetMenuManager()->AdvanceMenuItemText(HashString::IngameMusicState);
+					}
+				}
+				
 				else if (Name == (HashLabel)"Difficulty_Level")
 				{
 					m_pWii->GetMenuManager()->AdvanceMenuItemText(HashString::DifficultySetting);
@@ -235,10 +263,11 @@ void SetUpGame::Menus()
 
 void SetUpGame::Play()
 {
-	// Ingame music - settings
-	m_pWii->GetMenuManager()->SetMenuGroup("OptionsMenu");
-	if (m_pWii->GetMenuManager()->GetMenuItemText(HashString::IngameMusicState) == "on")
-		MODPlay_SetVolume( &m_pWii->m_ModuleTrackerPlayerInterface, 20,20);     
+	if ( (m_pWii->GetMusicEnabled()) && (m_pWii->GetIngameMusicVolume() > 0) )
+	{
+		printf("%d", m_pWii->GetIngameMusicVolume()*20);
+		MODPlay_SetVolume( &m_pWii->m_ModuleTrackerPlayerInterface, m_pWii->GetIngameMusicVolume()*20,m_pWii->GetIngameMusicVolume()*20);     
+	}
 	else
 		MODPlay_Stop(&m_pWii->m_ModuleTrackerPlayerInterface);
 

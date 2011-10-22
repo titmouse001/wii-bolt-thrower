@@ -4,25 +4,19 @@
 <Data>
 
   <DownloadFiles>
-    <AddURI URI="http://he3.magnatune.com/all/03-Law%20of%20One-Indidginus.ogg" DownloadDir="music" />
+    
+    <AddURI URI="http://www.vorbis.com/music/Mists_of_Time-4T.ogg" FullDownloadPath="music/" />
+    
   </DownloadFiles>
   
 <!--  TEST - any old file will do
   <DownloadFiles>
-    <AddURI URI="http://he3.magnatune.com/all/03-Law%20of%20One-Indidginus.ogg" DownloadDir="music" />
-    <AddURI URI="http://www.fnordware.com/superpng/pngtest8rgba.png" DownloadDir="music/fred" />
-    <AddURI URI="http://www.fnordware.com/superpng/pngtest8rgba.png" DownloadDir="music3" />
-    <AddURI URI="http://sidney.mirror.modarchive.org/42289/MOD/S/spacedeb.mod.zip" DownloadDir="music" />
+    <AddURI URI="http://he3.magnatune.com/all/03-Law%20of%20One-Indidginus.ogg" FullDownloadPath="music" />
+    <AddURI URI="http://www.fnordware.com/superpng/pngtest8rgba.png" FullDownloadPath="music/fred" />
+    <AddURI URI="http://www.fnordware.com/superpng/pngtest8rgba.png" FullDownloadPath="music3" />
+    <AddURI URI="http://sidney.mirror.modarchive.org/42289/MOD/S/spacedeb.mod.zip" FullDownloadPath="music" />
   </DownloadFiles>
   -->
-
-  <TrackerModules>
-
-    <AddMod Name="SpaceDebris"	FileName="music/SpaceDebris.mod" Loop="true"/>
-    <AddMod Name="Stardust Memories"	FileName="music/stardstm.mod" Loop="true"/>
-    <AddMod Name="Tilbury Fair"	FileName="music/tilbury_fair.mod" Loop="true"/>
-
-  </TrackerModules>
 
   <Variables>
 	
@@ -212,6 +206,7 @@
       <AddText Quit = "Quit" />
       <AddText Back = "Back" />
       <AddText Ingame_Music = "In-game Music" />
+      <AddText Ingame_MusicVolume = "In-game Music Volume" />
       <AddText Difficulty_Level = "Difficulty Level" />
       <AddText Set_Language = "Set Language" />
       <AddText off = "off" />
@@ -252,8 +247,12 @@
       <AddText Version = "Version " />
 
 
-      <AddText Last = "Last" />
       <AddText Change_Tune = "Change Tune" />
+      <AddText ControlsPopMessage = "View Controls (not yet configurable)" />
+      <AddText CreditsPopMessage = "View Credits" />
+      <AddText download_extra_music = "download extra music" />
+
+      <AddText DownloadExtraMusicPopUpMessage = "see 'GameConfiguration.xml' to add more, Mod/Ogg vorbis files supported" />
 
 
     </English>
@@ -278,7 +277,8 @@
       <AddText Start_Game = "Tagh Quj" />
       <AddText Quit = "Bup" />
       <AddText Back = "DoH" />
-      <AddText Ingame_Music = " Daq Quj QoQ" />
+      <AddText Ingame_Music = "Daq Quj QoQ" />
+      <AddText Ingame_MusicVolume = "Daq Quj QoQ lIS" />
       <AddText Difficulty_Level = "SuD" />
       <AddText Set_Language = "Cher Hol" />
       <AddText off = "lItha'" />
@@ -318,8 +318,15 @@
       <AddText IntroPopUpMessage = "chIj QI'lop jIH" />
       <AddText Version = "De' " />
       
-      <AddText Last = "Last" />
+
       <AddText Change_Tune = "Next Tune" />
+      <AddText ControlsPopMessage = "View Controls (not yet configurable)" />
+      <AddText CreditsPopMessage = "View Credits" />
+
+      <AddText download_extra_music = "download extra music" />
+
+
+      <AddText DownloadExtraMusicPopUpMessage = "see 'GameConfiguration.xml' to add more, Mod/Ogg vorbis files supported" />
 
     </Klingon>
 

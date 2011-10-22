@@ -17,13 +17,13 @@
 
 #include "WiiManager.h"
 #include "ImageManager.h"
-#include "SpriteManager.h"
 #include "MenuManager.h"
 #include "InputDeviceManager.h"
 #include "SoundManager.h"
 #include "FontManager.h"
 #include "URIManager.h"
 #include "SetupGame.h"
+#include "UpdateManager.h"
 
 #include "TinyXML/TinyXML.h"
 #include "Image.h"
@@ -39,23 +39,17 @@
 #include "GameDisplay.h"
 #include "config.h"
 #include "debug.h"
-
-
-//#include <fat.h>
-//#include <stdio.h>
-//#include <stdlib.h>
 #include <string>
-#include <dirent.h>
-#include <sys/stat.h>
-
+//#include <dirent.h>
+//#include <sys/stat.h>
 #include "oggplayer/oggplayer.h"
-
 
 #define DEBUGCONSOLESTATE	( eDebugConsoleOn )  // it's ignored (off) in final release
 #define COLOUR_FOR_WIPE		( COLOR_BLACK )  // crash at startup colour
 
-
-WiiManager::WiiManager() :	m_pGXRMode(NULL), m_gp_fifo(NULL), 
+WiiManager::WiiManager() :	
+							m_pGXRMode(NULL), 
+							m_gp_fifo(NULL), 
 							m_uScreenBufferId(eFrontScreenBuffer), 
 							m_uFrameCounter(0),
 							m_ImageManager(NULL), 
@@ -63,12 +57,16 @@ WiiManager::WiiManager() :	m_pGXRMode(NULL), m_gp_fifo(NULL),
 							m_SoundManager(NULL),
 							m_Camera(NULL),		
 							m_URLManager(NULL),
+							m_UpdateManager(NULL),
 							m_SetUpGame(NULL),
 							m_ViewportX(0),
 							m_ViewportY(0),
 							m_GameState(eIntro),
+							m_Language("English"),
+							m_bMusicEnabled(true),
 							m_Difficulty("medium"),
-							m_Language("English")
+							m_MusicStillLeftToDownLoad(false),
+							m_IngameMusicVolume(3)
 { 
 	m_pFrameBuffer[0] = NULL;
 	m_pFrameBuffer[1] = NULL;
@@ -85,6 +83,7 @@ WiiManager::WiiManager() :	m_pGXRMode(NULL), m_gp_fifo(NULL),
 	m_MissionManager		= new MissionManager;
 	m_MessageBox			= new MessageBox;
 	m_URLManager			= new URLManager;
+	m_UpdateManager			= new UpdateManager;
 	m_SetUpGame				= new SetUpGame;
 
 }
@@ -103,6 +102,7 @@ WiiManager::~WiiManager()
 	delete m_MissionManager;
 	delete m_MessageBox;
 	delete m_URLManager;
+	delete m_UpdateManager;
 }
 
 void WiiManager::UnInitWii()
@@ -144,6 +144,7 @@ void WiiManager::InitWii()
 	m_pMenuScreens->Init();
 	m_MessageBox->Init();
 	m_SetUpGame->Init();
+	m_UpdateManager->Init();
 
 	Util::SetUpPowerButtonTrigger();
 
@@ -158,6 +159,7 @@ void WiiManager::InitWii()
 	InitialiseVideo();
 	InitGX();
 	SetUp3DProjection();
+
 
 	// XML configuration - this places sections of data into specificly named containers found in the code
 	CreateSettingsFromXmlConfiguration(WiiFile::GetGamePath() + "GameConfiguration.xml");
@@ -620,10 +622,12 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 				string Key(pElement->Value());
 				if (Key=="AddURI") 
 				{
-					FileInfo Info( pElement->Attribute("URI"), Util::urlDecode( pElement->Attribute("URI") ) );
-					Info.DownloadDir = pElement->Attribute("DownloadDir");
-
-					m_DownloadinfoContainer.push_back( Info );
+					if ( (pElement->Attribute("URI")!=0) && (pElement->Attribute("FullDownloadPath")!=0) )
+					{
+						FileInfo Info( pElement->Attribute("URI"), Util::urlDecode( pElement->Attribute("URI") ) );
+						Info.FullDownloadPath = pElement->Attribute("FullDownloadPath");
+						m_DownloadinfoContainer.push_back( Info );
+					}
 				}
 			}
 
@@ -699,9 +703,8 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 	if (m_SoundinfoContainer.empty()) ExitPrintf(ErrorString.c_str(),"sound");
 	if (m_FontinfoContainer.empty()) ExitPrintf(ErrorString.c_str(),"fonts");
 	if (m_LwoinfoContainer.empty()) ExitPrintf(ErrorString.c_str(),"lwo's");
-//	if (m_ModinfoContainer.empty()) ExitPrintf(ErrorString.c_str(),"mod's");
-	if (m_DownloadinfoContainer.empty()) ExitPrintf(ErrorString.c_str(),"ogg's");
-	// oggs can be empty
+	
+	//if (m_DownloadinfoContainer.empty()) ExitPrintf(ErrorString.c_str(),"Dowloads's");
 	
 
 }
@@ -900,13 +903,13 @@ void WiiManager::InitGameResources()
 	
 	BuildMenus();
 
-	
-	InitMusic();
+	ScanMusicFolder();
 	PlayMusic();
 }
 
-void WiiManager::InitMusic()
+void WiiManager::ScanMusicFolder()
 {
+	m_MusicFilesContainer.clear();
 	WiiFile::GetFolderFileNames( WiiFile::GetGameMusicPath(), &m_MusicFilesContainer );
 
 	if ( m_MusicFilesContainer.empty() )
@@ -1009,9 +1012,10 @@ string WiiManager::GetNameOfCurrentMusic()
 
 void WiiManager::BuildMenus(bool KeepSettings)
 {
-	int Music = 1;
+	int Music = 1; 
 	int Difficulty = 1;
 	int Language = 0;
+	int MusicVolume = 3;
 	string Group = GetMenuManager()->GetMenuGroup(); 
 
 	if ( KeepSettings )
@@ -1019,7 +1023,12 @@ void WiiManager::BuildMenus(bool KeepSettings)
 		Music = GetMenuManager()->GetMenuItemIndex(HashString::IngameMusicState);
 		Difficulty = GetMenuManager()->GetMenuItemIndex(HashString::DifficultySetting);
 		Language = GetMenuManager()->GetMenuItemIndex(HashString::LanguageSetting);
+		MusicVolume = GetMenuManager()->GetMenuItemIndex(HashString::IngameMusicVolumeState);
 	}
+
+
+	SetMusicEnabled( (bool) Music );
+	SetIngameMusicVolume( MusicVolume );
 
 	GetMenuManager()->ClearMenus();
 
@@ -1028,7 +1037,7 @@ void WiiManager::BuildMenus(bool KeepSettings)
 	int y=-36;
 	int step=24+8;
 	int height=24;
-	float width=200;
+	float width=180;
 	
 	GetMenuManager()->SetMenuGroup("MainMenu");
 
@@ -1039,13 +1048,23 @@ void WiiManager::BuildMenus(bool KeepSettings)
 	GetMenuManager()->AddMenu(-width*0.20, y, width,height,"Intro",false,true);
 	y+=step;
 	//move this one into options
-	GetMenuManager()->AddMenu( -width*0.25, y, width,height,"Change_Tune",false,true);
+
+
+	if ( m_MusicFilesContainer.size() > 1)
+		GetMenuManager()->AddMenu( -width*0.25, y, width,height,"Change_Tune",false,true);
+	else
+		GetMenuManager()->AddMenu( -width*0.25, y, width,height,"Change_Tune",true,false);
+	
+	if (m_MusicStillLeftToDownLoad)
+		GetMenuManager()->AddMenu( 160, y, 220,height,"download_extra_music",false,false);
+
 	y+=step;
 	GetMenuManager()->AddMenu( -width*0.30, y, width,height ,"Controls",false,true );
 	y+=step;
 	GetMenuManager()->AddMenu( -width*0.35, y, width,height ,"Credits",false,true );
 
 	//==========================================================
+
 
 	// Options Menu - one time setup
 	GetMenuManager()->SetMenuGroup("OptionsMenu");
@@ -1062,6 +1081,13 @@ void WiiManager::BuildMenus(bool KeepSettings)
 	GetMenuManager()->AddMenu(x, y, 600, height, "Ingame_Music",false,true);
 	GetMenuManager()->AddMenu(x+222, y, 1, height, "IngameMusicState",true)->
 		AddTextItem(GetText("off"))->AddTextItem(GetText("on"))->SetCurrentItemIndex(Music);
+
+	y+=step;
+	GetMenuManager()->AddMenu(x, y, 600, height, "Ingame_MusicVolume",false,true);
+	GetMenuManager()->AddMenu(x+222, y, 1, height, "IngameMusicVolumeState",true)->
+		AddTextItem(("0"))->AddTextItem(("1"))->
+		AddTextItem(("2"))->AddTextItem(("3"))->
+		AddTextItem(("4"))->AddTextItem(("5"))->SetCurrentItemIndex(MusicVolume);
 
 	y+=step;
 	GetMenuManager()->AddMenu(x, y , 600, height, "Difficulty_Level",false,true );
@@ -1203,5 +1229,7 @@ float WiiManager::ApplyDifficultyFactor(float Value)
 	return Value;
 }
 
+
+//int WiiManager::GetSizeOfDownloadInfoContainer() { return m_DownloadinfoContainer.size(); }
 
 //LWO VAR "index" is seen HERE!!!!

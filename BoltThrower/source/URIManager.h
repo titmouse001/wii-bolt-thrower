@@ -3,6 +3,9 @@
 
 #include "GCTypes.h"
 #include <string>
+#include <stdlib.h>
+
+
 
 using namespace std;
 

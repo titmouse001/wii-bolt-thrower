@@ -71,78 +71,98 @@ void MessageBox::FadeLogic()
 	}
 }
 
-void MessageBox::DisplayMessageBox()
+void MessageBox::DisplayMessageBox(float BoxWidth , float BoxHeight )
 {
-	//WiiManager& Wii( Singleton<WiiManager>::GetInstanceByRef() );
 	m_pWii->GetCamera()->StoreCameraView();
 	m_pWii->GetCamera()->SetCameraView(0,0) ;
 
-	float BoxWidth = 400;
-	float BoxHeight = 220;
 	float moveoff(0);
-
 	if (IsFadingOut())
 	{
 		moveoff = ((1.0f-GetFadeValue()) * (BoxHeight*0.5f));  // looks better with smaller movements while fading???
 		FadeLogic();
 	}
 
-	float RoomAroundEdge = 1.00-0.08f;  // factor i.e 8% off the edge
+	float RoomAroundEdge = 1.00-0.04f;  // factor i.e 8% off the edge
 	std::vector<std::string> MessageContainer = FitTextToBox(m_Message,(BoxWidth*RoomAroundEdge),(BoxHeight*RoomAroundEdge));
 
 	Util3D::Trans(-BoxWidth/2, (-BoxHeight/2) + moveoff);
 	m_pWii->DrawRectangle(0, 0,BoxWidth,BoxHeight,128*GetFadeValue() ,0,0,0);
 	
 	Util3D::Trans(0, 0 + moveoff);
-	int h = m_pWii->GetFontManager()->GetFont(HashString::SmallFont)->GetHeight();
-	m_pWii->GetFontManager()->DisplayTextCentre(m_MessageHeading, 0,h+((-BoxHeight/2)*RoomAroundEdge),255*GetFadeValue());
+	float h = m_pWii->GetFontManager()->GetFont(HashString::LargeFont)->GetHeight();
+	m_pWii->GetFontManager()->DisplayTextCentre(m_MessageHeading, 0,(h*0.5f)+((-BoxHeight/2)*RoomAroundEdge),255*GetFadeValue());
 
-	Util3D::Trans((-BoxWidth/2) * RoomAroundEdge, -38 + moveoff);
+	static const float gap = 8.0f;
+	Util3D::Trans((-BoxWidth/2) * RoomAroundEdge, gap + h+((-BoxHeight/2)*RoomAroundEdge) + moveoff);
 	for (std::vector<std::string>::iterator iter(MessageContainer.begin()); iter!=MessageContainer.end(); ++iter)
 	{
 		m_pWii->GetFontManager()->DisplayText(*iter, 0,std::distance(MessageContainer.begin(),iter)*22,255*GetFadeValue(),HashString::SmallFont);
 	}
 
 	Image* pWiiMoteButtonA = m_pWii->GetImageManager()->GetImage(HashString::WiiMoteButtonA);
-	pWiiMoteButtonA->DrawImageXYZ(BoxWidth/2 - (pWiiMoteButtonA->GetWidth()*0.5) ,BoxHeight/2 - (pWiiMoteButtonA->GetHeight()*0.5) + moveoff ,0,200*GetFadeValue());
+	pWiiMoteButtonA->DrawImageXYZ(BoxWidth/2 - (pWiiMoteButtonA->GetWidth()*0.5) ,BoxHeight/2 - (pWiiMoteButtonA->GetHeight()*0.5) + moveoff ,0,255*GetFadeValue());
 
 	m_pWii->GetCamera()->RecallCameraView();
 }
 
 std::vector<std::string> MessageBox::MessageBox::FitTextToBox(std::string Text,int BoxWidth, int /*BoxHeight*/)
 {
+
 	HashLabel FontType(HashString::SmallFont);
 
 	vector<string> tokens; 
-	split_string(Text," -",tokens);
+	split_string(Text," ",tokens);
+
 
 	vector<string> FormattedText; 
 	string BuildString;
 	for (vector<string>::iterator iter(tokens.begin()); iter!=tokens.end(); ++iter)
 	{
+	//	printf(iter->c_str());
+
 		string Before(BuildString);
-		BuildString += *iter;
-		if ((m_pWii->GetFontManager()->GetTextWidth(BuildString,FontType) > BoxWidth) || (iter->find("\n")!=std::string::npos) )
+		string a = *iter;
+
+		int n;
+		while ( ( n = a.find("\\n") ) != std::string::npos )
 		{
-			FormattedText.push_back(Before);
-			BuildString = *iter;
+			string b = a.substr(0,n);
+			FormattedText.push_back(BuildString + b);
+			n+=2;
+			a = a.substr(n,a.length()-n);
+			//printf(BuildString.c_str());
+			BuildString = "";
 		}
-		BuildString += " ";
+	
+		BuildString += a;
+
+		if ((m_pWii->GetFontManager()->GetTextWidth(BuildString,FontType) > BoxWidth) )
+		{
+		//	printf(Before.c_str());
+			FormattedText.push_back(Before);
+			BuildString = a;
+		}
+		
+		if (!BuildString.empty())
+			BuildString += " ";
 	}
 
-	if ( BuildString != "" )
+	if ( BuildString != " " )
 		FormattedText.push_back(BuildString);
 
 	return FormattedText;
+
 }
 
-void MessageBox::split_string(const string& Text,const string& delimitter,vector<string>& TextContainer)
+// uses find_first_of so more than one delimitter may be used e.g. " -[]"
+void MessageBox::split_string(const string& Text,const string& delimitters,vector<string>& TextContainer)
 {
 	string::size_type delim(0);
 	string::size_type prev_delim(0);
 
-	// Found this nice use of the assignment operator, I normally stay clear of things like this but it works well here.
-	while ( (delim = Text.find_first_of(delimitter,prev_delim) ) != string::npos) 
+	// Found this nice use of the assignment operator, normally stay clear of things like this but it works well here.
+	while ( (delim = Text.find_first_of(delimitters,prev_delim) ) != string::npos) 
 	{
 		TextContainer.push_back(Text.substr(prev_delim,delim - prev_delim));
 		prev_delim = delim + 1;
