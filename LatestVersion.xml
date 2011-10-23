@@ -5,11 +5,10 @@
 	<LatestReleaseAvailable>0.60</LatestReleaseAvailable>
 	
 	<ReleaseNotes>
-visit http://wiibrew.org/wiki/BoltThrower for download (sorry no auto update yet)\n
-Release 0.60 supports these new features\n
-test1\n
-test2\n
-test3\test4\test5\n
+visit http://wiibrew.org/wiki/BoltThrower for full details\n\n
+Install Release 0.60 ?\n
+    Press (A) to install\n
+    Press (B) to cancel\n
   </ReleaseNotes>
 	
 	<Updates>
@@ -20,6 +19,14 @@ test3\test4\test5\n
 		<AddFile 	URI="http://code.google.com/p/wii-bolt-thrower/source/browse/Data/BoltThrower_LatestVersion/boot.dol"
 					    FullDownloadPath="/" 
               OverwriteExistingFile="YES"/>
+
+    <AddFile 	URI="http://code.google.com/p/wii-bolt-thrower/source/browse/Data/BoltThrower_LatestVersion/meta.xml"
+          FullDownloadPath="/"
+          OverwriteExistingFile="YES"/>
+
+    <AddFile 	URI="http://code.google.com/p/wii-bolt-thrower/source/browse/Data/BoltThrower_LatestVersion/icon.png"
+          FullDownloadPath="/"
+          OverwriteExistingFile="YES"/>
 					
 	</Updates>
 	
