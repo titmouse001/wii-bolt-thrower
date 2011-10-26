@@ -60,6 +60,7 @@ struct FrameInfo
 	u64		min_time;
 	u64		max_time;
 	u64		start_time;
+	u64		duration;
 } ;
 
 
@@ -216,7 +217,7 @@ public:
 	//static u64 __ticks_to_us(u64 ticks);  // Microseconds (us)
 	//static u64 __ticks_to_cycles(u64 ticks); //Clock cycles taken
 	void profiler_create(profiler_t* pjob, std::string name);
-	void profiler_output(profiler_t* pjob,int x=-300, int y=-200);
+	string profiler_output(profiler_t* pjob);
 	void profiler_start(profiler_t* pjob);
 	void profiler_stop(profiler_t* pjob);
 	void profiler_reset(profiler_t* pjob);
@@ -256,6 +257,7 @@ public:
 	void ScanMusicFolder();
 	void NextMusic();
 	void PlayMusic();
+	void SetMusicVolume(int Volume);
 	FileInfo* GetCurrentMusicInfo();
 
 	string GetNameOfCurrentMusic();

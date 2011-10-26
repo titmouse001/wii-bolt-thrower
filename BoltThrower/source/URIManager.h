@@ -41,14 +41,13 @@ public:
 	u8* GetData() const { return m_pData; }
 	u32 GetSize() const { return m_uSize; }
 
-
 	void Save(string FullPathFileName);
 	void SavePath(string PathName);
 	void SetFileNameWithExtension(string Name) { m_FileNameWithExtension = Name; }
 	string urlDecode(string Text);
 
-	~MemoryInfo() { free(m_pData); m_pData=NULL; m_uSize=0; m_FileNameWithExtension.clear(); }
-
+	~MemoryInfo();
+	
 private:
 	u8*	m_pData;
 	u32	m_uSize;

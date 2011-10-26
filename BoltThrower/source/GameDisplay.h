@@ -17,7 +17,7 @@ public:
 	void DisplayAllForIngame();
 	void DisplayAllForIntro();
 
-	void DisplaySimpleMessage(std::string Text);
+	void DisplaySimpleMessage(std::string Text, float fAngle = (-3.14f/12.0f));
 	void DisplaySmallSimpleMessage(std::string Text);
 
 	void DisplayMoon();

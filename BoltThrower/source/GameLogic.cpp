@@ -30,7 +30,19 @@
 #include "Timer.h"
 #include "GameDisplay.h"
 
-//profiler_t myjob1;
+profiler_t profile_ProbeMineLogic;
+profiler_t profile_Asteroid ;
+profiler_t profile_MoonRocks;
+profiler_t profile_SmallEnemies;
+profiler_t profile_GunShip;
+profiler_t profile_Explosions;
+profiler_t profile_Spores;
+profiler_t profile_Missile;
+profiler_t profile_Exhaust;
+profiler_t profile_Projectile;
+profiler_t profile_Mission;
+profiler_t profile_ShotAndGunTurret;
+profiler_t profile_DyingEnemies;
 
 //	 KEEP reminder... TargetIter  = m_GunShipContainer->begin(); //		pTarget = &(*m_GunShipContainer->begin());  !!! WARNING: NOT SURE WHY THIS METHOD DOES NOT WORK (gives very odd results) !!!
 
@@ -352,9 +364,12 @@ void GameLogic::InGameLogic()
 		GunShipLogic();
 
 		
+		m_pWii->profiler_start(&profile_ShotAndGunTurret);
 		GunTurretShotsLogic( m_GunShipContainer );
 		GunTurretShotsLogic(m_SmallEnemiesContainer);  // before GunTurretLogic - so each shot leqaves the barrel correctly
 		GunTurretLogic();
+		m_pWii->profiler_stop(&profile_ShotAndGunTurret);
+
 
 		ExhaustLogic();
 		ProjectileLogic();
@@ -469,8 +484,7 @@ void GameLogic::InGameLogic()
 
 	m_pWii->GetGameDisplay()->DisplayAllForIngame();
 
-	//m_pWii->profiler_output(&myjob1,-100,-100);
-
+	
 	GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
 	m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
 	GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
@@ -527,6 +541,9 @@ void GameLogic::ProjectileLogic()
 
 void GameLogic::ExhaustLogic()
 {
+
+	m_pWii->profiler_start(&profile_Exhaust);
+
 	u8 fps = Util::CalculateFrameRate(true);
 	if ((fps<60) && (m_ExhaustContainer->size() > 550))  //should donly kick in for the intro as it uses lots and drags the frame rate down!
 	{
@@ -550,10 +567,16 @@ void GameLogic::ExhaustLogic()
 			Iter = m_ExhaustContainer->erase( Iter );
 		}
 	}
+
+	
+	m_pWii->profiler_stop(&profile_Exhaust);
+
 }
 
 void GameLogic::ExplosionLogic()
 {
+	m_pWii->profiler_start(&profile_Explosions);
+
 	for (std::vector<Vessel>::iterator ExplosionIter(m_ExplosionsContainer->begin()); ExplosionIter!= m_ExplosionsContainer->end(); /*NOP*/)
 	{	
 		ExplosionIter->AddFrame();
@@ -590,6 +613,8 @@ void GameLogic::ExplosionLogic()
 			ExplosionIter = m_ExplosionsContainer->erase( ExplosionIter );
 		}
 	}
+
+	m_pWii->profiler_stop(&profile_Explosions);
 }
 
 void GameLogic::TurnShipLogic()
@@ -781,6 +806,7 @@ void GameLogic::FeoShieldLevelLogic()   // explode enemy ships
 
 void GameLogic::PlayerCollisionLogic()
 {
+
 	// Check to see if MyShip hits any Bad ships
 	if ( GetPlrVessel()->IsShieldOk() )
 	{
@@ -838,6 +864,8 @@ void GameLogic::PlayerCollisionLogic()
 
 void GameLogic::MissileLogic()
 {
+	m_pWii->profiler_start(&profile_Missile);
+
 	int RandomValue = 1 + (rand()%2);
 	for (std::vector<Vessel>::iterator MissileIter(m_MissileContainer->begin()); MissileIter!= m_MissileContainer->end(); /* NOP */)
 	{
@@ -866,10 +894,14 @@ void GameLogic::MissileLogic()
 			MissileIter = m_MissileContainer->erase( MissileIter );
 		}
 	}
+	
+	m_pWii->profiler_stop(&profile_Missile);
 }
 
 void GameLogic::ProbeMineLogic(std::vector<Vessel>*  pVesselContainer, float ThrustPower, float ActiveRange, float ScanRange, float CraftSize)
 {
+	m_pWii->profiler_start(&profile_ProbeMineLogic);
+
 	// Logic for Probe Mines - checks against all bad ships
 	float ActiveRangeSquared( ActiveRange * ActiveRange );
 	for (std::vector<Vessel>::iterator ProbeMineIter(m_ProbeMineContainer->begin()); ProbeMineIter!= m_ProbeMineContainer->end(); /*++ProbeMineIter*/ )
@@ -928,18 +960,20 @@ void GameLogic::ProbeMineLogic(std::vector<Vessel>*  pVesselContainer, float Thr
 								ProbeMineIter->AddVel(0, -ThrustPower, 0);
 								ProbeMineIter->SetFrame( ProbeMineIter->GetFrameStart() + 3 ); // use Bottom thruster
 								ProbeMineTail.AddVel(0.5 - ((rand()%100)*0.01),2.0 + ((rand()%300)*0.01),0);
-								ProbeMineTail.SetFrameGroup( HashString::ProbeMineDownThrust16x16x5, 0.80f );
+								ProbeMineTail.SetFrameGroup( HashString::ProbeMineDownThrust16x16x5, 1.0f );
 							}
 							else
 							{
 								ProbeMineIter->AddVel(0, ThrustPower, 0);
 								ProbeMineIter->SetFrame( ProbeMineIter->GetFrameStart() + 1 ); // use Top thruster
 								ProbeMineTail.AddVel(0.5 - ((rand()%100)*0.01),-2.0 - ((rand()%300)*0.01),0);
-								ProbeMineTail.SetFrameGroup( HashString::ProbeMineUpThrust16x16x5, 0.80f );
+								ProbeMineTail.SetFrameGroup( HashString::ProbeMineUpThrust16x16x5, 1.0f );
 							}
-							ProbeMineTail.SetGravity(0.975f);
 							if (rand()%8==0)
+							{
+								ProbeMineTail.SetGravity(0.975f);
 								m_ExhaustContainer->push_back(ProbeMineTail);	
+							}
 
 							HaveLockOnSoForgetTheRest = true;  // this does not skip the collision check - might be in contact with somehting else at the same time as spotting new pray as it only pick the first thing it sees.
 						}
@@ -954,18 +988,20 @@ void GameLogic::ProbeMineLogic(std::vector<Vessel>*  pVesselContainer, float Thr
 								ProbeMineIter->AddVel(-ThrustPower, 0, 0);
 								ProbeMineIter->SetFrame( ProbeMineIter->GetFrameStart() + 2); // use Right thruster
 								ProbeMineTail.AddVel(2.0 + ((rand()%300)*0.01),0.5 - ((rand()%100)*0.01),0);
-								ProbeMineTail.SetFrameGroup( HashString::ProbeMineRightThrust16x16x5, 0.80f );
+								ProbeMineTail.SetFrameGroup( HashString::ProbeMineRightThrust16x16x5, 1.0f );
 							}
 							else
 							{
 								ProbeMineIter->AddVel(ThrustPower, 0, 0);
 								ProbeMineIter->SetFrame( ProbeMineIter->GetFrameStart() + 4); // use Left thruster
 								ProbeMineTail.AddVel(-2.0 - ((rand()%300)*0.01),0.5 - ((rand()%100)*0.01),0);
-								ProbeMineTail.SetFrameGroup( HashString::ProbeMineLeftThrust16x16x5, 0.80f );
+								ProbeMineTail.SetFrameGroup( HashString::ProbeMineLeftThrust16x16x5, 1.0f );
 							}
-							ProbeMineTail.SetGravity(0.975f);
 							if (rand()%8==0)
+							{
+								ProbeMineTail.SetGravity(0.975f);
 								m_ExhaustContainer->push_back(ProbeMineTail);	
+							}
 
 							HaveLockOnSoForgetTheRest = true;
 						}
@@ -981,10 +1017,15 @@ void GameLogic::ProbeMineLogic(std::vector<Vessel>*  pVesselContainer, float Thr
 			++ProbeMineIter;
 		}
 	}
+
+	m_pWii->profiler_stop(&profile_ProbeMineLogic);
 }
 
 void GameLogic::GunShipLogic()
 {
+	m_pWii->profiler_start(&profile_GunShip);
+
+
 	guVector ChaseTarget(m_CPUTarget);
 	for (std::vector<Vessel>::iterator GunShipIter( m_GunShipContainer->begin()); GunShipIter!= m_GunShipContainer->end(); ++GunShipIter)
 	{
@@ -1055,10 +1096,14 @@ void GameLogic::GunShipLogic()
 			m_ExhaustContainer->push_back(Boom);	
 		}
 	}
+
+	m_pWii->profiler_stop(&profile_GunShip);
 }
 
 void GameLogic::BadShipsLogic()
 {
+	m_pWii->profiler_start(&profile_SmallEnemies);
+
 	for (std::vector<Vessel>::iterator BadIter(m_SmallEnemiesContainer->begin()); BadIter!= m_SmallEnemiesContainer->end(); ++BadIter )
 	{
 		f32 Turn = BadIter->GetTurnDirection( &m_CPUTarget );
@@ -1087,12 +1132,13 @@ void GameLogic::BadShipsLogic()
 			m_ExhaustContainer->push_back(Tail); // 2nd puff
 		}
 	}
+
+	m_pWii->profiler_stop(&profile_SmallEnemies);
 }
 
 void GameLogic::DyingShipsLogic()
 {
-
- // bad BUG HERE
+	m_pWii->profiler_start(&profile_DyingEnemies);
 
 	for (std::vector<Vessel>::iterator BadIter(m_DyingEnemiesContainer->begin());
 		BadIter!= m_DyingEnemiesContainer->end(); /* ++BadIter */ )
@@ -1124,6 +1170,8 @@ void GameLogic::DyingShipsLogic()
 			BadIter = m_DyingEnemiesContainer->erase( BadIter );
 		}
 	}
+	m_pWii->profiler_stop(&profile_DyingEnemies);
+
 }
 
 void GameLogic::AddPickUps(Vessel* Position, int Amount)
@@ -1435,10 +1483,14 @@ void GameLogic::GunTurretShotsLogic( std::vector<Vessel>* pEnemy )
 
 void GameLogic::MoonRocksLogic( )
 {
+	//m_pWii->profiler_start(&profile_MoonRocks);
+
 	for (std::vector<Item3D>::iterator iter(m_pMoonRocksContainer->begin()); iter!= m_pMoonRocksContainer->end(); ++iter)
 	{
 		iter->Rotate(); 
 	}
+
+	//m_pWii->profiler_stop(&profile_MoonRocks);
 }
 
 
@@ -1697,7 +1749,7 @@ void GameLogic::InitialiseIntro()
 	Moon.SetPos(0,0,600-200);
 	Moon.SetRotateAmount(0.005f,0.005f,0.005f);  //note: just RotateY is used in logic
 	Moon.SetDetailLevel(Auto);
-	Moon.SetAmountOfRocks(725);
+	Moon.SetAmountOfRocks(700);
 	m_CelestialBodyContainer->push_back(Moon);
 	//----------------------------------------
 	Moon.SetPos(2000,-1700,4200);
@@ -1706,7 +1758,7 @@ void GameLogic::InitialiseIntro()
 	m_CelestialBodyContainer->push_back(Moon);
 	//----------------------------------------
 
-	InitialiseMoonRocks(800, 0.003f);  //todo - use the largest value in m_CelestialBodyContainer
+	InitialiseMoonRocks(700, 0.003f);  //todo - use the largest value in m_CelestialBodyContainer
 
 	static int Amount = 3;
 	static float Distance = 800.0f;
@@ -1716,6 +1768,7 @@ void GameLogic::InitialiseIntro()
 	InitialiseSmallGunTurret( Amount, Distance, x, y, z, 3.14/3.0f );
 
 	m_GunShipContainer->clear();
+	m_SporesContainer->clear();
 }
 
 
@@ -1771,23 +1824,15 @@ void GameLogic::Intro()
 
 	if ((int)m_SmallEnemiesContainer->size() <= 25 )
 	{
-//		m_bAddMoreShipsFlag = true;
-//	}
-
-//		if (m_bAddMoreShipsFlag)  // trickle feed over a frew frames...rather than splatting them all on in one CPU hungry go
+		if ((int)m_SmallEnemiesContainer->size() <= 50)
 		{
-			if ((int)m_SmallEnemiesContainer->size() <= 50)
-			{
-			//	for (int i=0; i< 5; ++i)  // add just a few
-				//at 60 fps this is going to happan in under a second - one at a time is fine
-				// this why there are no sudden jump in CPU activity
-				if ( (rand()%2) == 0)
-					AddEnemy(300-(rand()%600),255+150,HashString::SmallWhiteEnemyShip16x16x2);
-				else
-					AddEnemy(300-(rand()%600),-(255+150),HashString::SmallWhiteEnemyShip16x16x2);
-			}
-//			else
-//				m_bAddMoreShipsFlag = false;
+		//	for (int i=0; i< 5; ++i)  // add just a few
+			//at 60 fps this is going to happan in under a second - one at a time is fine
+			// this why there are no sudden jump in CPU activity
+			if ( (rand()%2) == 0)
+				AddEnemy(300-(rand()%600),255+150,HashString::SmallWhiteEnemyShip16x16x2);
+			else
+				AddEnemy(300-(rand()%600),-(255+150),HashString::SmallWhiteEnemyShip16x16x2);
 		}
 	}
 
@@ -1796,15 +1841,18 @@ void GameLogic::Intro()
 	ExplosionLogic();
 	ExhaustLogic();
 	
-
+	m_pWii->profiler_start(&profile_ShotAndGunTurret);
 	GunTurretShotsLogic( m_SmallEnemiesContainer );
 	GunTurretLogic();
-	
+	m_pWii->profiler_stop(&profile_ShotAndGunTurret);
+
 	MoonRocksLogic();
 
-	DyingShipsLogic();   // this hash bad bug
+	DyingShipsLogic(); 
 
 	CelestialBodyLogic();
+
+
 
 	if (m_ProbeMineContainer->size() < 240)
 		ProbeMineLogic(m_SmallEnemiesContainer, 0.0450f, 380.0f); // fast mines
@@ -1957,7 +2005,25 @@ void GameLogic::InitialiseGame()
 
 	//--------------
 	//debug - remove for final release
-	//m_pWii->profiler_create(&myjob1, "AsteroidsLogic");
+	m_pWii->profiler_create(&profile_ProbeMineLogic, "Mines");
+	m_pWii->profiler_create(&profile_Asteroid, "Asteroid");
+	m_pWii->profiler_create(&profile_MoonRocks, "MoonRocks");
+	m_pWii->profiler_create(&profile_SmallEnemies, "SmallEnemies");
+	m_pWii->profiler_create(&profile_GunShip, "GunShip");
+	m_pWii->profiler_create(&profile_Explosions, "Explosions");
+	m_pWii->profiler_create(&profile_Spores, "Spores");
+	m_pWii->profiler_create(&profile_Missile, "Missile");
+	m_pWii->profiler_create(&profile_Exhaust, "Exhaust");
+	m_pWii->profiler_create(&profile_Projectile, "Projectile");
+	m_pWii->profiler_create(&profile_Mission, "Mission");
+	m_pWii->profiler_create(&profile_ShotAndGunTurret, "ShotForGunTurret");
+	m_pWii->profiler_create(&profile_DyingEnemies, "DyingEnemies");
+
+	//--------------
+
+
+
+
 	// TEST AREA - NOT TO BE COMPILED AS PART OF RELEASE PACKAGE
 	//static int Amount = 3;
 	//static float Distance = 800.0f;
@@ -1966,8 +2032,6 @@ void GameLogic::InitialiseGame()
 	//static float z = 600.0f;
 	//InitialiseSmallGunTurret( Amount, Distance, x, y, z, 3.14/3.0f );
 	//InitialiseShieldGenerators(3);
-
-
 
 	//m_SmallEnemiesContainer->clear();
 	//m_GunShipContainer->clear();

@@ -46,21 +46,22 @@
 
 // TO DO - move any testing/dowload code out of here...
 
-void QUICKHACK_UpdateMessage(string Message,string Heading);
-void CheckForUpdate();
-//void GetFolderFileNames(string, vector<string>* );
+
 bool DownloadFilesListedInConfiguration(bool MisssingCheckOnly = false);
 
-//string MesageHack = "";
-
-//bool MusicStillLeftToDownLoad = false;
+string CreateHashString(string domain);
 
 extern "C" {  extern void __exception_setreload(int t); }
 int main(int /* argc */, char** /* argv */) 
 {	
 	__exception_setreload(6);
 	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
+
+	//printf( CreateHashString("code.google.com").c_str() );
+	//exit(1);
+
 	rWiiManager.InitWii();
+
 	rWiiManager.InitGameResources();
 	rWiiManager.GetCamera()->InitialiseCamera(); // 3D View
 
@@ -119,123 +120,6 @@ bool DownloadFilesListedInConfiguration(bool MisssingCheckOnly)
 	rWiiManager.ScanMusicFolder();
 	return false;
 }
-//		
-//
-//void CheckForUpdate()
-//{
-//	bool Result(false);
-//	URLManager* pURLManager( new URLManager );
-//	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
-//	rWiiManager.GetCamera()->SetCameraView(0,0) ;
-//
-//#define TEST_FROM_FILE (0)
-//
-//#if (TEST_FROM_FILE==1)
-//
-//	#warning *** DONT FORGET TO CHANGE 'TEST_FROM_FILE' DEFINE FOR RELEASE BUILDS ***
-//
-//	// TEST CODE - usefull when testing from emulator (from file rather than http site)
-//	FILE* pFile( WiiFile::FileOpenForRead( WiiFile::GetGamePath() +  "LatestVersion.xml" )  );
-//	fseek (pFile , 0, SEEK_END);
-//	uint FileSize( ftell (pFile) );
-//	rewind(pFile); 
-//	u8* ptestdata = (u8*) malloc (sizeof(char) * FileSize);
-//	size_t TestSize = fread (ptestdata,1,FileSize,pFile);
-//#else
-//	// pURLManager->SaveURI("http://wii-bolt-thrower.googlecode.com/hg/LatestVersion.xml",WiiFile::GetGamePath() );
-//	MemoryInfo* pData(pURLManager->GetFromURI("http://wii-bolt-thrower.googlecode.com/hg/LatestVersion.xml"));
-//#endif
-//
-//	TiXmlDocument doc;
-//#if (TEST_FROM_FILE==1)
-//	if ( doc.LoadMem( (char*) ptestdata, TestSize ) )
-//#else
-//	if ( doc.LoadMem( (char*)pData->GetData(), pData->GetSize() ) )   // from file test 
-//#endif
-//	{
-//		//Check version number
-//		TiXmlHandle docHandle( &doc );
-//		TiXmlHandle Data( docHandle.FirstChild( "Data" ) );
-//		if (Data.Element() != NULL)  // check for valid xml root
-//		{
-//			//-----------------------------------------------------------------------------------------
-//			//////TiXmlElement* Updates =  Data.FirstChild( "Updates" ).FirstChildElement().ToElement();
-//			//////for( TiXmlElement* pElement(Updates); pElement!=NULL; pElement=pElement->NextSiblingElement() )
-//			//////{
-//			//////	string Key(pElement->Value());
-//			//////	if (Key=="AddFile") 
-//			//////	{
-//			//////		string a = pElement->Attribute("URI");
-//			//////		string b= pElement->Attribute("Path");
-//			//////		printf("URI=%s PATH=%s", a.c_str(), b.c_str() );
-//			//////	}
-//			//////}
-//			//-----------------------------------------------------------------------------------------
-//			string ReleaseNotesText;
-//			TiXmlElement* Notes =  Data.FirstChild( "ReleaseNotes" ).ToElement();
-//			if (Notes!=NULL)
-//				ReleaseNotesText = Notes->GetText();
-//			//-----------------------------------------------------------------------------------------
-//			TiXmlElement* pElem=Data.FirstChild("LatestReleaseAvailable").Element();
-//			if (pElem)
-//			{
-//				double fLatestReleaseAvailable( atof(pElem->GetText()) );
-//				printf("LatestReleaseAvailable = %f", fLatestReleaseAvailable );
-//				if ( fLatestReleaseAvailable > s_fVersion )
-//				{
-//					QUICKHACK_UpdateMessage(ReleaseNotesText, pElem->GetText() + (string)" Available");
-//					MesageHack = (string)"ver " + pElem->GetText() + " download available, visit http://wiibrew.org/wiki/BoltThrower";
-//					Result = true;
-//				}
-//			}
-//			//-----------------------------------------------------------------------------------------
-//		}
-//	}
-//	delete pURLManager;
-//	return Result;
-//}
-
-//
-//void QUICKHACK_UpdateMessage(string Message,string Heading)
-//{
-//	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
-//	rWiiManager.GetCamera()->SetCameraView(0,0) ;
-//	rWiiManager.GetMessageBox()->SetUpMessageBox(Heading, Message  );			
-//
-//	do
-//	{
-//		WPAD_ScanPads();
-//		static float spin=0.0f;
-//		spin+=0.01f;
-//		GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
-//		Util3D::Trans(rWiiManager.GetScreenWidth()/2.0f, rWiiManager.GetScreenHeight()/2.0f);
-//
-//		// image is 1024x1024  ((100-n)% more zoomed in)
-//		rWiiManager.GetSpaceBackground()->DrawImageXYZ(0,0, 0.95f * (579.4f * (579.4f/1024.0f)) ,255);
-//
-//		rWiiManager.GetMessageBox()->DisplayMessageBox(500,300);
-//		GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
-//		rWiiManager.SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
-//		GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
-//	} while( (WPAD_ButtonsUp(0) & (WPAD_BUTTON_A | WPAD_BUTTON_B) )== 0 );
-//
-//}
-
-
-//	printf("   START URLManager  ");
-//	URLManager* pURLManager( new URLManager );
-	//pURLManager->SaveURI("http://www.dr-lex.be/software/download/mp3tones.zip", Util::GetGamePath() );
-	//pURLManager->SaveURI("http://vba-wii.googlecode.com/files/Visual%20Boy%20Advance%20GX%202.2.5.zip");
-	//pURLManager->SaveURI("http://www.fnordware.com/superpng/pngtest8rgba.png");
-	//pURLManager->SaveURI("http://he3.magnatune.com/all/03-Law%20of%20One-Indidginus.ogg", Util::GetGamePath());
-	
-//printf("----\n");
-	
-	//rWiiManager.GetSoundManager()->LoadSound(
-			//Util::GetGamePath() + "03-Law of One-Indidginus.ogg", "03-Law of One-Indidginus");
-	//		Util::GetGamePath() + "Law.ogg", "03-Law of One-Indidginus");
-
-//	delete pURLManager;
 
 
 

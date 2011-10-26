@@ -263,13 +263,18 @@ void SetUpGame::Menus()
 
 void SetUpGame::Play()
 {
-	if ( (m_pWii->GetMusicEnabled()) && (m_pWii->GetIngameMusicVolume() > 0) )
-	{
-		printf("%d", m_pWii->GetIngameMusicVolume()*20);
-		MODPlay_SetVolume( &m_pWii->m_ModuleTrackerPlayerInterface, m_pWii->GetIngameMusicVolume()*20,m_pWii->GetIngameMusicVolume()*20);     
-	}
+	if (m_pWii->GetMusicEnabled())
+		m_pWii->SetMusicVolume( m_pWii->GetIngameMusicVolume() );
 	else
-		MODPlay_Stop(&m_pWii->m_ModuleTrackerPlayerInterface);
+		m_pWii->SetMusicVolume( 0 );
+
+	////if ( (m_pWii->GetMusicEnabled()) && (m_pWii->GetIngameMusicVolume() > 0) )
+	////{
+	//////	printf("%d", m_pWii->GetIngameMusicVolume()*20);
+	////	MODPlay_SetVolume( &m_pWii->m_ModuleTrackerPlayerInterface, m_pWii->GetIngameMusicVolume()*20,m_pWii->GetIngameMusicVolume()*20);     
+	////}
+	////else
+	////	MODPlay_Stop(&m_pWii->m_ModuleTrackerPlayerInterface);
 
 	m_pWii->GetGameLogic()->InitialiseGame();
 
@@ -312,6 +317,8 @@ void SetUpGame::MainLoop()
 		//	MODPlay_Start(&m_pWii->m_ModuleTrackerPlayerInterface); 
 		//	MODPlay_SetVolume( &m_pWii->m_ModuleTrackerPlayerInterface, 100,100);    
 		//}
+
+		m_pWii->SetMusicVolume( 5 ); // 0 to 5, 0 is off - 5 is max
 
 
 

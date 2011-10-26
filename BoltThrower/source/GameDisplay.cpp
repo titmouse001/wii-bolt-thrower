@@ -60,7 +60,6 @@ void GameDisplay::DisplayAllForIntro()
 	// 3D section
 	DisplayMoon();
 
-	
 	//DisplayGunTurrets();
 
 	DisplayShotForGunTurret();
@@ -72,7 +71,6 @@ void GameDisplay::DisplayAllForIntro()
 	m_pWii->GetCamera()->SetLightOff();
 	GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
 
-	
 
 
 //	DisplayGunShips();
@@ -81,14 +79,11 @@ void GameDisplay::DisplayAllForIntro()
 
 	DisplayProbMines();
 
-	
-
-
-
-
 	DisplayProjectile();
 //	DisplayMissile();
+
 	DisplayExhaust();
+
 	DisplayExplosions();
 	DisplayBadShips();
 
@@ -306,6 +301,9 @@ void GameDisplay::DisplayPickUps()
 
 void GameDisplay::DisplayMoon()
 {
+	extern profiler_t profile_MoonRocks;
+	m_pWii->profiler_start(&profile_MoonRocks);
+
 	for (std::vector<MoonItem3D>::iterator MoonIter(m_pGameLogic->GetCelestialBodyContainerBegin()); 
 				MoonIter!= m_pGameLogic->GetCelestialBodyContainerEnd(); ++MoonIter )
 	{
@@ -341,7 +339,6 @@ void GameDisplay::DisplayMoon()
 				GX_SetCullMode(GX_CULL_BACK);
 			}
 		}
-
 
 		// moon rocks
 		if (m_pWii->m_Frustum.sphereInFrustum(v,m_pGameLogic->GetClippingRadiusNeededForMoonRocks()) != FrustumR::OUTSIDE)
@@ -402,6 +399,7 @@ void GameDisplay::DisplayMoon()
 		}
 	}
 
+	m_pWii->profiler_stop(&profile_MoonRocks);
 }
 
 
@@ -961,29 +959,43 @@ void GameDisplay::DisplayShotForGunTurret()
 
 void GameDisplay::DisplaySmallSimpleMessage(std::string Text)
 {
-	//m_pWii->GetCamera()->SetCameraView( 0, 0); //, -(579.4f*0.75f));
-	Util3D::TransRot(0,0,0); //,-3.14f/12.0f);
+	m_pWii->GetCamera()->SetCameraView(0,0);
+
+	int TextWidth( m_pWii->GetFontManager()->GetTextWidth(Text) );
+	f32 w = TextWidth;
+	float Fov = 45.0f;
+	float triangle = 90.0f - (Fov * 0.5f); 
+	float rads = triangle * (M_PI/180.0f);
+	float CameraHeight = tan(rads) * (w * 0.5); 
+	CameraHeight *= (480.0f / 640.0f);
+	if (CameraHeight > m_pWii->GetCamera()->GetCamZ())
+		m_pWii->GetCamera()->SetCameraView(0,0,-CameraHeight);
+	
+	if (w<640.0f)
+		w=640.0f;
+
+	Util3D::Trans(0,0);
 	for (int i=0 ;i<2; ++i)
 	{	
-		m_pWii->DrawRectangle(-320,-240,640,480,255 
+		m_pWii->DrawRectangle(-w*0.5f,-240,w,480,255 
 						 ,0,0,0, 
 						 0,0,40);
+
 		m_pWii->GetFontManager()->DisplayTextCentre(Text, 0,0,255,HashString::SmallFont);
 		GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
-		m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
+		m_pWii->SwapScreen();  
 	}
 }
 
-void GameDisplay::DisplaySimpleMessage(std::string Text)
+void GameDisplay::DisplaySimpleMessage(std::string Text, float fAngle)
 {
-	m_pWii->GetCamera()->SetCameraView( 0, 0 ) ;//, -(579.4f*0.75f));
-	
+	m_pWii->GetCamera()->SetCameraView( 0, 0 );
 	for (int i=0 ;i<2; ++i)
 	{	
 		Util3D::TransRot(0,0,0);
 		m_pWii->DrawRectangle(-320,-240,640,480,255,0,0,0,0,0,40);
 
-		Util3D::TransRot(0,0,-3.14f/12.0f);
+		Util3D::TransRot(0,0,fAngle);
 		m_pWii->GetFontManager()->DisplayTextCentre(Text, 0,0,255,HashString::LargeFont);
 		GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
 		m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
@@ -992,9 +1004,21 @@ void GameDisplay::DisplaySimpleMessage(std::string Text)
 
 void GameDisplay::DebugInformation()
 {
-	 
-
 #ifndef LAUNCH_VIA_WII
+
+	extern profiler_t profile_ProbeMineLogic;
+	extern profiler_t profile_Asteroid ;
+	extern profiler_t profile_MoonRocks;
+	extern profiler_t profile_SmallEnemies;
+	extern profiler_t profile_GunShip;
+	extern profiler_t profile_Explosions;
+	extern profiler_t profile_Spores;
+	extern profiler_t profile_Missile;
+	extern profiler_t profile_Exhaust;
+	extern profiler_t profile_Projectile;
+	extern profiler_t profile_Mission;
+	extern profiler_t profile_ShotAndGunTurret;
+	extern profiler_t profile_DyingEnemies;
 
 	static int DroppedFrames(0);
 	int y=-200;
@@ -1003,24 +1027,36 @@ void GameDisplay::DebugInformation()
 	u8 FPS( Util::CalculateFrameRate(true) );
 	if (FPS<60) ++DroppedFrames;
 
-	m_pWii->Printf(x,y+=22,"DroppedFrames: %d",DroppedFrames);
-	m_pWii->Printf(x,y+=22,"FPS: %d",FPS);
+	m_pWii->Printf(x,y+=22,"FPS: %d Dropped: %d",FPS,DroppedFrames);
+	return;
 
-	m_pWii->Printf(x,y+=22,"Asteroids: %d",m_pGameLogic->GetAsteroidContainerSize());
-	m_pWii->Printf(x,y+=22,"Moon Rocks: %d",m_pGameLogic->GetMoonRocksContainerSize());
-	m_pWii->Printf(x,y+=22,"Small Ships: %d",m_pGameLogic->GetSmallEnemiesContainerSize());
-	m_pWii->Printf(x,y+=22,"Gun Ships: %d",m_pGameLogic->GetGunShipContainerSize());
-	m_pWii->Printf(x,y+=22,"Probe Mines: %d",m_pGameLogic->GetProbeMineContainerSize());
-	m_pWii->Printf(x,y+=22,"Explosions: %d",m_pGameLogic->GetExplosionsContainerSize());
-	m_pWii->Printf(x,y+=22,"Spores: %d",m_pGameLogic->GetSporesContainerSize());
-	m_pWii->Printf(x,y+=22,"Missiles: %d",m_pGameLogic->GetMissileContainerSize());
-	m_pWii->Printf(x,y+=22,"Exhaust Trails: %d",m_pGameLogic->GetExhaustContainerSize());
-	m_pWii->Printf(x,y+=22,"Projectiles: %d",m_pGameLogic->GetProjectileContainerSize());
-	m_pWii->Printf(x,y+=22,"CurrentMission: %d",m_pWii->GetMissionManager()->GetCurrentMission() );
-	m_pWii->Printf(x,y+=22,"Turret shots: %d",m_pGameLogic->GetShotForGunTurretContainerSize() );
-
-		m_pWii->Printf(x,y+=22,"Dying Enemies: %d",m_pGameLogic->GetDyingEnemiesContainerSize() );
+	if (m_pGameLogic->GetAsteroidContainerSize()!=0)
+		m_pWii->Printf(x,y+=22,"Asteroids: %d (%s)",m_pGameLogic->GetAsteroidContainerSize(), m_pWii->profiler_output(&profile_Asteroid).c_str());
+	if (m_pGameLogic->GetMoonRocksContainerSize()!=0)
+		m_pWii->Printf(x,y+=22,"Moon Rocks: %d (%s)",m_pGameLogic->GetMoonRocksContainerSize(), m_pWii->profiler_output(&profile_MoonRocks).c_str());
+	if (m_pGameLogic->GetSmallEnemiesContainerSize()!=0)
+		m_pWii->Printf(x,y+=22,"Small Ships: %d (%s)",m_pGameLogic->GetSmallEnemiesContainerSize(), m_pWii->profiler_output(&profile_SmallEnemies).c_str());
+	if (m_pGameLogic->GetGunShipContainerSize()!=0)
+		m_pWii->Printf(x,y+=22,"Gun Ships: %d (%s)",m_pGameLogic->GetGunShipContainerSize(), m_pWii->profiler_output(&profile_GunShip).c_str() );
+	if (m_pGameLogic->GetProbeMineContainerSize()!=0)
+		m_pWii->Printf(x,y+=22,"Probe Mines: %d (%s)",m_pGameLogic->GetProbeMineContainerSize(), m_pWii->profiler_output(&profile_ProbeMineLogic).c_str());
+	if (m_pGameLogic->GetExplosionsContainerSize()!=0)
+		m_pWii->Printf(x,y+=22,"Explosions: %d (%s)",m_pGameLogic->GetExplosionsContainerSize(), m_pWii->profiler_output(&profile_Explosions).c_str() );
+	if (m_pGameLogic->GetSporesContainerSize()!=0)
+		m_pWii->Printf(x,y+=22,"Spores: %d (%s)",m_pGameLogic->GetSporesContainerSize(), m_pWii->profiler_output(&profile_Spores).c_str());
+	if (m_pGameLogic->GetMissileContainerSize()!=0)
+		m_pWii->Printf(x,y+=22,"Missiles: %d (%s)",m_pGameLogic->GetMissileContainerSize(), m_pWii->profiler_output(&profile_Missile).c_str());
+	if (m_pGameLogic->GetExhaustContainerSize()!=0)
+		m_pWii->Printf(x,y+=22,"Exhaust Trails: %d (%s)",m_pGameLogic->GetExhaustContainerSize(), m_pWii->profiler_output(&profile_Exhaust).c_str());
+	if (m_pGameLogic->GetProjectileContainerSize()!=0)
+		m_pWii->Printf(x,y+=22,"Projectiles: %d (%s)",m_pGameLogic->GetProjectileContainerSize(), m_pWii->profiler_output(&profile_Projectile).c_str());
+	if (m_pGameLogic->GetShotForGunTurretContainerSize()!=0)
+		m_pWii->Printf(x,y+=22,"Turret&Shot: %d (%s)",m_pGameLogic->GetShotForGunTurretContainerSize(), m_pWii->profiler_output(&profile_ShotAndGunTurret).c_str()  );
+	if (m_pGameLogic->GetDyingEnemiesContainerSize()!=0)
+		m_pWii->Printf(x,y+=22,"Dying Enemies: %d (%s)",m_pGameLogic->GetDyingEnemiesContainerSize(), m_pWii->profiler_output(&profile_DyingEnemies).c_str() );
 	
+	//	m_pWii->Printf(x,y+=22,"CurrentMission: %d (%s)",m_pWii->GetMissionManager()->GetCurrentMission(), m_pWii->profiler_output(&profile_Mission).c_str() );
+
 #endif
 
 	// for checking the view is correct - should fit snug inside the view port

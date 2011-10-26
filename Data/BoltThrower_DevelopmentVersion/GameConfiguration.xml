@@ -1,7 +1,24 @@
 <?xml version="1.0" standalone="yes"?>
-<!-- 'Wii Bolt Thrower' - game configurtion file --> 
+<!-- 'Wii Bolt Thrower' - game configurtion file -->
+
 <Data>
-	<Variables>
+
+  <DownloadFiles>
+    
+    <AddURI URI="http://www.vorbis.com/music/Mists_of_Time-4T.ogg" FullDownloadPath="music/" />
+    
+  </DownloadFiles>
+  
+<!--  TEST - any old file will do
+  <DownloadFiles>
+    <AddURI URI="http://he3.magnatune.com/all/03-Law%20of%20One-Indidginus.ogg" FullDownloadPath="music" />
+    <AddURI URI="http://www.fnordware.com/superpng/pngtest8rgba.png" FullDownloadPath="music/fred" />
+    <AddURI URI="http://www.fnordware.com/superpng/pngtest8rgba.png" FullDownloadPath="music3" />
+    <AddURI URI="http://sidney.mirror.modarchive.org/42289/MOD/S/spacedeb.mod.zip" FullDownloadPath="music" />
+  </DownloadFiles>
+  -->
+
+  <Variables>
 	
 		<!-- Difficulty factors - applied to things like Enemy units (large than 1.0 is OK) -->
 		<easy>0.25</easy>   	<!-- i.e.  25% of the original value will be used-->
@@ -24,7 +41,7 @@
 		<AmountOfGunShipsAtStartUp>6</AmountOfGunShipsAtStartUp>
 
 		<EnermyAmardaArroundLastShieldGenerator>10</EnermyAmardaArroundLastShieldGenerator>
-		
+	
 		
 		<!-- Shields -->
 		<PlayerMaxShieldLevel>64</PlayerMaxShieldLevel>
@@ -55,7 +72,8 @@
 		<AreaToCoverForGunShipsAtStartUp>3000</AreaToCoverForGunShipsAtStartUp>		
 					
 	</Variables>
-	
+
+  
    <LightWaveObjects>
 		<AddLWO Name="MoonLowRess"	FileName="lwo/Moon_lowres.LWO" 						UseModelsNormalData="0"/>
 		<AddLWO Name="MoonHiRess"	FileName="lwo/Moon_medress.LWO"						UseModelsNormalData="0"/>
@@ -73,12 +91,8 @@
 		<AddLWO Name="Material_PickUp"	FileName="lwo/Material_PickUP.lwo" 				UseModelsNormalData="1"/>
 		<AddLWO Name="Shot"	FileName="lwo/Shot.lwo" 									UseModelsNormalData="1"/>
 	</LightWaveObjects>	
-	
-   <TrackerModules>
-		<AddMod Name="SpaceDebris"	FileName="music/SpaceDebris.mod" Loop="true"/>
-	</TrackerModules>
-   
-    <Sounds>
+
+  <Sounds>
 		<AddSound Name="Explode11"	FileName="Sounds/Explode11.wav" />
 		<AddSound Name="hitmetal"	FileName="Sounds/hitmetal.wav" />
 		<AddSound Name="Explode01"	FileName="Sounds/Explode01.wav" />
@@ -92,54 +106,58 @@
 	</RawTga>
 	
   <Graphics FileName="Graphics/Sprites.png">
-		<AddImage Name="ShipFrames"  StartX="0" StartY="0" ItemWidth="32" ItemHeight="32" NumberItems="4"/>
-		<AddImage Name="AimingPointer"  StartX="32" StartY="0" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
-		<AddImage Name="MissileFrames"  StartX="0" StartY="32" ItemWidth="16" ItemHeight="16" NumberItems="1"/>
-		<AddImage Name="Bad1Frames"     StartX="0" StartY="48" ItemWidth="16" ItemHeight="16" NumberItems="2"/>
-		<AddImage Name="Bad2Frames"     StartX="0" StartY="64" ItemWidth="16" ItemHeight="16" NumberItems="2"/>
-		
-		<AddImage Name="MiniMoon"     StartX="32" StartY="32" ItemWidth="16" ItemHeight="16" NumberItems="1"/>
-		<AddImage Name="YellowCircleWithHole"     StartX="48" StartY="32" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+    
+		<AddImage Name="PlayersShip32x32"  StartX="0" StartY="0" ItemWidth="32" ItemHeight="32" NumberItems="4"/>
+    
+		<AddImage Name="AimingPointer32x32"  StartX="32" StartY="0" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+		<AddImage Name="SmallMissile16x16"  StartX="0" StartY="32" ItemWidth="16" ItemHeight="16" NumberItems="1"/>
+		<AddImage Name="SmallWhiteEnemyShip16x16x2"     StartX="0" StartY="48" ItemWidth="16" ItemHeight="16" NumberItems="2"/>
+		<AddImage Name="SmallRedEnemyShip16x16x2"     StartX="0" StartY="64" ItemWidth="16" ItemHeight="16" NumberItems="2"/>
 
-		<AddImage Name="SmallTurrent"    StartX="128" StartY="128" ItemWidth="16" ItemHeight="16" NumberItems="1"/>
-				
-		<AddImage Name="BoomFrames"     StartX="0" StartY="80" ItemWidth="16" ItemHeight="16" NumberItems="9"/>
-		<AddImage Name="Boom2Frames"    StartX="0" StartY="96" ItemWidth="16" ItemHeight="16" NumberItems="9"/>
-		<AddImage Name="Boom3Frames"   StartX="0" StartY="160" ItemWidth="16" ItemHeight="16" NumberItems="10"/>
-		<AddImage Name="Boom4Frames"   StartX="0" StartY="272" ItemWidth="16" ItemHeight="16" NumberItems="10"/>				
-		<AddImage Name="Boom5Frames"   StartX="0" StartY="288" ItemWidth="16" ItemHeight="16" NumberItems="10"/>
-		<AddImage Name="Boom6Frames"   StartX="0" StartY="304" ItemWidth="16" ItemHeight="16" NumberItems="10"/>
-		
-	<!--	
-		<AddImage Name="Missile"   StartX="144" StartY="80" ItemWidth="16" ItemHeight="48" NumberItems="1"/>
-	-->
-		
-		<AddImage Name="SmokeTrailFrames"   StartX="160" StartY="160" ItemWidth="16" ItemHeight="16" NumberItems="10"/>
-		
-		<AddImage Name="LargeRedExplosion" 		StartX="0" 		StartY="560" ItemWidth="64" ItemHeight="64" NumberItems="1"/>
-		<AddImage Name="LargeYellowExplosion" 	StartX="64" 	StartY="560" ItemWidth="64" ItemHeight="64" NumberItems="1"/>			
-		<AddImage Name="LargeExplosion" 		StartX="128" 	StartY="560" ItemWidth="64" ItemHeight="64" NumberItems="1"/>	
-		<AddImage Name="VeryLargeExplosion" 	StartX="192" 	StartY="544" ItemWidth="80" ItemHeight="80" NumberItems="1"/>
-			
-		<AddImage Name="ThingFrames"    StartX="0" StartY="112" ItemWidth="16" ItemHeight="16" NumberItems="9"/>
-		<AddImage Name="StarFrames"     StartX="0" StartY="96" ItemWidth="16" ItemHeight="16" NumberItems="1"/>
-		<AddImage Name="ProbeMineFrames"    StartX="0" StartY="128" ItemWidth="16" ItemHeight="16" NumberItems="5"/>
-		<AddImage Name="ProbeMineUpThrusterFrames"      StartX="0" StartY="144" ItemWidth="16" ItemHeight="16" NumberItems="5"/>
-		<AddImage Name="ProbeMineRightThrusterFrames"   StartX="80" StartY="144" ItemWidth="16" ItemHeight="16" NumberItems="5"/>
-		<AddImage Name="ProbeMineDownThrusterFrames"    StartX="160" StartY="144" ItemWidth="16" ItemHeight="16" NumberItems="5"/>
-		<AddImage Name="ProbeMineLeftThrusterFrames"    StartX="240" StartY="144" ItemWidth="16" ItemHeight="16" NumberItems="5"/>
-		<AddImage Name="SimpleMineFrames"   StartX="0" StartY="144" ItemWidth="16" ItemHeight="16" NumberItems="1"/>
-		<AddImage Name="Explosion64x64"   StartX="0" StartY="176" ItemWidth="32" ItemHeight="32" NumberItems="9"/>
+    <AddImage Name="MediumEnemyShipType01_32x32x2"     StartX="0" StartY="448" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+    <AddImage Name="MediumEnemyShipType02_32x32x2"     StartX="32" StartY="448" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+    <AddImage Name="MediumEnemyShipType03_32x32x2"     StartX="64" StartY="448" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+    <AddImage Name="MediumEnemyShipType04_32x32x2"     StartX="96" StartY="448" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+
+    <AddImage Name="MiniMoon16x16"     StartX="32" StartY="32" ItemWidth="16" ItemHeight="16" NumberItems="1"/>
+		<AddImage Name="YellowRadarPing32x32"     StartX="48" StartY="32" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+
+		<AddImage Name="ExplosionFire1Type16x16x9"     StartX="0" StartY="80" ItemWidth="16" ItemHeight="16" NumberItems="9"/>
+		<AddImage Name="ExplosionFire2Type16x16x9"    StartX="0" StartY="96" ItemWidth="16" ItemHeight="16" NumberItems="9"/>
+		<AddImage Name="ExplosionThrust1Type16x16x10"   StartX="0" StartY="160" ItemWidth="16" ItemHeight="16" NumberItems="10"/>
+		<AddImage Name="ExplosionDull1Type16x16x10"   StartX="0" StartY="272" ItemWidth="16" ItemHeight="16" NumberItems="10"/>				
+		<AddImage Name="ExplosionSmoke1Type16x16x10"   StartX="0" StartY="288" ItemWidth="16" ItemHeight="16" NumberItems="10"/>
+		<AddImage Name="ExplosionSmoke2Type16x16x10"   StartX="0" StartY="304" ItemWidth="16" ItemHeight="16" NumberItems="10"/>
+		<AddImage Name="SmokeTrail16x16x10"   StartX="160" StartY="160" ItemWidth="16" ItemHeight="16" NumberItems="10"/>
+		<AddImage Name="RedEdgeExplosion64x64" 		StartX="0" 		StartY="560" ItemWidth="64" ItemHeight="64" NumberItems="1"/>
+		<AddImage Name="YellowEdgeExplosion64x64" 	StartX="64" 	StartY="560" ItemWidth="64" ItemHeight="64" NumberItems="1"/>			
+		<AddImage Name="FireBallExplosion64x64" 		StartX="128" 	StartY="560" ItemWidth="64" ItemHeight="64" NumberItems="1"/>	
+		<AddImage Name="HotYellowOrangeExplosion80x80" 	StartX="192" 	StartY="544" ItemWidth="80" ItemHeight="80" NumberItems="1"/>
+    <AddImage Name="ExplosionSolidType32x32x10"   StartX="0" StartY="176" ItemWidth="32" ItemHeight="32" NumberItems="10"/>
+    <AddImage Name="ExplosionRingType32x32x7"   StartX="0" StartY="336" ItemWidth="32" ItemHeight="32" NumberItems="7"/>
+
+    <!-- Emeny spore-->
+    <AddImage Name="SpinningSpore16x16x9"    StartX="0" StartY="112" ItemWidth="16" ItemHeight="16" NumberItems="9"/>
+    
+    <!-- Prob Mine and suppoting thruster frames-->
+		<AddImage Name="ProbeMine16x16x5"    StartX="0" StartY="128" ItemWidth="16" ItemHeight="16" NumberItems="5"/>
+		<AddImage Name="ProbeMineUpThrust16x16x5"      StartX="0" StartY="144" ItemWidth="16" ItemHeight="16" NumberItems="5"/>
+		<AddImage Name="ProbeMineRightThrust16x16x5"   StartX="80" StartY="144" ItemWidth="16" ItemHeight="16" NumberItems="5"/>
+		<AddImage Name="ProbeMineDownThrust16x16x5"    StartX="160" StartY="144" ItemWidth="16" ItemHeight="16" NumberItems="5"/>
+		<AddImage Name="ProbeMineLeftThrust16x16x5"    StartX="240" StartY="144" ItemWidth="16" ItemHeight="16" NumberItems="5"/>
+
+    <!-- Shiled sphere-->
 		<AddImage Name="ShieldRed"   StartX="0" StartY="208" ItemWidth="64" ItemHeight="64" NumberItems="1"/>
-		<AddImage Name="ShieldBlue"   StartX="64" StartY="208" ItemWidth="64" ItemHeight="64" NumberItems="1"/>	
-	
+		<AddImage Name="ShieldBlue"   StartX="64" StartY="208" ItemWidth="64" ItemHeight="64" NumberItems="1"/>
+
+    <!-- Wii Mote Icons-->
 		<AddImage Name="WiiMoteButtonA"  StartX="128" StartY="208" ItemWidth="32" ItemHeight="32" NumberItems="1"/>	
 		<AddImage Name="WiiMoteButtonB"  StartX="160" StartY="208" ItemWidth="32" ItemHeight="48" NumberItems="1"/>	
 		<AddImage Name="WiiMoteDirectionDownMarkedRed"  StartX="192" StartY="208" ItemWidth="32" ItemHeight="32" NumberItems="1"/>	
 		<AddImage Name="WiiMoteInfraRedPointer"  StartX="224" StartY="208" ItemWidth="32" ItemHeight="32" NumberItems="1"/>	
 		<AddImage Name="WiiMoteButtonHome"  StartX="256" StartY="208" ItemWidth="32" ItemHeight="32" NumberItems="1"/>	
 	
-	
+    <!-- Enemy Vessels -->
 		<AddImage Name="GunShip"  StartX="224" StartY="864" ItemWidth="48" ItemHeight="80" NumberItems="2"/>	
 	 	<AddImage Name="TurretForGunShip"  StartX="208" StartY="880" ItemWidth="16" ItemHeight="32" NumberItems="1"/>	
 		<AddImage Name="BrokenTurretForGunShip"  StartX="208" StartY="912" ItemWidth="16" ItemHeight="32" NumberItems="1"/>	
@@ -166,8 +184,7 @@
   <Languages>
     
     <AddLanguage Name="English" />
-    <AddLanguage Name="Italian" />
-    <AddLanguage Name="Esperanto" />
+    <AddLanguage Name="Klingon" />
     
     <English>
       <AddText MainMenuScreenTopTitle = "B O L T    T H R O W E R" />
@@ -180,7 +197,23 @@
       <AddText WiiMoteInfraRedPointer = "Aim" />
       <AddText WiiMoteButtonHome = "Quit" />
       <AddText PressButtonAToContinueMessage = "PRESS A TO CONTINUE" />
-
+      <AddText QuitMessage = "Bye" />   
+      <AddText Options = "Options" />
+      <AddText Controls = "Controls" />
+      <AddText Credits= "Credits" />
+      <AddText Intro = "Intro" />
+      <AddText Start_Game = "Start Game" />
+      <AddText Quit = "Quit" />
+      <AddText Back = "Back" />
+      <AddText Ingame_Music = "In-game Music" />
+      <AddText Ingame_MusicVolume = "In-game Music Volume" />
+      <AddText Difficulty_Level = "Difficulty Level" />
+      <AddText Set_Language = "Set Language" />
+      <AddText off = "off" />
+      <AddText on = "on" />
+      <AddText easy = "easy" />
+      <AddText medium = "medium" />
+      <AddText hard = "hard" />
       <AddText attract_mode = "attract mode" />
       <AddText GAME_PAUSED = "GAME PAUSED" />
       <AddText Press_PLUS_To_Play =  "Press (+) To Play" />
@@ -190,6 +223,8 @@
       <AddText Your_Score = "&lt;-- Your Score" />
       <AddText ScrapPartsCollected = "&lt;-- Amount of scrap parts collected" />
 
+      <!-- Code looks for CreditsNN and displays each line until we hit the end teg (limit of 99) -->
+      <!-- TODO code needs to support scroll when count exceeds the screen area-->
       <AddText Credits01 = "-=Music=- 'Space Debris' from the Amiga by Captain/Image" />
       <AddText Credits02 = "Visit http://modarchive.org/ for a distinctive collection of modules" />
       <AddText Credits03 = "" />
@@ -202,51 +237,98 @@
       <AddText Credits10 = ""  />
       <AddText Credits11 = "-=Testers=- Tom, Harry, Mr C" />
       <AddText Credits12 = "" />
-      <AddText Credits13 = "Release v0.60 | August 2011" />
+      <AddText Credits13 = "Release v%%RELEASE_VERSION%% %%DATE_OF_BUILT%%" />
       <AddText Credits14 = "Built using libs: -lfat -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm " />
       <AddText Credits15 = "TAG-END" />
+      
+      <AddText OptionsPopUpMessage = "Change various settings like the Difficulty" />
+      <AddText Start_GamePopUpMessage = "Play game - Difficulty " />
+      <AddText IntroPopUpMessage = "Navigate me to the intro screen" />
+      <AddText Version = "Version " />
+
+
+      <AddText Change_Tune = "Change Tune" />
+      <AddText ControlsPopMessage = "View Controls (not yet configurable)" />
+      <AddText CreditsPopMessage = "View Credits" />
+      <AddText download_extra_music = "download extra music" />
+
+      <AddText DownloadExtraMusicPopUpMessage = "see 'GameConfiguration.xml' to add more, Mod/Ogg vorbis files supported" />
+
+
     </English>
 
-    <Italian>
-      <AddText MainMenuScreenTopTitle = "B O L T    T H R O W E R" />
-      <AddText OptionsMenuScreenTopTitle = "O P T I O N S" />
-      <AddText CreditsMenuScreenTopTitle = "C R E D I T S" />
-      <AddText ControlsMenuScreenTopTitle = "C O N T R O L S" />
-      <AddText WiiMoteButtonA = "Fire Missile" />
-      <AddText WiiMoteButtonB = "Thrusters" />
-      <AddText WiiMoteDirectionDown = "Drop Mine" />
-      <AddText WiiMoteInfraRedPointer = "Aim" />
-      <AddText WiiMoteButtonHome = "Quit" />
-      <AddText PressButtonAToContinueMessage = "STAMPA PER CONTINUARE A" />
-
-      <AddText attract_mode = "attract mode" />
-      <AddText GAME_PAUSED = "GAME PAUSED" />
-      <AddText Press_PLUS_To_Play =  "Press (+) To Play" />
-      <AddText Press_PLUS_To_Pause_Game = "Press (+) To Pause Game" />
+    <Klingon>
+      <!-- this is NUT FIRE in klingon! -->
+      <AddText MainMenuScreenTopTitle = "N A H L E T   Q U L" />
+      <AddText OptionsMenuScreenTopTitle = "L U R G H" />
+      <AddText CreditsMenuScreenTopTitle = "R I '" />
+      <AddText ControlsMenuScreenTopTitle = "R U Q" />
+      <AddText WiiMoteButtonA = "qul puv DuQwI'" />
+      <AddText WiiMoteButtonB = "jaH" />
+      <AddText WiiMoteDirectionDown = "mej Doch" />
+      <AddText WiiMoteInfraRedPointer = "Qeq" />
+      <AddText WiiMoteButtonHome = "mej" />
+      <AddText PressButtonAToContinueMessage = "BING A DAQ VIH" />
+      <AddText QuitMessage = "Qapla'" />
+      <AddText Options = "DuH" />
+      <AddText Controls = "RuQ" />
+      <AddText Credits= "Tlho'" />
+      <AddText Intro = "VeQDuj" />
+      <AddText Start_Game = "Tagh Quj" />
+      <AddText Quit = "Bup" />
+      <AddText Back = "DoH" />
+      <AddText Ingame_Music = "Daq Quj QoQ" />
+      <AddText Ingame_MusicVolume = "Daq Quj QoQ lIS" />
+      <AddText Difficulty_Level = "SuD" />
+      <AddText Set_Language = "Cher Hol" />
+      <AddText off = "lItha'" />
+      <AddText on = "daq" />
+      <AddText easy = "ngeD" />
+      <AddText medium = "botlh" />
+      <AddText hard = "let" />
+      <AddText attract_mode = "ghoS Daq" />
+      <AddText GAME_PAUSED = "ghobe' jaH" />
+      <AddText Press_PLUS_To_Play =  "bIng (+) Daq jaH" />
+      <AddText Press_PLUS_To_Pause_Game = "bIng (+) Daq ghobe' jaH" />
       <AddText ExplanationMark = "!" />
-      <AddText RemoveGunshipsBeforeRecoveringMessage = "È necessario rimuovere le eventuali elicotteri nemici prima di recuperare questo satellite ultima" />
-      <AddText Your_Score = "&lt;-- Your Score" />
-      <AddText ScrapPartsCollected = "&lt;-- Amount of scrap parts collected" />
+      <AddText RemoveGunshipsBeforeRecoveringMessage = "ta' teq vay' jagh Duj qaSpa' tlhap vam pItlh Doch"  />
+      <AddText Your_Score = "&lt;-- lIj mI'" />
+      <AddText ScrapPartsCollected = "&lt;-- mI' vo' qab chopta' tu'ta'" />
 
-      <AddText Credits01 = "-=Music=- 'Space Debris' from the Amiga by Captain/Image" />
-      <AddText Credits02 = "Visit http://modarchive.org/ for a distinctive collection of modules" />
+      <!-- Code looks for CreditsNN and displays each line until we hit the end teg (limit of 99) -->
+      <!-- TODO code needs to support scroll when count exceeds the screen area-->
+      <AddText Credits01 = "-=QoQ=- mach QoQ Sum HoD Qot"/>
+      <AddText Credits02 = "legh http://modarchive.org/  vaD QaQ chang'eng vo' QoQ"/>
       <AddText Credits03 = "" />
-      <AddText Credits04 = "-=3D Models=  WiiMote by Patrick Grubb" />
-      <AddText Credits05 =  "Viper(MK2) by Karl Stocker (UV textures by Titmouse)" />
+      <AddText Credits04 = "-=3D Doch=- Qep jan Sum Patrick Grubb" />
+      <AddText Credits05 =  "Duj(MK2) sum Karl Stocker (UV textures by Titmouse)" />
       <AddText Credits06 = "" />
-      <AddText Credits07 = "-=2D Art=- Most by Lee Marks / few by Danc - www.lostgarden.com" />
+      <AddText Credits07 = "-=cha'D=- M HochHom Sum Lee Marks / 'op Sum Danc - www.lostgarden.com" />
       <AddText Credits08 = "" />
-      <AddText Credits09 = "-=Programmer=- Paul Overy, alias TitMouse" />
+      <AddText Credits09 = "-=chenmoH=- Paul Overy, cha'DIch pong TitMouse" />
       <AddText Credits10 = ""  />
-      <AddText Credits11 = "-=Testers=- Tom, Harry, Mr C" />
+      <AddText Credits11 = "-=vItHay'=- Tom, Harry, Mr C" />
       <AddText Credits12 = "" />
-      <AddText Credits13 = "Release v0.60 | August 2011" />
-      <AddText Credits14 = "Built using libs: -lfat -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm " />
+      <AddText Credits13 = "lel v%%RELEASE_VERSION%% %%DATE_OF_BUILT%%" />
+      <AddText Credits14 = "chenta' tlhej: -lfat -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm" />
       <AddText Credits15 = "TAG-END" />
-    </Italian>
 
-    <Esperanto>
-    </Esperanto>
+      <AddText OptionsPopUpMessage = "choH SeH" />
+      <AddText Start_GamePopUpMessage = "Quj - Qatlh " />
+      <AddText IntroPopUpMessage = "chIj QI'lop jIH" />
+      <AddText Version = "De' " />
+      
+
+      <AddText Change_Tune = "Next Tune" />
+      <AddText ControlsPopMessage = "View Controls (not yet configurable)" />
+      <AddText CreditsPopMessage = "View Credits" />
+
+      <AddText download_extra_music = "download extra music" />
+
+
+      <AddText DownloadExtraMusicPopUpMessage = "see 'GameConfiguration.xml' to add more, Mod/Ogg vorbis files supported" />
+
+    </Klingon>
 
     <!-- character set net yet supported-->
     <Japanese>

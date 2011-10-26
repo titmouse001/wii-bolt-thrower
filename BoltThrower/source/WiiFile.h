@@ -13,7 +13,8 @@ class FileInfo  // general (used for just about anything!!!)
 public:
 	FileInfo(string InFileName,string InLogicName) : 
 			b_ThisSlotIsBeingUsed(false) ,
-			FileName(InFileName) , LogicName(InLogicName), m_bNorms(true), m_IndexLayerForBones(-1) {;}
+			FileName(InFileName) , LogicName(InLogicName), m_bNorms(true), m_IndexLayerForBones(-1),
+			OverwriteExistingFile(true) {;}
 
 	FileInfo() : b_ThisSlotIsBeingUsed(false) {;}
 
@@ -24,6 +25,7 @@ public:
 	bool m_bNorms;
 	int m_IndexLayerForBones;
 	int Size;
+	bool OverwriteExistingFile;
 };
 
 

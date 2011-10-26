@@ -212,7 +212,7 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 
 	//   !!!!! SHIT - some oggs are unseekable   !!!!
 	// need to fallback to something else, it's going to be slow
-	s32 pcm_total = ov_pcm_total(&vf,-1);  // soulh be 64bits , but I'm not using anything that big!
+	s32 pcm_total = ov_pcm_total(&vf,-1);  // should be 64bits , but I'm not using anything that big!
 	if (pcm_total == OV_EINVAL)	
 	{
 		pcm_total = GetOggTotal(&vf);

@@ -1086,8 +1086,7 @@ bool TiXmlDocument::LoadFile( FILE* file, TiXmlEncoding encoding )
 
 
 
-
-
+// added by Titmouse to support loading from memory
 bool TiXmlDocument::LoadMem( char* pFreshData, long length, TiXmlEncoding encoding )
 {
 	if ( pFreshData==NULL )

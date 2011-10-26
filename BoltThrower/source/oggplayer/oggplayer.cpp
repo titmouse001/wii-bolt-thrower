@@ -430,9 +430,9 @@ int OggPlayer::PlayOgg(const void *buffer, s32 len, int time_pos, int mode)
 	return 0;
 }
 
-void OggPlayer::PauseOgg(int pause)
+void OggPlayer::PauseOgg(bool Status)
 {
-	if (pause)
+	if (Status)
 	{
 		private_ogg.flag |= 128;
 	}

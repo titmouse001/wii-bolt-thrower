@@ -1,22 +1,17 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "GCTypes.h"
 #include <string>
-#include "debug.h"
 #include <string.h>		// included for memcpy
-
-
 #include <unistd.h>		// included for usleep
-//The <unistd.h> header defines miscellaneous symbolic constants and types, and declares miscellaneous functions.
-// http://pubs.opengroup.org/onlinepubs/000095399/basedefs/unistd.h.html
-
-#include "ogcsys.h"
+#include <sstream>
 #include "network.h"
+#include "URIManager.h"
+#include "Config.h"
+#include "debug.h"
 
 #define URL_DEBUG (false)
 
-
-#include "URIManager.h"
-#include "Config.h"
+// <unistd.h> defines miscellaneous symbolic constants, types and declares miscellaneous functions.
+// see http://pubs.opengroup.org/onlinepubs/000095399/basedefs/unistd.h.html
 
 URLManager::URLManager()
 {
@@ -30,7 +25,6 @@ URLManager::~URLManager()
 {
 	net_deinit();
 }
-
 
 // URLManager section
 
@@ -67,7 +61,7 @@ string URLManager::CreateHttpRequest(const string& CommandWithSpace, const strin
 	BuildPacket +=  "Referer: " + RefererPath + "\r\n";  // (misspelled) This is the address of the previous web page from which a link to the currently requested page was followed.
 
 	//BuildPacket +=  "User-Agent: Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET4.0C; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; InfoPath.2)\r\n";
-	BuildPacket +=  "User-Agent: WiiBoltThrower/" + s_ReleaseVersion + "\r\n"; //User agents SHOULD include this field with requests
+	BuildPacket +=  "User-Agent: WiiBoltThrower/" + s_ReleaseVersion + " (Nintendo Wii; N; ; 2047-7;en)\r\n"; //User agents SHOULD include this field with requests
 
 	BuildPacket +=  "Connection: close\r\n\r\n";  //HTTP/1.1 applications that do not support persistent connections MUST include the "close" connection option in every message. 
 	return BuildPacket;
@@ -227,7 +221,24 @@ MemoryInfo* URLManager::GetFromURI(string URI)
 
 	int BodyBytes = GetValueFromHeaderLabel(WorkingString, "Content-Length: ");
 	if (BodyBytes==0)
-		BodyBytes = (TotalReceived - HeaderLength); // in-case we are missing "Content-Length: " from the header section
+	{
+		string chunked = GetStringFromHeaderLabel(WorkingString, "Transfer-Encoding: ");
+		if (chunked == "chunked")
+		{
+			string Data = (char*)(TempStoreForReadData + HeaderLength);
+			size_t chunkedEnd = Data.find("\r\n");
+			string chunkedValue(Data.substr(0, chunkedEnd ));
+
+			// hex to int
+			std::stringstream ss;
+			ss << std::hex << chunkedValue; 
+			ss >> BodyBytes; 
+			// adjust header size to skip this chunk later
+			HeaderLength += Data.length();
+		}
+		else
+			BodyBytes = (TotalReceived - HeaderLength); // in-case we are missing "Content-Length: " from the header section
+	}
 
 	u8* BodyData = (u8*) malloc(BodyBytes);
 	// if something goes funny (no idea even if it ever can) and say everthing is send OK but some extra data gets plonked at the end
@@ -256,8 +267,6 @@ MemoryInfo* URLManager::GetFromURI(string URI)
 	if (BytesRead<0)
 		MemInfo->SetFileNameWithExtension( URI.substr(Pos, Length) + ".Bad" );
 
-//	printf("%s", URI.c_str() );
-
 	return MemInfo;
 }
 
@@ -277,8 +286,6 @@ string URLManager::GetStringFromHeaderLabel(string WorkingString, string Label)
 	return ContentTypeValue;
 }
 
-
-
 void MemoryInfo::Save(string FullPathFileName)
 {
 	if ( (m_pData != NULL) && (m_uSize > 0) )
@@ -292,6 +299,13 @@ void MemoryInfo::Save(string FullPathFileName)
 		printf("MemoryInfo failed to save anything");
 	}
 }
+
+
+MemoryInfo::~MemoryInfo() 
+{ 
+	free(m_pData); m_pData=NULL; m_uSize=0; m_FileNameWithExtension.clear(); 
+}
+
 
 void MemoryInfo::SavePath(string PathName)
 {

@@ -40,6 +40,7 @@
 #include "config.h"
 #include "debug.h"
 #include <string>
+#include <sstream>
 //#include <dirent.h>
 //#include <sys/stat.h>
 #include "oggplayer/oggplayer.h"
@@ -615,6 +616,8 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 			//////	}
 			//////}
 
+
+
 			// *** Downloads ***
 			TiXmlElement* pOgg =  Data.FirstChild( "DownloadFiles" ).FirstChildElement().ToElement();
 			for( TiXmlElement* pElement(pOgg); pElement!=NULL; pElement=pElement->NextSiblingElement() )
@@ -905,6 +908,7 @@ void WiiManager::InitGameResources()
 
 	ScanMusicFolder();
 	PlayMusic();
+
 }
 
 void WiiManager::ScanMusicFolder()
@@ -939,6 +943,42 @@ FileInfo* WiiManager::GetCurrentMusicInfo()
 	return NULL;
 }
 
+
+void WiiManager::SetMusicVolume(int Volume)
+{
+	char* pTemp = new char[5];
+	memset (pTemp,0,5);
+	memcpy (pTemp,m_pModuleTrackerData,4);
+	string Header2 = pTemp;
+	if (Header2 == "OggS")
+	{
+		OggPlayer Ogg;  // TODO !!!!
+
+		if ( Volume > 0)
+		{
+			Ogg.SetVolumeOgg(Volume * (255/5));
+			Ogg.PauseOgg(false);
+		}
+		else
+			Ogg.PauseOgg();
+		
+	}
+	else
+	{
+		//if (m_ModuleTrackerPlayerInterface.playing)
+		{
+			if ( Volume > 0 )
+			{
+				MODPlay_Start(&m_ModuleTrackerPlayerInterface); 
+				MODPlay_SetVolume( &m_ModuleTrackerPlayerInterface, Volume*20,Volume*20);     
+			}
+			else
+				MODPlay_Stop(&m_ModuleTrackerPlayerInterface);
+		}
+	}
+}
+
+
 void WiiManager::PlayMusic()
 {
 	char* pTemp = new char[5];
@@ -961,6 +1001,7 @@ void WiiManager::PlayMusic()
 		{
 			OggPlayer Ogg;
 			Ogg.PlayOgg(m_pModuleTrackerData, (s32)Info->Size, 0, OGG_ONE_TIME);
+			Ogg.SetVolumeOgg(255);
 		}
 	}
 	else
@@ -1150,21 +1191,21 @@ void WiiManager::profiler_stop(profiler_t* pjob)
 {
 	u64 stop_time;
 	u64 start_time;
-	u64 duration;
+	//u64 duration;
 	
 	stop_time = Util::timer_gettime();
 	
 	if(pjob->active)
 	{
 		start_time = pjob->start_time;
-		duration = stop_time - start_time;
-		pjob->total_time += duration;
+		pjob->duration = stop_time - start_time;
+		pjob->total_time += pjob->duration;
 		
-		if (duration < pjob->min_time)
-			pjob->min_time = duration;
+		if (pjob->duration < pjob->min_time)
+			pjob->min_time = pjob->duration;
 		
-		if (duration > pjob->max_time)
-			pjob->max_time = duration;
+		if (pjob->duration > pjob->max_time)
+			pjob->max_time = pjob->duration;
 		
 		pjob->no_hits += 1;
 		pjob->active = 0;
@@ -1181,13 +1222,18 @@ void WiiManager::profiler_reset(profiler_t* pjob)
 	pjob->start_time = 0;
 };
 
-void WiiManager::profiler_output(profiler_t* pjob,int x,int y)
+string WiiManager::profiler_output(profiler_t* pjob)
 {
 	u64 min_us = Util::TicksToMicrosecs(pjob->min_time);
 	u64 max_us = Util::TicksToMicrosecs(pjob->max_time);
+	u64 dur_us = Util::TicksToMicrosecs(pjob->duration);
 	
-	const static int gap = 18;
-	Printf(x,y+=gap,"%s duration min:%llu max:%llu", pjob->name.c_str(),min_us,max_us );
+	std::stringstream ss;
+	ss << pjob->name << " times, min:" << min_us << " max:" << max_us << " now:" << dur_us;
+
+	return ss.str();
+
+	//reutn "%s duration min:%llu max:%llu" + pjob->name.c_str() min_us,max_us );
 }
 
 int WiiManager::GetConfigValueWithDifficultyApplied(HashLabel Name) 

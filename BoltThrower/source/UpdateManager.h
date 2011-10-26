@@ -19,14 +19,19 @@ public:
 	void Init();
 
 	void DoUpdate();
-	void DisplayUpdateMessage();
+	bool DisplayUpdateMessage();
 	bool CheckForUpdate();
+	void  UpdateApplicationFiles();
 
 	void SetMessageVersionReport(string Value) { m_MessageVersionReport = Value; }
 	string GetMessageVersionReport() const { return m_MessageVersionReport; }
 
 	string m_ReleaseNotes;
 	string m_LatestReleaseAvailable;
+
+
+	vector<FileInfo> m_ApplicationSpecificUpdatesForDownloadFileInfoContainer;
+
 
 private:
 
