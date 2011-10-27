@@ -1,23 +1,14 @@
 <?xml version="1.0" standalone="yes"?>
-<!-- 'Wii Bolt Thrower' - game configurtion file -->
+<!-- 'Wii Bolt Thrower' - game configurtion file for v0.60 -->
 
 <Data>
 
   <DownloadFiles>
-    
-    <AddURI URI="http://www.vorbis.com/music/Mists_of_Time-4T.ogg" FullDownloadPath="music/" />
-    
+	<AddURI URI="http://wii-bolt-thrower.googlecode.com/hg/Data/Tunes/stardstm.mod" FullDownloadPath="music/" />
+	<AddURI URI="http://wii-bolt-thrower.googlecode.com/hg/Data/Tunes/tilbury_fair.mod" FullDownloadPath="music/" />
+	<AddURI URI="http://he3.magnatune.com/all/01-Tau%20ceti-Indidginus.ogg" FullDownloadPath="music/" />
   </DownloadFiles>
   
-<!--  TEST - any old file will do
-  <DownloadFiles>
-    <AddURI URI="http://he3.magnatune.com/all/03-Law%20of%20One-Indidginus.ogg" FullDownloadPath="music" />
-    <AddURI URI="http://www.fnordware.com/superpng/pngtest8rgba.png" FullDownloadPath="music/fred" />
-    <AddURI URI="http://www.fnordware.com/superpng/pngtest8rgba.png" FullDownloadPath="music3" />
-    <AddURI URI="http://sidney.mirror.modarchive.org/42289/MOD/S/spacedeb.mod.zip" FullDownloadPath="music" />
-  </DownloadFiles>
-  -->
-
   <Variables>
 	
 		<!-- Difficulty factors - applied to things like Enemy units (large than 1.0 is OK) -->
@@ -319,11 +310,11 @@
       <AddText Version = "De' " />
       
 
-      <AddText Change_Tune = "Next Tune" />
-      <AddText ControlsPopMessage = "View Controls (not yet configurable)" />
-      <AddText CreditsPopMessage = "View Credits" />
+      <AddText Change_Tune = "veb QoQ" />
+      <AddText ControlsPopMessage = "jIH 'agh, cha' (yIHmey lI'be')" />
+      <AddText CreditsPopMessage = "jIH chav" />
 
-      <AddText download_extra_music = "download extra music" />
+      <AddText download_extra_music = "Suq QoQ" />
 
 
       <AddText DownloadExtraMusicPopUpMessage = "see 'GameConfiguration.xml' to add more, Mod/Ogg vorbis files supported" />
