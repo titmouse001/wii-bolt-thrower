@@ -5,13 +5,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-
 static const std::string s_ReleaseVersion("0.59");
 static const std::string s_DateOfRelease("Oct 2011");
-
 static const float s_fVersion( atof( s_ReleaseVersion.c_str() ) );
-
-
 
 //--------------------------------------------------------------------------------------------------------------
 // NOTE 1:
@@ -34,9 +30,9 @@ static const float s_fVersion( atof( s_ReleaseVersion.c_str() ) );
 //
 //--------------------------------------------------------------------------------------------------------------
 
-#define LAUNCH_VIA_WIISEND 
+//#define LAUNCH_VIA_WIISEND 
 //#define LAUNCH_VIA_WII_EMULATOR 
-//#define LAUNCH_VIA_WII	
+#define LAUNCH_VIA_WII	
 
 
 #ifdef LAUNCH_VIA_WIISEND
