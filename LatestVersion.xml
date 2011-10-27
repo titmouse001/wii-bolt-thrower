@@ -17,15 +17,15 @@
     <!-- so FullDownloadPath="newdir1/boot.dol" is ok, FullDownloadPath="newdir1/newdir2/boot.dol" will fail without using care -->
     
 		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.60/boot.dol"
-					    FullDownloadPath="/" 
+					    FullDownloadPath="//" 
               OverwriteExistingFile="YES"/>
 
     <AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.60/meta.xml"
-          FullDownloadPath="/"
+          FullDownloadPath="//"
           OverwriteExistingFile="YES"/>
 
     <AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.60/icon.png"
-          FullDownloadPath="/"
+          FullDownloadPath="//"
           OverwriteExistingFile="YES"/>
 					
 	</Updates>
