@@ -126,8 +126,7 @@ UpdateManager::UpdateManager():
 void UpdateManager::Init()
 {
 	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
-	// default message - may get overwritten later
-	m_MessageVersionReport = rWiiManager.GetText("Running lastest version ")  + s_ReleaseVersion + " - " + s_DateOfRelease;
+
 }
 
 void UpdateManager::DoUpdate()
@@ -210,7 +209,7 @@ bool UpdateManager::CheckForUpdate()
 	u8* ptestdata = (u8*) malloc (sizeof(char) * FileSize);
 	size_t TestSize = fread (ptestdata,1,FileSize,pFile);
 #else
-	pURLManager->GetFromURI( CreateString() ); // Send a GET to google analytics and just throw the get away
+	pURLManager->GetFromURI( CreateString() ); // Send to google analytics
 	// pURLManager->SaveURI("http://wii-bolt-thrower.googlecode.com/hg/LatestVersion.xml",WiiFile::GetGamePath() );
 	MemoryInfo* pData(pURLManager->GetFromURI("http://wii-bolt-thrower.googlecode.com/hg/LatestVersion.xml"));
 #endif

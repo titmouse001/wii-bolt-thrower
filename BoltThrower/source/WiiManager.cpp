@@ -161,19 +161,20 @@ void WiiManager::InitWii()
 	InitGX();
 	SetUp3DProjection();
 
-
 	// XML configuration - this places sections of data into specificly named containers found in the code
 	CreateSettingsFromXmlConfiguration(WiiFile::GetGamePath() + "GameConfiguration.xml");
 
 	FinaliseInputDevices();  // maybe do this first? but has dependancy on screen size
 	//maybe do kind of part1 and part2 of this, that way the wiimote can get up and going sooner????
 
-	int Timeout( GetXmlVariable( HashString::WiiMoteIdleTimeoutInSeconds ) );
-	if (Timeout>0)
+	if (! m_VariablesContainer.empty())
 	{
-		WPAD_SetIdleTimeout(Timeout); 
+		int Timeout( GetXmlVariable( HashString::WiiMoteIdleTimeoutInSeconds) );
+		if ( Timeout > 0 )
+		{
+			WPAD_SetIdleTimeout(Timeout); 
+		}
 	}
-
 }
 
 GXRModeObj* WiiManager::GetBestVideoMode()
@@ -227,8 +228,7 @@ void WiiManager::InitGX(u32 GXFifoBufferSize)
 		m_gp_fifo = (u32*)memalign(32, GXFifoBufferSize);
 		memset(m_gp_fifo, 0, GXFifoBufferSize);
 		GX_Init(m_gp_fifo, GXFifoBufferSize);
-
-		printf ("using %d for GX Fifo",GXFifoBufferSize);
+		//printf ("using %d for GX Fifo",GXFifoBufferSize);
 	}
 
 	VIDEO_Flush(); // Apply hardware changes
@@ -827,8 +827,8 @@ void WiiManager::InitGameResources()
 		GetFontManager()->LoadFont(WiiFile::GetGamePath() + Iter->FileName, Iter->LogicName);
 	}
 	
-//	GetCamera()->InitialiseCamera();
-//	GetGameDisplay()->DisplaySimpleMessage("Loading...");
+	GetCamera()->InitialiseCamera();
+	GetGameDisplay()->DisplaySmallSimpleMessage("Loading...");
 
 	// *** Add 3D Objects -  Lightwave 3d Objects, LWO ***
 	for ( vector<FileInfo>::iterator Iter( GetLwoInfoBegin());	Iter !=  GetLwoInfoEnd() ; ++Iter )
@@ -1158,6 +1158,9 @@ void WiiManager::BuildMenus(bool KeepSettings)
 
 	GetMenuManager()->SetMenuGroup( Group );
 
+	// From now on text loaded and available - call to CreateSettingsFromXmlConfiguration is needed first
+	// default message - may get overwritten later
+	GetUpdateManager()->SetMessageVersionReport( GetText("RunningLatestVersion")  + s_ReleaseVersion + " - " + s_DateOfRelease );
 }
 
 void WiiManager::SetFrustumView(int w, int h) 
@@ -1275,6 +1278,16 @@ float WiiManager::ApplyDifficultyFactor(float Value)
 	return Value;
 }
 
+string WiiManager::GetText(string Name)
+{
+	if (m_SupportedLanguages.empty())
+		return "-";
+
+	//printf(Name.c_str());
+	map< string, string >* ptr( &m_SupportedLanguages[m_Language] );
+//	printf((*ptr)[Name].c_str());
+	return (*ptr)[Name]; // todo  ... some checking needed here
+}
 
 //int WiiManager::GetSizeOfDownloadInfoContainer() { return m_DownloadinfoContainer.size(); }
 

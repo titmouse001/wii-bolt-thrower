@@ -234,7 +234,7 @@ MemoryInfo* URLManager::GetFromURI(string URI)
 			ss << std::hex << chunkedValue; 
 			ss >> BodyBytes; 
 			// adjust header size to skip this chunk later
-			HeaderLength += Data.length();
+			HeaderLength += chunkedValue.length() + 2;  // +2 for the "\r\n"   (FIXED- was looking at data length)
 		}
 		else
 			BodyBytes = (TotalReceived - HeaderLength); // in-case we are missing "Content-Length: " from the header section

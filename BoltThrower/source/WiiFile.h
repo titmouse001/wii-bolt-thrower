@@ -58,6 +58,8 @@ namespace WiiFile
 	string	ReadString(FILE* pFile);
 
 	string	GetFileNameWithoutPath(string FullFileName);
+	string	GetPathFromFullFileName(string FullFileName);
+
 	
 	void	WriteInt32( s32 val,FILE* pFile);
 	void	WriteInt16( s16 val,FILE* pFile);

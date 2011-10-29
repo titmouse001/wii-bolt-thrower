@@ -21,10 +21,10 @@ public:
 	void DisplaySmallSimpleMessage(std::string Text);
 
 	void DisplayMoon();
-
+	void DebugInformation();
 private:
 
-	void DebugInformation();
+
 
 	void DisplayPickUps();
 	void DisplayShieldGenerators();

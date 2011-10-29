@@ -167,6 +167,8 @@ void MenuScreens::DoMenuScreen()
 			WiiMote->z, 255, 0) ; //GetPlrVessel()->GetFacingDirection() );
 	}
 
+	m_pWii->GetGameDisplay()->DebugInformation();
+
 	//GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
 	//m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
 
@@ -252,7 +254,8 @@ void MenuScreens::DoControlsScreen()
 		// "PRESS A TO CONTINUE" 
 		m_pWii->GetFontManager()->DisplayTextCentre(m_pWii->GetText("PressButtonAToContinueMessage"),0,200.0f,50 + fabs(cos(wobble)*60.0f),HashString::LargeFont);
 	}
-	
+
+
 	GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
 	m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
 }

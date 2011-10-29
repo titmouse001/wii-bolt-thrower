@@ -4,6 +4,10 @@
 #include "debug.h"
 #include "ogcsys.h"
 #include "Util.h"
+#include "Config.h"
+
+#include "Singleton.h"
+#include "WiiManager.h"
 
 #include <sys/dir.h>
 #include <dirent.h>
@@ -39,12 +43,19 @@ std::string WiiFile::GetGameMusicPath()
 std::string WiiFile::GetGamePath()
 {
 #ifdef BUILD_FINAL_RELEASE 
-	std::string TempGamePath = ""; //  Final build - use path relative to the executable
+	std::string TempGamePath = Singleton<WiiManager>::GetInstanceByRef().m_ExePath; //  Final build - use path relative to the executable
 #else 
 	std::string TempGamePath = "sd:/apps/BoltThrower/"; // debug only
 #endif
-	
+//	
+//#ifdef BUILD_FINAL_RELEASE 
+//	std::string TempGamePath = ""; //  Final build - use path relative to the executable
+//#else 
+//	std::string TempGamePath = "sd:/apps/BoltThrower/"; // debug only
+//#endif
+
 	return TempGamePath;
+
 }
 
 void WiiFile::InitFileSystem()
@@ -75,8 +86,6 @@ FILE* WiiFile::FileOpenForRead(const char* const pFileName)
 //	const char* name; 
 //	char* label;
 //	fatGetVolumeLabel(name, label);
-//	printf("%s , %s\n]",name,label);
-
 
 	FILE* pFile(fopen(pFileName,"rb"));
 	if (pFile == NULL)
@@ -85,10 +94,10 @@ FILE* WiiFile::FileOpenForRead(const char* const pFileName)
 		Util::SleepForMilisec(1000*3);   
 		exit(1);
 	}
-//	else
-//	{
-//		printf("loading... '%s'\n",pFileName);
-//	}
+	else
+	{
+		printf("loading... '%s'\n",pFileName);
+	}
 
 	return pFile;
 }
@@ -198,12 +207,29 @@ void WiiFile::WriteInt16(s16 Value, FILE* pFile)
 		exit(1);
 }
 
+
+string	WiiFile::GetPathFromFullFileName(string FullFileName)
+{
+	size_t Pos( FullFileName.rfind("/") );
+	if (Pos != string::npos)
+		return FullFileName.substr(0, Pos + 1);
+	else
+		return FullFileName;
+}
+
 string	WiiFile::GetFileNameWithoutPath(string FullFileName)
 {
-	size_t Pos( FullFileName.rfind("/") + 1 );
-	size_t Length( FullFileName.length() - Pos );
-	return FullFileName.substr(Pos, Length)	;
+	size_t Pos( FullFileName.rfind("/") );
+	if (Pos != string::npos)
+	{
+		Pos+=1;
+		size_t Length( FullFileName.length() - Pos );
+		return FullFileName.substr(Pos, Length)	;
+	}
+	else
+		return FullFileName;
 }
+
 
 void WiiFile::GetFolderFileNames(string Path, vector<FileInfo>* rMusicFilesContainer)
 {

@@ -963,6 +963,10 @@ void GameDisplay::DisplaySmallSimpleMessage(std::string Text)
 
 	int TextWidth( m_pWii->GetFontManager()->GetTextWidth(Text) );
 	f32 w = TextWidth;
+
+	if (w<640)
+		w=640;
+
 	float Fov = 45.0f;
 	float triangle = 90.0f - (Fov * 0.5f); 
 	float rads = triangle * (M_PI/180.0f);
@@ -971,8 +975,8 @@ void GameDisplay::DisplaySmallSimpleMessage(std::string Text)
 	if (CameraHeight > m_pWii->GetCamera()->GetCamZ())
 		m_pWii->GetCamera()->SetCameraView(0,0,-CameraHeight);
 	
-	if (w<640.0f)
-		w=640.0f;
+//	if (w<640.0f)
+//		w=640.0f;
 
 	Util3D::Trans(0,0);
 	for (int i=0 ;i<2; ++i)

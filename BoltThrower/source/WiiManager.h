@@ -245,15 +245,7 @@ public:
 
 	void SetLanguage(string Language) { m_Language = Language; }
 	string GetLanguage() { return m_Language; }
-	string GetText(string Name)
-	{
-		//printf(Name.c_str());
-		map< string, string >* ptr( &m_SupportedLanguages[m_Language] );
-	//	printf((*ptr)[Name].c_str());
-		return (*ptr)[Name]; // todo  ... some checking needed here
-	}
-
-
+	string GetText(string Name);
 	void ScanMusicFolder();
 	void NextMusic();
 	void PlayMusic();
@@ -266,6 +258,7 @@ public:
 
 	vector<FileInfo> m_MusicFilesContainer;
 
+	string	m_ExePath;
 
 private:
 	

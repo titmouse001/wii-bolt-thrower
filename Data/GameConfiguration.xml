@@ -245,7 +245,8 @@
 
       <AddText DownloadExtraMusicPopUpMessage = "see 'GameConfiguration.xml' to add more, Mod/Ogg vorbis files supported" />
 
-
+      <AddText RunningLatestVersion = "Running lastest version " />
+      
     </English>
 
     <Klingon>
@@ -309,7 +310,7 @@
       <AddText IntroPopUpMessage = "chIj QI'lop jIH" />
       <AddText Version = "De' " />
       
-
+  
       <AddText Change_Tune = "veb QoQ" />
       <AddText ControlsPopMessage = "jIH 'agh, cha' (yIHmey lI'be')" />
       <AddText CreditsPopMessage = "jIH chav" />
@@ -319,6 +320,8 @@
 
       <AddText DownloadExtraMusicPopUpMessage = "see 'GameConfiguration.xml' to add more, Mod/Ogg vorbis files supported" />
 
+      <AddText RunningLatestVersion = "" />
+      
     </Klingon>
 
     <!-- character set net yet supported-->

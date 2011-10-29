@@ -2,75 +2,53 @@
 // To turn on/off visual indicators of whitespace in Visual Studio, use the keyboard chord (Ctrl-R, Ctrl-W) 
 
 #include <gccore.h>
+#include <sys/dir.h>
 #include "config.h"
 #include "Singleton.h"
 #include "WiiManager.h"
-#include "Image.h"
-#include "InputDeviceManager.h"
-#include "GameLogic.h"
-#include "Menu.h"
 #include "debug.h"
-#include "Util.h"
 #include "Util3d.h"
 #include "HashString.h"
-#include <math.h>
 #include "WiiFile.h"
-#include <asndlib.h>
-#include <gcmodplay.h>
-#include "FontMAnager.h"
+#include "FontManager.h"
 #include "ImageManager.h"
-#include "SoundManager.h"
-#include "JPEGDEC.h"
 #include "Image.h"
 #include "GameDisplay.h"
 #include "MenuScreens.h"
-#include <network.h>
-#include  "URIManager.h"
-#include <ogc/machine/processor.h>
-#include <ogc/lwp_watchdog.h>
-#include "ogc/lwp.h"
-#include <ogcsys.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include  "vessel.h"
-#include "oggplayer/oggplayer.h"
-#include  "SetupGame.h"
-#include  "util.h"
-#include "TinyXML/TinyXML.h"
-#include "MessageBox.h"
+#include "URIManager.h"
+#include "SetupGame.h"
 #include "UpdateManager.h"
-
-#include "CullFrustum\Vec3.h"
-#include "CullFrustum\FrustumR.h"
-
-
-// TO DO - move any testing/dowload code out of here...
-
 
 bool DownloadFilesListedInConfiguration(bool MisssingCheckOnly = false);
 
 string CreateHashString(string domain);
 
 extern "C" {  extern void __exception_setreload(int t); }
-int main(int /* argc */, char** /* argv */) 
+int main(int /* argc */, char**  argv ) 
 {	
 	__exception_setreload(6);
 	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
 
-	//printf( CreateHashString("code.google.com").c_str() );
-	//exit(1);
-
+	if (argv[0]!=NULL)
+		rWiiManager.m_ExePath = WiiFile::GetPathFromFullFileName( argv[0] ) ;
+	else
+		rWiiManager.m_ExePath ="";
+	
 	rWiiManager.InitWii();
+
+	//printf( CreateHashString("code.google.com").c_str() );
 
 	rWiiManager.InitGameResources();
 	rWiiManager.GetCamera()->InitialiseCamera(); // 3D View
 
+#if (1)
 	//-------------------------------------------------
 	rWiiManager.GetUpdateManager()->DoUpdate();
 	//-------------------------------------------------
-	// hack - check for any missing downloads like extra music
-	rWiiManager.m_MusicStillLeftToDownLoad = DownloadFilesListedInConfiguration(true);
+	// Check for any missing downloads like extra music - from DownloadFiles section in the "configurtion.xml" file
+	rWiiManager.m_MusicStillLeftToDownLoad = DownloadFilesListedInConfiguration(true); // true so SCAN ONLY
 	//-------------------------------------------------
+#endif
 
 	rWiiManager.GetSetUpGame()->MainLoop();
 	rWiiManager.GetGameDisplay()->DisplaySimpleMessage(rWiiManager.GetText("QuitMessage"));
