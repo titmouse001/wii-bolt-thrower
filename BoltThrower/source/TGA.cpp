@@ -139,17 +139,17 @@ bool Tga::CheckTGAIsSupported(TGA_HEADER& TgaHeader)
 	bool bError(false);
 	if (TgaHeader.datatypecode != 2 && TgaHeader.datatypecode != 10) 
 	{
-		printf("image type %d not supported\n",TgaHeader.datatypecode);
+		//printf("image type %d not supported\n",TgaHeader.datatypecode);
 		bError = true;
 	}
 	if (TgaHeader.bitsperpixel != 16 && TgaHeader.bitsperpixel != 24 && TgaHeader.bitsperpixel != 32) 
 	{
-		printf("depth %d not supported\n",TgaHeader.bitsperpixel);
+		//printf("depth %d not supported\n",TgaHeader.bitsperpixel);
 		bError = true;
 	}
 	if (TgaHeader.colourmaptype != 0 && TgaHeader.colourmaptype != 1) 
 	{
-		printf("colour map type %d not supported\n",TgaHeader.colourmaptype);
+		//printf("colour map type %d not supported\n",TgaHeader.colourmaptype);
 		bError = true;
 	}
 

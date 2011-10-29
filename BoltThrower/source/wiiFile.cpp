@@ -90,14 +90,14 @@ FILE* WiiFile::FileOpenForRead(const char* const pFileName)
 	FILE* pFile(fopen(pFileName,"rb"));
 	if (pFile == NULL)
 	{
-		printf("file not found '%s'\n",pFileName);
+		//printf("file not found '%s'\n",pFileName);
 		Util::SleepForMilisec(1000*3);   
 		exit(1);
 	}
-	else
-	{
-		printf("loading... '%s'\n",pFileName);
-	}
+//	else
+//	{
+//		printf("loading... '%s'\n",pFileName);
+//	}
 
 	return pFile;
 }
@@ -233,6 +233,9 @@ string	WiiFile::GetFileNameWithoutPath(string FullFileName)
 
 void WiiFile::GetFolderFileNames(string Path, vector<FileInfo>* rMusicFilesContainer)
 {
+	if ( !WiiFile::CheckFileExist(Path) )
+		return;
+
 	DIR* pdir( opendir(Path.c_str()) );
 	if (pdir != NULL)
 	{

@@ -168,8 +168,8 @@
 	</Graphics>	
 	
 	<Fonts>
-		<AddFont Name="LargeFont" FileName="fonts/Bauhaus93-latin"/>	
-		<AddFont Name="SmallFont" FileName="fonts/Arial-latin"/>
+    <AddFont Name="SmallFont" FileName="fonts/Arial-latin"/>
+    <AddFont Name="LargeFont" FileName="fonts/Bauhaus93-latin"/>	
 	</Fonts>
 
   <Languages>
@@ -233,7 +233,7 @@
       <AddText Credits15 = "TAG-END" />
       
       <AddText OptionsPopUpMessage = "Change various settings like the Difficulty" />
-      <AddText Start_GamePopUpMessage = "Play game - Difficulty " />
+      <AddText Start_GamePopUpMessage = "Play game" />
       <AddText IntroPopUpMessage = "Navigate me to the intro screen" />
       <AddText Version = "Version " />
 
@@ -245,7 +245,8 @@
 
       <AddText DownloadExtraMusicPopUpMessage = "see 'GameConfiguration.xml' to add more, Mod/Ogg vorbis files supported" />
 
-
+      <AddText RunningLatestVersion = "Running lastest version " />
+      
     </English>
 
     <Klingon>
@@ -305,20 +306,22 @@
       <AddText Credits15 = "TAG-END" />
 
       <AddText OptionsPopUpMessage = "choH SeH" />
-      <AddText Start_GamePopUpMessage = "Quj - Qatlh " />
+      <AddText Start_GamePopUpMessage = "Quj" />
       <AddText IntroPopUpMessage = "chIj QI'lop jIH" />
       <AddText Version = "De' " />
       
+  
+      <AddText Change_Tune = "veb QoQ" />
+      <AddText ControlsPopMessage = "jIH 'agh, cha' (yIHmey lI'be')" />
+      <AddText CreditsPopMessage = "jIH chav" />
 
-      <AddText Change_Tune = "Next Tune" />
-      <AddText ControlsPopMessage = "View Controls (not yet configurable)" />
-      <AddText CreditsPopMessage = "View Credits" />
-
-      <AddText download_extra_music = "download extra music" />
+      <AddText download_extra_music = "Suq QoQ" />
 
 
       <AddText DownloadExtraMusicPopUpMessage = "see 'GameConfiguration.xml' to add more, Mod/Ogg vorbis files supported" />
 
+      <AddText RunningLatestVersion = "" />
+      
     </Klingon>
 
     <!-- character set net yet supported-->

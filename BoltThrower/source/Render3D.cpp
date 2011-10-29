@@ -58,7 +58,7 @@ void Render3D::CreateDisplayList(std::string ModelName)
 	int dispSize = GX_EndDispList();
 	int size = dispSize+31; // +31 - read somewhere this was needed as a work around... not tried it without yet so may not even be true.
 
-	printf("%s: 3D buffer memory %d for copying %d",ModelName.c_str() , MAXDISPLAYSIZE , size);
+	//printf("%s: 3D buffer memory %d for copying %d",ModelName.c_str() , MAXDISPLAYSIZE , size);
 	if (size > MAXDISPLAYSIZE)
 		ExitPrintf("More buffer memory needed, using %d but need %d", MAXDISPLAYSIZE , size);
 
@@ -379,8 +379,8 @@ Object3D* Render3D::Add3DObject(std::string FullFileName, bool bSmooth3DObject, 
 					TempPoly.RemovePoint(1); 
 
 
-					if (IndexLayerForBones!=-1)
-						printf("PolygonNum %d",PolygonNum);
+				//	if (IndexLayerForBones!=-1)
+				//		printf("PolygonNum %d",PolygonNum);
 				}
 			}
 		}

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static const std::string s_ReleaseVersion("0.59");
+static const std::string s_ReleaseVersion("0.60");
 static const std::string s_DateOfRelease("Oct 2011");
 static const float s_fVersion( atof( s_ReleaseVersion.c_str() ) );
 

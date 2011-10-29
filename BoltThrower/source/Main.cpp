@@ -60,42 +60,46 @@ int main(int /* argc */, char**  argv )
 bool DownloadFilesListedInConfiguration(bool MisssingCheckOnly)
 {
 	URLManager* pURLManager( new URLManager );
-	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
-	rWiiManager.GetCamera()->SetCameraView(0,0) ;
-
-	// download missing files
-	for ( vector<FileInfo>::iterator Iter( rWiiManager.GetDownloadInfoBegin()); Iter !=  rWiiManager.GetDownloadInfoEnd() ; ++Iter )
+	if (pURLManager->m_Initialised)
 	{
-		string FullDownloadPath(WiiFile::GetGamePath() + Iter->FullDownloadPath );
-		string FullDownloadPathWithoutEndSlash = FullDownloadPath;
-		int n;
-		if ( ( n = FullDownloadPath.find_last_of("/") ) != std::string::npos )
-			FullDownloadPathWithoutEndSlash = FullDownloadPath.substr(0,FullDownloadPath.length()-n);
+		WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
+		rWiiManager.GetCamera()->SetCameraView(0,0) ;
 
-		string URI_FilePath ( Iter->LogicName.c_str() );
-		string FileName ( FullDownloadPath + WiiFile::GetFileNameWithoutPath( URI_FilePath ) );
-
-		if ( !(WiiFile::CheckFileExist(FileName)) )
+		// download missing files
+		for ( vector<FileInfo>::iterator Iter( rWiiManager.GetDownloadInfoBegin()); Iter !=  rWiiManager.GetDownloadInfoEnd() ; ++Iter )
 		{
-			if (MisssingCheckOnly)
-			{
-				return true;
-			}
-			else
-			{
-				if ( !(WiiFile::CheckFileExist(FullDownloadPathWithoutEndSlash)) )
-				{
-					mkdir(FullDownloadPathWithoutEndSlash.c_str(), 0777);
-				}
+			string FullDownloadPath(WiiFile::GetGamePath() + Iter->FullDownloadPath );
+			string FullDownloadPathWithoutEndSlash = FullDownloadPath.substr(0,FullDownloadPath.rfind("/"));
 
-				rWiiManager.GetGameDisplay()->DisplaySmallSimpleMessage("downloading " + URI_FilePath);
-				pURLManager->SaveURI(URI_FilePath , FullDownloadPath );
+			string URI_FilePath ( Iter->LogicName.c_str() );
+			string FileName ( FullDownloadPath + WiiFile::GetFileNameWithoutPath( URI_FilePath ) );
+
+			if ( !(WiiFile::CheckFileExist(FileName)) )
+			{
+				if (MisssingCheckOnly)
+				{
+					return true;
+				}
+				else
+				{
+					if ( !(WiiFile::CheckFileExist(FullDownloadPathWithoutEndSlash)) )
+					{
+						mkdir(FullDownloadPathWithoutEndSlash.c_str(), 0777);
+					}
+
+					//rWiiManager.GetGameDisplay()->DisplaySmallSimpleMessage("MK DIR " + FullDownloadPathWithoutEndSlash);
+					rWiiManager.GetGameDisplay()->DisplaySmallSimpleMessage(" downloading "+ URI_FilePath);
+					if ( ! pURLManager->SaveURI(URI_FilePath , FullDownloadPath ) )
+						rWiiManager.GetGameDisplay()->DisplaySmallSimpleMessage("Not Found "+ URI_FilePath);
+				}
 			}
 		}
-	}
+		
+		//Refresh music list - my have just download something
+		rWiiManager.ScanMusicFolder();
 
-	//Refresh music list - my have just download something
-	rWiiManager.ScanMusicFolder();
+	}
+	delete pURLManager;
 	return false;
 }
 

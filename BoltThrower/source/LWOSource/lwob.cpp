@@ -457,7 +457,7 @@ lwSurface *lwGetSurface5( FILE *fp, int cksize, lwObject *obj )
 
 			// shdr is not initialised, this does not look good???
 
-			 printf("shdr is not initialised");
+			// printf("shdr is not initialised");
 			 exit(1);
 
             shdr->data = getbytes( fp, sz );

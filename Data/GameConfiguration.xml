@@ -168,8 +168,8 @@
 	</Graphics>	
 	
 	<Fonts>
-		<AddFont Name="LargeFont" FileName="fonts/Bauhaus93-latin"/>	
-		<AddFont Name="SmallFont" FileName="fonts/Arial-latin"/>
+    <AddFont Name="SmallFont" FileName="fonts/Arial-latin"/>
+    <AddFont Name="LargeFont" FileName="fonts/Bauhaus93-latin"/>	
 	</Fonts>
 
   <Languages>
@@ -233,7 +233,7 @@
       <AddText Credits15 = "TAG-END" />
       
       <AddText OptionsPopUpMessage = "Change various settings like the Difficulty" />
-      <AddText Start_GamePopUpMessage = "Play game - Difficulty " />
+      <AddText Start_GamePopUpMessage = "Play game" />
       <AddText IntroPopUpMessage = "Navigate me to the intro screen" />
       <AddText Version = "Version " />
 
@@ -306,7 +306,7 @@
       <AddText Credits15 = "TAG-END" />
 
       <AddText OptionsPopUpMessage = "choH SeH" />
-      <AddText Start_GamePopUpMessage = "Quj - Qatlh " />
+      <AddText Start_GamePopUpMessage = "Quj" />
       <AddText IntroPopUpMessage = "chIj QI'lop jIH" />
       <AddText Version = "De' " />
       

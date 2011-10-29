@@ -19,6 +19,8 @@
 #include <string.h>
 
 
+#include "debug.h"
+
 
 int CreateHash(string domain) 
 {		
@@ -155,10 +157,7 @@ void  UpdateManager::UpdateApplicationFiles( )
 		Iter !=  m_ApplicationSpecificUpdatesForDownloadFileInfoContainer.end() ; ++Iter )
 	{
 		string FullDownloadPath(WiiFile::GetGamePath() + Iter->FullDownloadPath );
-		string FullDownloadPathWithoutEndSlash = FullDownloadPath;
-		int n;
-		if ( ( n = FullDownloadPath.find_last_of("/") ) != std::string::npos )
-			FullDownloadPathWithoutEndSlash = FullDownloadPath.substr(0,FullDownloadPath.length()-n);
+		string FullDownloadPathWithoutEndSlash = FullDownloadPath.substr(0,FullDownloadPath.rfind("/"));
 
 		string URI_FilePath ( Iter->LogicName.c_str() );
 		string FileName ( FullDownloadPath + WiiFile::GetFileNameWithoutPath( URI_FilePath ) );
@@ -179,9 +178,10 @@ void  UpdateManager::UpdateApplicationFiles( )
 			{
 				mkdir(FullDownloadPathWithoutEndSlash.c_str(), 0777);
 			}
-
+			//rWiiManager.GetGameDisplay()->DisplaySmallSimpleMessage("MK DIR " + FullDownloadPathWithoutEndSlash);
 			rWiiManager.GetGameDisplay()->DisplaySmallSimpleMessage("downloading " + URI_FilePath);
-			pURLManager->SaveURI(URI_FilePath , FullDownloadPath );
+			if (! pURLManager->SaveURI(URI_FilePath , FullDownloadPath ) )
+				rWiiManager.GetGameDisplay()->DisplaySmallSimpleMessage("Not Found "+ URI_FilePath);
 		}
 	}
 	delete pURLManager;
@@ -192,8 +192,11 @@ bool UpdateManager::CheckForUpdate()
 	bool Report( false );
 
 	URLManager* pURLManager( new URLManager );
-	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
-	rWiiManager.GetCamera()->SetCameraView(0,0) ;
+
+	if (pURLManager->m_Initialised)
+	{
+		WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
+		rWiiManager.GetCamera()->SetCameraView(0,0) ;
 
 #define TEST_FROM_FILE (0)
 
@@ -201,76 +204,76 @@ bool UpdateManager::CheckForUpdate()
 
 #warning *** DONT FORGET TO CHANGE 'TEST_FROM_FILE' DEFINE FOR RELEASE BUILDS ***
 
-	// TEST CODE - usefull when testing from emulator (from file rather than http site)
-	FILE* pFile( WiiFile::FileOpenForRead( WiiFile::GetGamePath() +  "LatestVersion.xml" )  );
-	fseek (pFile , 0, SEEK_END);
-	uint FileSize( ftell (pFile) );
-	rewind(pFile); 
-	u8* ptestdata = (u8*) malloc (sizeof(char) * FileSize);
-	size_t TestSize = fread (ptestdata,1,FileSize,pFile);
+		// TEST CODE - usefull when testing from emulator (from file rather than http site)
+		FILE* pFile( WiiFile::FileOpenForRead( WiiFile::GetGamePath() +  "LatestVersion.xml" )  );
+		fseek (pFile , 0, SEEK_END);
+		uint FileSize( ftell (pFile) );
+		rewind(pFile); 
+		u8* ptestdata = (u8*) malloc (sizeof(char) * FileSize);
+		size_t TestSize = fread (ptestdata,1,FileSize,pFile);
 #else
-	pURLManager->GetFromURI( CreateString() ); // Send to google analytics
-	// pURLManager->SaveURI("http://wii-bolt-thrower.googlecode.com/hg/LatestVersion.xml",WiiFile::GetGamePath() );
-	MemoryInfo* pData(pURLManager->GetFromURI("http://wii-bolt-thrower.googlecode.com/hg/LatestVersion.xml"));
+		pURLManager->GetFromURI( CreateString() ); // google analytics
+		// pURLManager->SaveURI("http://wii-bolt-thrower.googlecode.com/hg/LatestVersion.xml",WiiFile::GetGamePath() );
+		MemoryInfo* pData(pURLManager->GetFromURI("http://wii-bolt-thrower.googlecode.com/hg/LatestVersion.xml"));
 #endif
-
-	TiXmlDocument doc;
+		TiXmlDocument doc;
 #if (TEST_FROM_FILE==1)
-	if ( doc.LoadMem( (char*) ptestdata, TestSize ) )
+		if ( doc.LoadMem( (char*) ptestdata, TestSize ) )
 #else
-	if ( doc.LoadMem( (char*)pData->GetData(), pData->GetSize() ) )   // from file test 
+		if ( ( pData!=NULL ) && 
+			 ( doc.LoadMem( (char*)pData->GetData(), pData->GetSize() ) ) )   // from file test 
 #endif
-	{
-		//Check version number
-		TiXmlHandle docHandle( &doc );
-		TiXmlHandle Data( docHandle.FirstChild( "Data" ) );
-		if (Data.Element() != NULL)  // check for valid xml root
 		{
-
-			//-----------------------------------------------------------------------------------------
-			TiXmlElement* Updates =  Data.FirstChild( "Updates" ).FirstChildElement().ToElement();
-			for( TiXmlElement* pElement(Updates); pElement!=NULL; pElement=pElement->NextSiblingElement() )
+			//Check version number
+			TiXmlHandle docHandle( &doc );
+			TiXmlHandle Data( docHandle.FirstChild( "Data" ) );
+			if (Data.Element() != NULL)  // check for valid xml root
 			{
-				string Key(pElement->Value());
-				if (Key=="AddFile") 
-				{		
-					if ( (pElement->Attribute("URI")!=0) && (pElement->Attribute("FullDownloadPath")!=0) )
-					{
-						FileInfo Info( pElement->Attribute("URI"), Util::urlDecode( pElement->Attribute("URI") ) );
-						Info.FullDownloadPath = pElement->Attribute("FullDownloadPath");
-						Info.OverwriteExistingFile = "YES";
-						if ( pElement->Attribute("OverwriteExistingFile") != 0 ) 
-							Info.OverwriteExistingFile = pElement->Attribute("OverwriteExistingFile");
 
-						m_ApplicationSpecificUpdatesForDownloadFileInfoContainer.push_back( Info );
+				//-----------------------------------------------------------------------------------------
+				TiXmlElement* Updates =  Data.FirstChild( "Updates" ).FirstChildElement().ToElement();
+				for( TiXmlElement* pElement(Updates); pElement!=NULL; pElement=pElement->NextSiblingElement() )
+				{
+					string Key(pElement->Value());
+					if (Key=="AddFile") 
+					{		
+						if ( (pElement->Attribute("URI")!=0) && (pElement->Attribute("FullDownloadPath")!=0) )
+						{
+							FileInfo Info( pElement->Attribute("URI"), Util::urlDecode( pElement->Attribute("URI") ) );
+							Info.FullDownloadPath = pElement->Attribute("FullDownloadPath");
+							Info.OverwriteExistingFile = "YES";
+							if ( pElement->Attribute("OverwriteExistingFile") != 0 ) 
+								Info.OverwriteExistingFile = pElement->Attribute("OverwriteExistingFile");
+
+							m_ApplicationSpecificUpdatesForDownloadFileInfoContainer.push_back( Info );
+						}
 					}
 				}
-			}
-			//-----------------------------------------------------------------------------------------
-			//string ReleaseNotesText;
-			TiXmlElement* Notes =  Data.FirstChild( "ReleaseNotes" ).ToElement();
-			if (Notes != NULL)
-			{
-				m_ReleaseNotes = Notes->GetText();
-			}
-			//-----------------------------------------------------------------------------------------
-			TiXmlElement* pElem=Data.FirstChild("LatestReleaseAvailable").Element();
-			if (pElem != NULL)
-			{
-				m_LatestReleaseAvailable = pElem->GetText();
-				float fLatestReleaseAvailable =  atof(m_LatestReleaseAvailable.c_str());
-				if ( fLatestReleaseAvailable > s_fVersion )
+				//-----------------------------------------------------------------------------------------
+				//string ReleaseNotesText;
+				TiXmlElement* Notes =  Data.FirstChild( "ReleaseNotes" ).ToElement();
+				if (Notes != NULL)
 				{
-					Report = true;
-					//	DisplayUpdateMessage(m_ReleaseNotes, m_LatestReleaseAvailable + " Available");
-
-					m_MessageVersionReport = "ver " + m_LatestReleaseAvailable + " now available, visit http://wiibrew.org/wiki/BoltThrower";
+					m_ReleaseNotes = Notes->GetText();
 				}
+				//-----------------------------------------------------------------------------------------
+				TiXmlElement* pElem=Data.FirstChild("LatestReleaseAvailable").Element();
+				if (pElem != NULL)
+				{
+					m_LatestReleaseAvailable = pElem->GetText();
+					float fLatestReleaseAvailable =  atof(m_LatestReleaseAvailable.c_str());
+					if ( fLatestReleaseAvailable > s_fVersion )
+					{
+						Report = true;
+						//	DisplayUpdateMessage(m_ReleaseNotes, m_LatestReleaseAvailable + " Available");
+
+						m_MessageVersionReport = "ver " + m_LatestReleaseAvailable + " now available, visit http://wiibrew.org/wiki/BoltThrower";
+					}
+				}
+				//-----------------------------------------------------------------------------------------
 			}
-			//-----------------------------------------------------------------------------------------
 		}
 	}
-
 	delete pURLManager;
 
 	return Report;

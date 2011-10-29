@@ -12,7 +12,7 @@
 #include "HashString.h"
 #include "mission.h"
 #include "MessageBox.h"
-
+#include "config.h"
 
 
 using namespace std;
@@ -982,7 +982,7 @@ void GameDisplay::DisplaySmallSimpleMessage(std::string Text)
 	for (int i=0 ;i<2; ++i)
 	{	
 		m_pWii->DrawRectangle(-w*0.5f,-240,w,480,255 
-						 ,0,0,0, 
+						 ,0,0,10, 
 						 0,0,40);
 
 		m_pWii->GetFontManager()->DisplayTextCentre(Text, 0,0,255,HashString::SmallFont);

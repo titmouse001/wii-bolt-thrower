@@ -15,15 +15,24 @@
 
 URLManager::URLManager()
 {
+
 	char IP[16]; // i.e. room for 255.255.255.255 + NULL
 	// this calls net_init() in a nice way (must provide first param)
 	if ( if_config(IP, NULL, NULL, true) < 0 ) // throw away the IP result - don't need it
-		printf("if_config failed");
+	{
+		m_Initialised = false;
+		//printf("if_config failed");
+	}
+	else
+	{
+		m_Initialised = true;
+	}
 }
 
 URLManager::~URLManager()
 {
-	net_deinit();
+	if (m_Initialised)
+		net_deinit();
 }
 
 // URLManager section
@@ -76,25 +85,32 @@ string URLManager::CreateHttpRequest(const string& CommandWithSpace, const strin
 	// or the above could use an older http call with ... CommandWithSpace + URL + " HTTP/1.0\r\n\r\n";
 }
 
-void URLManager::SaveURI(string URI, string DestinationPath )
+bool URLManager::SaveURI(string URI, string DestinationPath )
 {
+	bool Found(false);
 //	printf("SaveURI");
 	MemoryInfo* pMeminfo( GetFromURI( URI ) );
 	if (pMeminfo!=NULL)
 	{
-		pMeminfo->SavePath( DestinationPath );
-		delete pMeminfo;
+		if ((pMeminfo->GetSize()!=0) && (pMeminfo->GetData()!=NULL))
+		{
+			pMeminfo->SavePath( DestinationPath );
+			Found = true;
+		}
 	}
-	else
-	{
-		ExitPrintf("%s URI NOT FOUND",URI.c_str());
-	}
+//	else
+//	{
+//		Found = false;
+//		//ExitPrintf("%s URI NOT FOUND",URI.c_str());
+//	}
+	delete pMeminfo;
+
+	return Found;
 }
 
 
 MemoryInfo* URLManager::GetFromURI(string URI)
 {
-	
 	string SiteName( GetHostNameFromUrl(URI) );
 	if (SiteName.empty())
 		return NULL;
@@ -215,6 +231,8 @@ MemoryInfo* URLManager::GetFromURI(string URI)
 	}
 	net_close(connection);
 
+	if (WorkingString.find("HTTP/1.1 200 OK") == string::npos)
+		return NULL;
 
 	static const int OrigialWasReduceByOneWhenANullWasAdded( 1 );
 	int HeaderLength = WorkingString.length() + OrigialWasReduceByOneWhenANullWasAdded;
@@ -294,10 +312,10 @@ void MemoryInfo::Save(string FullPathFileName)
 		fwrite (m_pData , 1 , m_uSize , pFile );
 		fclose (pFile);
 	}
-	else
-	{
-		printf("MemoryInfo failed to save anything");
-	}
+//	else
+//	{
+//		printf("MemoryInfo failed to save anything");
+//	}
 }
 
 

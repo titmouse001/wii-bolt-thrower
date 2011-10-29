@@ -19,14 +19,16 @@ public:
 	~URLManager();
 
 	MemoryInfo* GetFromURI(string URI);
-	void SaveURI(string URI, string DestinationPath = "c:\\" );
-
+	bool	SaveURI(string URI, string DestinationPath = "sd://" );  //""c:\\" );
+	bool	m_Initialised;
 private:
 	string	CreateHttpRequest(const string& CommandWithSpace, const string& Url);
 	string	GetHostNameFromUrl(const string& Url, const string& Match = "http://" );
 
 	int		GetValueFromHeaderLabel(string WorkingString, string Label);
 	string  GetStringFromHeaderLabel(string WorkingString, string Label);
+
+
 };
 
 class MemoryInfo

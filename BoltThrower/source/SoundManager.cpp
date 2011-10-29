@@ -232,11 +232,11 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 		pcm_total *= sizeof(u16);
 	}
 
-	printf("\nBitstream is %d channel, %ldHz\n",vi->channels,vi->rate);	
-	printf("\nDecoded length: %d samples\n",pcm_total);
-	printf("Encoded by: %s\n\n",ov_comment(&vf,-1)->vendor);
-	printf("channels: %d\n\n",vi->channels);
-	printf("pcm_total: %d\n\n", pcm_total );
+//	printf("\nBitstream is %d channel, %ldHz\n",vi->channels,vi->rate);	
+//	printf("\nDecoded length: %d samples\n",pcm_total);
+//	printf("Encoded by: %s\n\n",ov_comment(&vf,-1)->vendor);
+//	printf("channels: %d\n\n",vi->channels);
+//	printf("pcm_total: %d\n\n", pcm_total );
 
 	// Raw sound data
 	RawSample* pRawSample( new RawSample );
@@ -277,7 +277,7 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 
 		}
 	}
-	printf("CheckTotal  %d",pcm_total);
+//	printf("CheckTotal  %d",pcm_total);
 
 //	if (!ov_seekable(&vf))
 //		ExitPrintf("not seekable");
@@ -285,10 +285,10 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 
 	ov_clear(&vf);
 
-	printf("SampleRate  %d",SampleRate);
-	printf("SampleRate  %d",BitsPerSample);
-	printf("SampleRate  %d",NumberOfChannels);
-	printf("SampleRate  %d",pcm_total);
+//	printf("SampleRate  %d",SampleRate);
+//	printf("SampleRate  %d",BitsPerSample);
+//	printf("SampleRate  %d",NumberOfChannels);
+//	printf("SampleRate  %d",pcm_total);
 
 	//-------------------------------------------------------------
 	pRawSample->SetRawData(pRawData);

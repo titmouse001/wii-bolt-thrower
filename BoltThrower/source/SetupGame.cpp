@@ -140,6 +140,7 @@ void SetUpGame::Menus()
 					extern bool DownloadFilesListedInConfiguration(bool);
 					DownloadFilesListedInConfiguration(false);
 					m_pWii->m_MusicStillLeftToDownLoad = false;
+					m_pWii->BuildMenus(true);
 				}
 				else if (Name == HashString::Credits)
 				{
@@ -220,7 +221,8 @@ void SetUpGame::Menus()
 					m_pWii->GetMenuManager()->AdvanceMenuItemText(HashString::IngameMusicVolumeState);
 					m_pWii->SetIngameMusicVolume(m_pWii->GetMenuManager()->GetMenuItemIndex(HashString::IngameMusicVolumeState));
 
-					printf("%d",m_pWii->GetIngameMusicVolume());
+					//printf("%d",m_pWii->GetIngameMusicVolume());
+
 					if ( (m_pWii->GetIngameMusicVolume()==0) && (m_pWii->GetMusicEnabled()) )
 					{
 						m_pWii->SetMusicEnabled(false);

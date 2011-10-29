@@ -67,7 +67,8 @@ WiiManager::WiiManager() :
 							m_bMusicEnabled(true),
 							m_Difficulty("medium"),
 							m_MusicStillLeftToDownLoad(false),
-							m_IngameMusicVolume(3)
+							m_IngameMusicVolume(3),
+							m_pModuleTrackerData(NULL)
 { 
 	m_pFrameBuffer[0] = NULL;
 	m_pFrameBuffer[1] = NULL;
@@ -504,7 +505,7 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 				const char* const pText(pElem->GetText());
 				if (pKey && pText) 
 				{
-					printf("%s:%s",pKey,pText ); ///debug
+					//printf("%s:%s",pKey,pText ); ///debug
 					m_VariablesContainer[(HashLabel)pKey] = atof( pText ) ;
 				}
 			}
@@ -599,7 +600,7 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 					if (pElement->Attribute("IndexLayerForBones",&temp) != NULL)
 						Info.m_IndexLayerForBones = temp;
 
-					printf("UseModelsNormalData %d",Info.m_bNorms);
+					//printf("UseModelsNormalData %d",Info.m_bNorms);
 					m_LwoinfoContainer.push_back( Info );
 				}
 			}
@@ -630,10 +631,10 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 						FileInfo Info( pElement->Attribute("URI"), Util::urlDecode( pElement->Attribute("URI") ) );
 						Info.FullDownloadPath = pElement->Attribute("FullDownloadPath");
 						m_DownloadinfoContainer.push_back( Info );
+						//printf("\n%s\n%s\n",Info.FileName.c_str(),Info.LogicName.c_str());
 					}
 				}
 			}
-
 
 			// *** Raw tga's ***
 			TiXmlElement* pRawTga =  Data.FirstChild( "RawTga" ).FirstChildElement().ToElement();
@@ -657,7 +658,7 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 				if (Key=="AddLanguage") 
 				{
 					std::string Text(pElement->Attribute("Name"));
-					printf("AddLanguage: %s ", Text.c_str());
+					//printf("AddLanguage: %s ", Text.c_str());
 					WorkingTempLanguagesFoundContainer.push_back( Text );
 				}
 			}
@@ -689,15 +690,15 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 			
 			WorkingTempLanguagesFoundContainer.clear();
 
-			printf("XML Setttings complete");
+			//printf("XML Setttings complete");
 		}
-		else
-		{
-			if (docHandle.FirstChildElement().Element() == NULL)
-				printf("The root label is missing");
-			else
-				printf("The root is not labeled <Data>");
-		}
+		//else
+		//{
+		//	if (docHandle.FirstChildElement().Element() == NULL)
+		//		printf("The root label is missing");
+		//	else
+		//		printf("The root is not labeled <Data>");
+		//}
 	}
 
 	// Check the XML for any obvious mistakes
@@ -815,7 +816,7 @@ void WiiManager::InitDebugConsole(int ScreenOriginX, int ScreenOriginY)
 
 	VIDEO_ClearFrameBuffer (m_pGXRMode, m_pFrameBuffer[0], COLOUR_FOR_WIPE );  // put back the orginal wipe
 	//printf("\x1b[4;1H");
-	printf("InitDebugConsole\n\n");
+	//printf("InitDebugConsole\n\n");
 #endif
 }
 
@@ -825,10 +826,15 @@ void WiiManager::InitGameResources()
 	for ( vector<FileInfo>::iterator Iter( GetFontInfoBegin());	Iter !=  GetFontInfoEnd() ; ++Iter )
 	{
 		GetFontManager()->LoadFont(WiiFile::GetGamePath() + Iter->FileName, Iter->LogicName);
+
+		if (Iter->LogicName == "SmallFont")
+		{
+			// do message as soon as the font becomes available
+			GetCamera()->InitialiseCamera();
+			GetGameDisplay()->DisplaySmallSimpleMessage("Loading...");
+		}
 	}
 	
-	GetCamera()->InitialiseCamera();
-	GetGameDisplay()->DisplaySmallSimpleMessage("Loading...");
 
 	// *** Add 3D Objects -  Lightwave 3d Objects, LWO ***
 	for ( vector<FileInfo>::iterator Iter( GetLwoInfoBegin());	Iter !=  GetLwoInfoEnd() ; ++Iter )
@@ -896,9 +902,9 @@ void WiiManager::InitGameResources()
 
 				m_FrameEndStartConstainer[(HashLabel)Info.Name] = frameinfo;
 
-				printf("%s x:%d y:%d (%dx%d) FrameStart:%d Frames:%d", 
-					Info.Name.c_str(),Info.iStartX,Info.iStartY,
-					Info.iItemWidth,Info.iItemHeight,frameStart,Info.iNumberItems );
+				//printf("%s x:%d y:%d (%dx%d) FrameStart:%d Frames:%d", 
+				//	Info.Name.c_str(),Info.iStartX,Info.iStartY,
+				//	Info.iItemWidth,Info.iItemHeight,frameStart,Info.iNumberItems );
 			}
 			pImageManager->EndGraphicsFile();
 		}
@@ -946,6 +952,9 @@ FileInfo* WiiManager::GetCurrentMusicInfo()
 
 void WiiManager::SetMusicVolume(int Volume)
 {
+	if (m_pModuleTrackerData==NULL)
+		return;
+
 	char* pTemp = new char[5];
 	memset (pTemp,0,5);
 	memcpy (pTemp,m_pModuleTrackerData,4);
@@ -981,6 +990,9 @@ void WiiManager::SetMusicVolume(int Volume)
 
 void WiiManager::PlayMusic()
 {
+	if (m_pModuleTrackerData==NULL)
+			return;
+
 	char* pTemp = new char[5];
 	memset (pTemp,0,5);
 	memcpy (pTemp,m_pModuleTrackerData,4);
@@ -1028,7 +1040,9 @@ void WiiManager::NextMusic()
 				Iter = m_MusicFilesContainer.begin();
 
 			Iter->b_ThisSlotIsBeingUsed = true;
-			free(m_pModuleTrackerData);
+
+			if (m_pModuleTrackerData!=NULL)
+				free(m_pModuleTrackerData);
 
 			LoadMusic();
 			PlayMusic();

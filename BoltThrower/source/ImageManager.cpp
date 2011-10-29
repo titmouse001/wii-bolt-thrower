@@ -256,8 +256,8 @@ bool ImageManager::BeginGraphicsFile(string FullFileName)
 
 		if (Result != PNGU_OK)
 			ExitPrintf("PNGU_SelectImageFromDevice failed to load '%s'", FullFileName.c_str() );
-		else
-			printf("loading... '%s'\n", FullFileName.c_str());
+	//	else
+	//		printf("loading... '%s'\n", FullFileName.c_str());
 
 		u32 bufferSizeBytes = ( ((imgProp.imgWidth+3)/4*4) * ((imgProp.imgHeight+3)/4*4) ) * 4 ; 
 

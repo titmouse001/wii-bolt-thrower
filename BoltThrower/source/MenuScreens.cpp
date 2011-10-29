@@ -40,6 +40,8 @@ bool MenuScreens::HasMenuTimedOut()
 
 void MenuScreens::DoMenuScreen()
 {
+	Util3D::Identity();
+
 	WPAD_ScanPads();
 	m_pWii->GetInputDeviceManager()->Store();
 	Vtx* WiiMote( m_pWii->GetInputDeviceManager()->GetIRPosition() );
@@ -108,7 +110,7 @@ void MenuScreens::DoMenuScreen()
 	if (Name == HashString::Options)
 		BarText= m_pWii->GetText("OptionsPopUpMessage");
 	else if (Name == HashString::Start_Game)
-		BarText= m_pWii->GetText("Start_GamePopUpMessage");
+		BarText= m_pWii->GetText("Start_GamePopUpMessage") + " - " + m_pWii->GetDifficulty();
 	else if (Name == HashString::Intro)
 		BarText= m_pWii->GetText("IntroPopUpMessage");
 	else if (Name == HashString::Change_Tune)
