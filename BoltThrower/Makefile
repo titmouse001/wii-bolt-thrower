@@ -20,10 +20,12 @@ BUILD		:=	build
 MODULES     :=	source \
 				source/LWOSource \
 				source/libpng \
-				source/libpng/pngu source/TinyXML \
-				source/CullFrustum source/HTTP \
-				source/oggplayer source/tremor
-				
+				source/libpng/pngu \
+				source/TinyXML \
+				source/CullFrustum \
+				source/HTTP \
+				source/oggplayer 
+
 SOURCES		:=	$(MODULES)
 DATA		:=	data  
 INCLUDES	:=
@@ -54,7 +56,10 @@ LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map
 #LIBS	:=	-lpng -lz -lwiiuse -lbte -lfat -lasnd -logc -lmad -lm 
 # note to myself: lbte is the bluetooth lib, I think - well it adds things like wpad.c
 #########LIBS    :=  -lfat -lpng -lz -lmodplay -lwiiuse -lbte -lvorbisidec -lasnd -logc -lm 
-LIBS := -lfat -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm 
+
+#LIBS := -lfat -lvorbis -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm
+
+LIBS := -lfat -lvorbisidec -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing

@@ -7,7 +7,7 @@
 #include <map>
 #include "HashLabel.h"
 
-#include "tremor/ivorbisfile.h"
+#include <vorbisfile.h>
 
 class RawSample
 {

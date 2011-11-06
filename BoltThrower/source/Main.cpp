@@ -19,6 +19,10 @@
 #include "SetupGame.h"
 #include "UpdateManager.h"
 
+#ifndef BUILD_FINAL_RELEASE
+#warning *** DONT FORGET TO CHANGE THIS DEFINE FOR RELEASE BUILDS ***
+#endif
+
 bool DownloadFilesListedInConfiguration(bool MisssingCheckOnly = false);
 
 string CreateHashString(string domain);
@@ -41,7 +45,7 @@ int main(int /* argc */, char**  argv )
 	rWiiManager.InitGameResources();
 	rWiiManager.GetCamera()->InitialiseCamera(); // 3D View
 
-#if (1)
+#if (0)
 	//-------------------------------------------------
 	rWiiManager.GetUpdateManager()->DoUpdate();
 	//-------------------------------------------------

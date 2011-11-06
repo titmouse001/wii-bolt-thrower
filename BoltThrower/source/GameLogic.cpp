@@ -40,7 +40,7 @@ profiler_t profile_Spores;
 profiler_t profile_Missile;
 profiler_t profile_Exhaust;
 profiler_t profile_Projectile;
-profiler_t profile_Mission;
+//profiler_t profile_Mission;
 profiler_t profile_ShotAndGunTurret;
 profiler_t profile_DyingEnemies;
 
@@ -2015,7 +2015,7 @@ void GameLogic::InitialiseGame()
 	m_pWii->profiler_create(&profile_Missile, "Missile");
 	m_pWii->profiler_create(&profile_Exhaust, "Exhaust");
 	m_pWii->profiler_create(&profile_Projectile, "Projectile");
-	m_pWii->profiler_create(&profile_Mission, "Mission");
+//	m_pWii->profiler_create(&profile_Mission, "Mission");
 	m_pWii->profiler_create(&profile_ShotAndGunTurret, "ShotForGunTurret");
 	m_pWii->profiler_create(&profile_DyingEnemies, "DyingEnemies");
 

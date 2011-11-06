@@ -1020,7 +1020,7 @@ void GameDisplay::DebugInformation()
 	extern profiler_t profile_Missile;
 	extern profiler_t profile_Exhaust;
 	extern profiler_t profile_Projectile;
-	extern profiler_t profile_Mission;
+	//extern profiler_t profile_Mission;
 	extern profiler_t profile_ShotAndGunTurret;
 	extern profiler_t profile_DyingEnemies;
 

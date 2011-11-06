@@ -127,7 +127,7 @@ UpdateManager::UpdateManager():
 
 void UpdateManager::Init()
 {
-	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
+//	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
 
 }
 

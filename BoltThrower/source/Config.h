@@ -30,9 +30,9 @@ static const float s_fVersion( atof( s_ReleaseVersion.c_str() ) );
 //
 //--------------------------------------------------------------------------------------------------------------
 
-//#define LAUNCH_VIA_WIISEND 
+#define LAUNCH_VIA_WIISEND 
 //#define LAUNCH_VIA_WII_EMULATOR 
-#define LAUNCH_VIA_WII	
+//#define LAUNCH_VIA_WII	
 
 
 #ifdef LAUNCH_VIA_WIISEND
@@ -56,11 +56,6 @@ static const float s_fVersion( atof( s_ReleaseVersion.c_str() ) );
 #undef BUILD_FINAL_RELEASE
 #else
 #define ENABLE_SOUND
-#endif
-
-
-#ifndef BUILD_FINAL_RELEASE
-#warning *** DONT FORGET TO CHANGE THIS DEFINE FOR RELEASE BUILDS ***
 #endif
 
 #endif

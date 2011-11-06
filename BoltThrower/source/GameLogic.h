@@ -199,8 +199,6 @@ public:
 
 private:
 
-	int m_LastChanUsedForSoundAfterBurn;  // fudge
-
 	void DyingShipsLogic();
 
 	void AddAnim(HashLabel Frame, Item3D* pVessel, float FrameSpeed, float SpinAmount);
@@ -261,6 +259,9 @@ private:
 
 	WiiManager*		m_pWii;
 	SoundManager*	m_pSoundManager;
+
+	int m_LastChanUsedForSoundAfterBurn;  // fudge
+
 };
 
 

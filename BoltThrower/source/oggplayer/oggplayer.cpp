@@ -3,8 +3,10 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "../tremor/ivorbiscodec.h"
-#include "../tremor/ivorbisfile.h"
+//#include "../tremor/codec.h"
+//#include "../tremor/vorbisfile.h"
+#include <codec.h>
+#include <vorbisfile.h>
 
 #include "oggplayer.h"
 
@@ -304,9 +306,9 @@ static void* ogg_player_thread(private_data_ogg* priv)
 					priv->seek_time = -1;
 				}
 
-				ret	= ov_read( &priv->vf,
-					(void *) &priv->pcmout[priv->DoubleBufferToggle][priv->pcm_indx],
-					BUFFER_SIZE, &bitstream);
+				static const int BIGENDIAN (1);
+				ret	= ov_read( &priv->vf,(char*)&priv->pcmout[priv->DoubleBufferToggle][priv->pcm_indx],
+					BUFFER_SIZE,BIGENDIAN,2,1 ,&bitstream);
 
 				priv->flag &= 192;  //128+64 11000000
 				// above might as well read...  priv->flag = 192

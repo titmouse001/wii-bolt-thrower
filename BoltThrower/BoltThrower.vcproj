@@ -540,6 +540,10 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="OggVorbris"
+				>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Build rules"
@@ -559,15 +563,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Data\BoltThrower Ver0.59\icon.png"
-				>
-			</File>
-			<File
 				RelativePath="..\LatestVersion.xml"
-				>
-			</File>
-			<File
-				RelativePath="..\Data\BoltThrower Ver0.59\meta.xml"
 				>
 			</File>
 		</Filter>

@@ -293,8 +293,8 @@ private:
 	bool					m_bMusicEnabled;
 	string					m_Difficulty;
 public:
-	bool					m_MusicStillLeftToDownLoad;
 	u8						m_IngameMusicVolume;
+	bool					m_MusicStillLeftToDownLoad;
 private:
 
 	map<HashLabel,FrameInfo> m_FrameinfoContainer;

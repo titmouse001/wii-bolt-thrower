@@ -8,8 +8,11 @@
 #include "WiiManager.h"
 #include "WiiFile.h"
 #include "Util.h"
-#include "tremor/ivorbiscodec.h"
-#include "tremor/ivorbisfile.h"
+//#include "tremor/ivorbiscodec.h"
+//#include "tremor/ivorbisfile.h"
+
+#include <codec.h>
+#include <vorbisfile.h>
 
 int RawSample::Play(u8 VolumeLeft, u8 VolumeRight, bool bLoop)
 {
@@ -174,7 +177,8 @@ u32 SoundManager::GetOggTotal(OggVorbis_File* vf)
 	long ret(0);
 	do
 	{
-		ret = ov_read(vf,PCM_Out,sizeof(PCM_Out),&current_section);
+		static const int BIGENDIAN (1);
+		ret = ov_read(vf,PCM_Out,sizeof(PCM_Out),BIGENDIAN,2,1,&current_section);
 		Total += ret;
 	}while (ret!=0);
 
@@ -261,7 +265,8 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 	//u32 CheckTotal=0;
 	while(!eof)
 	{
-		long ret=ov_read(&vf,PCM_Out,sizeof(PCM_Out),&current_section);
+		static const int BIGENDIAN (1);
+		long ret=ov_read(&vf,PCM_Out,sizeof(PCM_Out),BIGENDIAN,2,1,&current_section);
 		if (ret == 0) 
 		{
 			eof=1;
