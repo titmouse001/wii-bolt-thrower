@@ -1,173 +1,96 @@
 /********************************************************************
  *                                                                  *
- * THIS FILE IS PART OF THE OggVorbis 'TREMOR' CODEC SOURCE CODE.   *
- *                                                                  *
+ * THIS FILE IS PART OF THE OggVorbis SOFTWARE CODEC SOURCE CODE.   *
  * USE, DISTRIBUTION AND REPRODUCTION OF THIS LIBRARY SOURCE IS     *
  * GOVERNED BY A BSD-STYLE SOURCE LICENSE INCLUDED WITH THIS SOURCE *
  * IN 'COPYING'. PLEASE READ THESE TERMS BEFORE DISTRIBUTING.       *
  *                                                                  *
- * THE OggVorbis 'TREMOR' SOURCE CODE IS (C) COPYRIGHT 1994-2003    *
- * BY THE Xiph.Org FOUNDATION http://www.xiph.org/                  *
+ * THE OggVorbis SOURCE CODE IS (C) COPYRIGHT 1994-2009             *
+ * by the Xiph.Org Foundation http://www.xiph.org/                  *
  *                                                                  *
  ********************************************************************
 
  function: libvorbis codec headers
+ last mod: $Id: codec_internal.h 16227 2009-07-08 06:58:46Z xiphmont $
 
  ********************************************************************/
 
 #ifndef _V_CODECI_H_
 #define _V_CODECI_H_
 
-#define CHUNKSIZE 1024
-
+#include "envelope.h"
 #include "codebook.h"
-#include "ivorbiscodec.h"
 
-#define VI_TRANSFORMB 1
-#define VI_WINDOWB 1
-#define VI_TIMEB 1
-#define VI_FLOORB 2
-#define VI_RESB 3
-#define VI_MAPB 1
+#define BLOCKTYPE_IMPULSE    0
+#define BLOCKTYPE_PADDING    1
+#define BLOCKTYPE_TRANSITION 0
+#define BLOCKTYPE_LONG       1
 
-typedef void vorbis_info_floor;
+#define PACKETBLOBS 15
 
-/* vorbis_dsp_state buffers the current vorbis audio
-   analysis/synthesis state.  The DSP state belongs to a specific
-   logical bitstream ****************************************************/
-struct vorbis_dsp_state{
-  vorbis_info    *vi;
-  oggpack_buffer  opb;
+typedef struct vorbis_block_internal{
+  float  **pcmdelay;  /* this is a pointer into local storage */
+  float  ampmax;
+  int    blocktype;
 
-  ogg_int32_t   **work;
-  ogg_int32_t   **mdctright;
-  int             out_begin;
-  int             out_end;
+  oggpack_buffer *packetblob[PACKETBLOBS]; /* initialized, must be freed;
+                                              blob [PACKETBLOBS/2] points to
+                                              the oggpack_buffer in the
+                                              main vorbis_block */
+} vorbis_block_internal;
 
-  long lW;
-  long W;
-
-  ogg_int64_t granulepos;
-  ogg_int64_t sequence;
-  ogg_int64_t sample_count;
-
-};
-
-
-/* Floor backend generic *****************************************/
-
-extern vorbis_info_floor *floor0_info_unpack(vorbis_info *,oggpack_buffer *);
-extern void floor0_free_info(vorbis_info_floor *);
-extern int floor0_memosize(vorbis_info_floor *);
-extern ogg_int32_t *floor0_inverse1(struct vorbis_dsp_state *,
-				    vorbis_info_floor *,ogg_int32_t *);
-extern int floor0_inverse2 (struct vorbis_dsp_state *,vorbis_info_floor *,
-			    ogg_int32_t *buffer,ogg_int32_t *);
-
-extern vorbis_info_floor *floor1_info_unpack(vorbis_info *,oggpack_buffer *);
-extern void floor1_free_info(vorbis_info_floor *);
-extern int floor1_memosize(vorbis_info_floor *);
-extern ogg_int32_t *floor1_inverse1(struct vorbis_dsp_state *,
-				    vorbis_info_floor *,ogg_int32_t *);
-extern int floor1_inverse2 (struct vorbis_dsp_state *,vorbis_info_floor *,
-			    ogg_int32_t *buffer,ogg_int32_t *);
-
-typedef struct{
-  int   order;
-  long  rate;
-  long  barkmap;
-
-  int   ampbits;
-  int   ampdB;
-
-  int   numbooks; /* <= 16 */
-  char  books[16];
-
-} vorbis_info_floor0;
-
-typedef struct{
-  char  class_dim;        /* 1 to 8 */
-  char  class_subs;       /* 0,1,2,3 (bits: 1<<n poss) */
-  unsigned char  class_book;       /* subs ^ dim entries */
-  unsigned char  class_subbook[8]; /* [VIF_CLASS][subs] */
-} floor1class;  
-
-typedef struct{
-  floor1class  *class;          /* [VIF_CLASS] */
-  char         *partitionclass; /* [VIF_PARTS]; 0 to 15 */
-  ogg_uint16_t *postlist;       /* [VIF_POSIT+2]; first two implicit */ 
-  char         *forward_index;  /* [VIF_POSIT+2]; */
-  char         *hineighbor;     /* [VIF_POSIT]; */
-  char         *loneighbor;     /* [VIF_POSIT]; */
-
-  int          partitions;    /* 0 to 31 */
-  int          posts;
-  int          mult;          /* 1 2 3 or 4 */ 
-
-} vorbis_info_floor1;
-
-/* Residue backend generic *****************************************/
-
-typedef struct vorbis_info_residue{
-  int type;
-  unsigned char *stagemasks;
-  unsigned char *stagebooks;
-
-/* block-partitioned VQ coded straight residue */
-  long begin;
-  long end;
-
-  /* first stage (lossless partitioning) */
-  int           grouping;         /* group n vectors per partition */
-  char          partitions;       /* possible codebooks for a partition */
-  unsigned char groupbook;        /* huffbook for partitioning */
-  char          stages;
-} vorbis_info_residue;
-
-extern void res_clear_info(vorbis_info_residue *info);
-extern int res_unpack(vorbis_info_residue *info,
-		      vorbis_info *vi,oggpack_buffer *opb);
-extern int res_inverse(vorbis_dsp_state *,vorbis_info_residue *info,
-		       ogg_int32_t **in,int *nonzero,int ch);
+typedef void vorbis_look_floor;
+typedef void vorbis_look_residue;
+typedef void vorbis_look_transform;
 
 /* mode ************************************************************/
 typedef struct {
-  unsigned char blockflag;
-  unsigned char mapping;
+  int blockflag;
+  int windowtype;
+  int transformtype;
+  int mapping;
 } vorbis_info_mode;
 
-/* Mapping backend generic *****************************************/
-typedef struct coupling_step{
-  unsigned char mag;
-  unsigned char ang;
-} coupling_step;
+typedef void vorbis_info_floor;
+typedef void vorbis_info_residue;
+typedef void vorbis_info_mapping;
 
-typedef struct submap{
-  char floor;
-  char residue;
-} submap;
+#include "psy.h"
+#include "bitrate.h"
 
-typedef struct vorbis_info_mapping{
-  int            submaps; 
-  
-  unsigned char *chmuxlist;
-  submap        *submaplist;
+typedef struct private_state {
+  /* local lookup storage */
+  envelope_lookup        *ve; /* envelope lookup */
+  int                     window[2];
+  vorbis_look_transform **transform[2];    /* block, type */
+  drft_lookup             fft_look[2];
 
-  int            coupling_steps;
-  coupling_step *coupling;
-} vorbis_info_mapping;
+  int                     modebits;
+  vorbis_look_floor     **flr;
+  vorbis_look_residue   **residue;
+  vorbis_look_psy        *psy;
+  vorbis_look_psy_global *psy_g_look;
 
-extern int mapping_info_unpack(vorbis_info_mapping *,vorbis_info *,
-			       oggpack_buffer *);
-extern void mapping_clear_info(vorbis_info_mapping *);
-extern int mapping_inverse(struct vorbis_dsp_state *,vorbis_info_mapping *);
+  /* local storage, only used on the encoding side.  This way the
+     application does not need to worry about freeing some packets'
+     memory and not others'; packet storage is always tracked.
+     Cleared next call to a _dsp_ function */
+  unsigned char *header;
+  unsigned char *header1;
+  unsigned char *header2;
+
+  bitrate_manager_state bms;
+
+  ogg_int64_t sample_count;
+} private_state;
 
 /* codec_setup_info contains all the setup information specific to the
    specific compression/decompression mode in progress (eg,
    psychoacoustic settings, channel setup, options, codebook
-   etc).  
+   etc).
 *********************************************************************/
 
+#include "highlevel.h"
 typedef struct codec_setup_info {
 
   /* Vorbis supports only short and long blocks, but allows the
@@ -185,29 +108,60 @@ typedef struct codec_setup_info {
   int        floors;
   int        residues;
   int        books;
+  int        psys;     /* encode only */
 
-  vorbis_info_mode       *mode_param;
-  vorbis_info_mapping    *map_param;
-  char                   *floor_type;
-  vorbis_info_floor     **floor_param;
-  vorbis_info_residue    *residue_param;
-  codebook               *book_param;
+  vorbis_info_mode       *mode_param[64];
+  int                     map_type[64];
+  vorbis_info_mapping    *map_param[64];
+  int                     floor_type[64];
+  vorbis_info_floor      *floor_param[64];
+  int                     residue_type[64];
+  vorbis_info_residue    *residue_param[64];
+  static_codebook        *book_param[256];
+  codebook               *fullbooks;
 
+  vorbis_info_psy        *psy_param[4]; /* encode only */
+  vorbis_info_psy_global psy_g_param;
+
+  bitrate_manager_info   bi;
+  highlevel_encode_setup hi; /* used only by vorbisenc.c.  It's a
+                                highly redundant structure, but
+                                improves clarity of program flow. */
+  int         halfrate_flag; /* painless downsample for decode */
 } codec_setup_info;
 
-extern vorbis_dsp_state *vorbis_dsp_create(vorbis_info *vi);
-extern void     vorbis_dsp_destroy(vorbis_dsp_state *v);
-extern int      vorbis_dsp_headerin(vorbis_info *vi,vorbis_comment *vc,
-				    ogg_packet *op);
-
-extern int      vorbis_dsp_restart(vorbis_dsp_state *v);
-extern int      vorbis_dsp_synthesis(vorbis_dsp_state *vd,
-				     ogg_packet *op,int decodep);
-extern int      vorbis_dsp_pcmout(vorbis_dsp_state *v,
-				  ogg_int16_t *pcm,int samples);
-extern int      vorbis_dsp_read(vorbis_dsp_state *v,int samples);
-extern long     vorbis_packet_blocksize(vorbis_info *vi,ogg_packet *op);
+extern vorbis_look_psy_global *_vp_global_look(vorbis_info *vi);
+extern void _vp_global_free(vorbis_look_psy_global *look);
 
 
 
+typedef struct {
+  int sorted_index[VIF_POSIT+2];
+  int forward_index[VIF_POSIT+2];
+  int reverse_index[VIF_POSIT+2];
+
+  int hineighbor[VIF_POSIT];
+  int loneighbor[VIF_POSIT];
+  int posts;
+
+  int n;
+  int quant_q;
+  vorbis_info_floor1 *vi;
+
+  long phrasebits;
+  long postbits;
+  long frames;
+} vorbis_look_floor1;
+
+
+
+extern int *floor1_fit(vorbis_block *vb,vorbis_look_floor1 *look,
+                          const float *logmdct,   /* in */
+                          const float *logmask);
+extern int *floor1_interpolate_fit(vorbis_block *vb,vorbis_look_floor1 *look,
+                          int *A,int *B,
+                          int del);
+extern int floor1_encode(oggpack_buffer *opb,vorbis_block *vb,
+                  vorbis_look_floor1 *look,
+                  int *post,int *ilogmask);
 #endif
