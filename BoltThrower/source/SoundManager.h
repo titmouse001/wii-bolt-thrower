@@ -7,24 +7,47 @@
 #include <map>
 #include "HashLabel.h"
 
-#include <vorbisfile.h>
+//#include <vorbisfile.h>
+#include <tremor/ivorbiscodec.h>
+#include <tremor/ivorbisfile.h>
+
+#define USE_AESNDLIB 
+
+#ifdef USE_AESNDLIB
+// MAKE SURE THE makefile uses "-laesnd"
+#include <aesndlib.h>
+#else
+// MAKE SURE THE makefile uses "-lasnd"
+#include <asndlib.h>
+#endif
+
+typedef void (*AESNDVoiceCallback)(AESNDPB *pb,u32 state);
+
+
+#include "Oggplayer/OggPlayer.h"
+
 
 class RawSample
 {
 public:
+#ifdef USE_AESNDLIB
+	AESNDPB* Play(u8 VolumeLeft=0xff, u8 VolumeRight=0xff, bool bLoop = false);
+#else
 	int Play(u8 VolumeLeft=0xff, u8 VolumeRight=0xff, bool bLoop = false);
+#endif
 	void SetRawData(u8* pData) {m_RawData = pData;}
 	void SetRawDataLength(u32 Data) {m_RawDataLength = Data;}
-	void SetNumberOfChannels(u8 Data) {m_NumberOfChannels = Data;}
+	void SetVoiceFormat(u8 Data) {m_VoiceFormat = Data;}
 	void SetSampleRate(u32 Data) {m_SampleRate = Data;}
 	void SetBitsPerSample(u32 Data) { m_BitsPerSample = Data; }
-
-private:
 	u8* m_RawData;
 	u32	m_RawDataLength;
-	u8  m_NumberOfChannels; // uses SND_SetVoice format as defined in 'asndlib.h'
+private:
+//	u8* m_RawData; put back
+//	u32	m_RawDataLength;
+	u8  m_VoiceFormat; // uses SND_SetVoice format as defined in 'asndlib.h'
 	u32 m_SampleRate;		// pitch frequency (in Hz)
-	u32 m_BitsPerSample ;	// 8bits 16 bits
+	u32 m_BitsPerSample ;	// 8bits 16bits
 };
 
 
@@ -39,10 +62,16 @@ public:
 
 	std::map<HashLabel,RawSample*> m_SoundContainer;
 	RawSample* GetSound(HashLabel SoundName) { return m_SoundContainer[SoundName]; }
-	int PlaySound(HashLabel SoundName,u8 VolumeLeft = 255, u8 VolumeRight = 255, bool bLoop = false);
-	void StopSound(u8 Chan);
+#ifdef USE_AESNDLIB
+	AESNDPB*  PlaySound(HashLabel SoundName,u8 VolumeLeft = 255, u8 VolumeRight = 255, bool bLoop = false);
+	void StopSound(AESNDPB* Chan);
+#else
+	int  PlaySound(HashLabel SoundName,u8 VolumeLeft = 255, u8 VolumeRight = 255, bool bLoop = false);
+	void StopSound(int Chan);
+#endif
 
-	
+	OggPlayer  m_OggPlayer;
+
 
 private:
 
@@ -94,6 +123,8 @@ private:
 		char data[4];    // "data"  -  big-endian form
 		u32 dataLength;  // sound data length
 	};
+
+
 
 
 };

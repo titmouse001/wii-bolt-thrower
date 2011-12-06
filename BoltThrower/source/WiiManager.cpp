@@ -935,6 +935,28 @@ void WiiManager::LoadMusic()
 	FileInfo* pInfo( GetCurrentMusicInfo() );
 	if (pInfo!=NULL)
 	{
+		if (m_pModuleTrackerData != NULL)
+		{
+			char* pTemp = new char[5];
+			memset (pTemp,0,5);
+			memcpy (pTemp,m_pModuleTrackerData,4);
+			string Header2 = pTemp;
+			if (Header2 == "OggS")
+			{
+				GetSoundManager()->m_OggPlayer.Stop();
+			}
+			else
+			{
+				if (m_ModuleTrackerPlayerInterface.playing)
+				{
+					MODPlay_Stop( &m_ModuleTrackerPlayerInterface );
+					MODPlay_Unload( &m_ModuleTrackerPlayerInterface );
+				}
+			}
+
+			free(m_pModuleTrackerData);
+		}
+
 		m_pModuleTrackerData = WiiFile::ReadFile(pInfo->FileName);
 	}
 }
@@ -959,17 +981,23 @@ void WiiManager::SetMusicVolume(int Volume)
 	memset (pTemp,0,5);
 	memcpy (pTemp,m_pModuleTrackerData,4);
 	string Header2 = pTemp;
+
+
 	if (Header2 == "OggS")
 	{
-		OggPlayer Ogg;  // TODO !!!!
-
+		//OggPlayer Ogg;  // TODO !!!!
 		if ( Volume > 0)
 		{
-			Ogg.SetVolumeOgg(Volume * (255/5));
-			Ogg.PauseOgg(false);
+			GetSoundManager()->m_OggPlayer.SetVolume(Volume * (255/5));
+			GetSoundManager()->m_OggPlayer.Pause(false);
+			//Ogg.SetVolume(Volume * (255/5));
+			//Ogg.Pause(false);
 		}
 		else
-			Ogg.PauseOgg();
+		{
+			GetSoundManager()->m_OggPlayer.Pause();
+			//Ogg.Pause();
+		}
 		
 	}
 	else
@@ -993,33 +1021,35 @@ void WiiManager::PlayMusic()
 	if (m_pModuleTrackerData==NULL)
 			return;
 
+	//OggPlayer Ogg;
+
 	char* pTemp = new char[5];
 	memset (pTemp,0,5);
 	memcpy (pTemp,m_pModuleTrackerData,4);
 	string Header2 = pTemp;
 	if (Header2 == "OggS")
 	{
-		//-------------
-		if (m_ModuleTrackerPlayerInterface.playing)
-		{
-			MODPlay_Stop( &m_ModuleTrackerPlayerInterface );
-			MODPlay_Unload( &m_ModuleTrackerPlayerInterface );
-		}
-		//-------------
-		
+		////-------------
+		//if (m_ModuleTrackerPlayerInterface.playing)
+		//{
+		//	MODPlay_Stop( &m_ModuleTrackerPlayerInterface );
+		//	MODPlay_Unload( &m_ModuleTrackerPlayerInterface );
+		//}
+		////-------------
+		//
 		FileInfo* Info = GetCurrentMusicInfo();
-
 		if (Info != NULL)
 		{
-			OggPlayer Ogg;
-			Ogg.PlayOgg(m_pModuleTrackerData, (s32)Info->Size, 0, OGG_ONE_TIME);
-			Ogg.SetVolumeOgg(255);
+		//	Ogg.Stop(); 
+			GetSoundManager()->m_OggPlayer.Play(m_pModuleTrackerData, (s32)Info->Size, 255 );
+		//	Ogg.Play(m_pModuleTrackerData, (s32)Info->Size, 255 );
 		}
 	}
 	else
 	{
-		MODPlay_Init(&m_ModuleTrackerPlayerInterface);
+	//	Ogg.Stop(); 
 
+		MODPlay_Init(&m_ModuleTrackerPlayerInterface);
 		MODPlay_SetMOD(&m_ModuleTrackerPlayerInterface, m_pModuleTrackerData);
 		MODPlay_Start(&m_ModuleTrackerPlayerInterface); 
 		MODPlay_SetVolume( &m_ModuleTrackerPlayerInterface, 100,100);
@@ -1041,8 +1071,8 @@ void WiiManager::NextMusic()
 
 			Iter->b_ThisSlotIsBeingUsed = true;
 
-			if (m_pModuleTrackerData!=NULL)
-				free(m_pModuleTrackerData);
+			//if (m_pModuleTrackerData!=NULL)
+			//	free(m_pModuleTrackerData);
 
 			LoadMusic();
 			PlayMusic();

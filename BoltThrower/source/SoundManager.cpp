@@ -1,6 +1,5 @@
-#include <asndlib.h>
-
 #include "SoundManager.h"
+
 #include "malloc.h"
 #include "debug.h"
 #include "string.h"
@@ -8,53 +7,128 @@
 #include "WiiManager.h"
 #include "WiiFile.h"
 #include "Util.h"
-//#include "tremor/ivorbiscodec.h"
-//#include "tremor/ivorbisfile.h"
 
-#include <codec.h>
-#include <vorbisfile.h>
+//#include <codec.h>
+//#include <vorbisfile.h>
 
+#include <tremor/ivorbiscodec.h>
+#include <tremor/ivorbisfile.h>
+
+//static void __aesndvoicecallback(AESNDPB *pb, u32 state) 
+//{
+//   switch (state) 
+//   {
+//        case VOICE_STATE_STOPPED:
+//	//		 AESND_SetVoiceStop(pb,true);
+//	//		AESND_FreeVoice(pb);
+//            break;
+//        case VOICE_STATE_RUNNING:
+//            break;
+//        case VOICE_STATE_STREAM:
+//            break;
+//    }
+//
+//	printf("CALLBACK %d",state);
+//}
+
+#ifdef USE_AESNDLIB
+AESNDPB* RawSample::Play(u8 VolumeLeft, u8 VolumeRight, bool bLoop)
+{
+	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStateGame() )
+		return 0;
+
+	// change library ... AESNDPB* AESND_AllocateVoice(AESNDVoiceCallback cb)
+	// to use VOICE_STOPPED not VOICE_USED to pick free slot
+
+
+
+	AESNDPB* Chan = AESND_AllocateVoice2(NULL);  //call back will be set later on
+	if (Chan!=NULL)
+	{
+		AESND_SetVoiceVolume(Chan,VolumeLeft,VolumeRight);
+		AESND_PlayVoice(Chan,
+			m_VoiceFormat,
+			(void*)m_RawData,
+			m_RawDataLength,m_SampleRate,
+			0,bLoop);
+	//	AESND_SetVoiceStream(Chan,false);
+	}
+
+
+	// NEED TO CALL AESND_FreeVoice - so going to need to add the callback on each play
+
+
+// m_RawDataLength*2 ??44100
+
+    //AESND_SetVoiceFrequency(Chan, m_SampleRate);
+	//AESND_SetVoiceFormat(Chan, m_VoiceFormat); // todo rename the use data member used here!!!
+	return Chan;
+}	
+#else
 int RawSample::Play(u8 VolumeLeft, u8 VolumeRight, bool bLoop)
 {
 	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStateGame() )
 		return 0;
 
 	int Chan = ASND_GetFirstUnusedVoice();
-
 	if (bLoop)
-		ASND_SetInfiniteVoice( Chan, m_NumberOfChannels,m_SampleRate,0, m_RawData, m_RawDataLength , VolumeLeft, VolumeRight);
+		ASND_SetInfiniteVoice( Chan, m_VoiceFormat,m_SampleRate,0, m_RawData, m_RawDataLength , VolumeLeft, VolumeRight);
 	else
-		ASND_SetVoice( Chan, m_NumberOfChannels,m_SampleRate,0, m_RawData, m_RawDataLength , VolumeLeft, VolumeRight, NULL);
+		ASND_SetVoice( Chan, m_VoiceFormat,m_SampleRate,0, m_RawData, m_RawDataLength , VolumeLeft, VolumeRight, NULL);
 
 	return Chan;
 }	
+#endif
 
+#ifdef USE_AESNDLIB
+AESNDPB* SoundManager::PlaySound(HashLabel SoundName, u8 VolumeLeft, u8 VolumeRight, bool bLoop)
+#else
 int SoundManager::PlaySound(HashLabel SoundName, u8 VolumeLeft, u8 VolumeRight, bool bLoop)
+#endif
 {
 	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStateGame() )
 		return 0;
 
-
-	//todo - replace [] will something that will fail rather then create a new item we are looking for !
+	//todo - replace [] with something that will fail 
 	RawSample* pRaw = GetSound(SoundName);
 	if (pRaw!=NULL)
 	{
-		return m_SoundContainer[SoundName]->Play( VolumeLeft, VolumeRight, bLoop ); 
+		
+		AESNDPB* pSound = m_SoundContainer[SoundName]->Play( VolumeLeft, VolumeRight, bLoop ); 
+//		if (pSound!=NULL)
+//		{
+//			AESND_RegisterVoiceCallback(pSound, __aesndvoicecallback);
+//		}
+		return pSound;
 	}
 	else
 		ExitPrintf("PlaySound");
 
-
+#ifdef USE_AESNDLIB
+	return NULL;
+#else
 	return -1;
+#endif
 }
 
-void SoundManager::StopSound(u8 Chan)
+#ifdef USE_AESNDLIB
+
+void SoundManager::StopSound(AESNDPB* Chan)
+{
+	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStateGame() )
+		return;
+
+	AESND_SetVoiceStop(Chan,true);
+}
+#else
+void SoundManager::StopSound(int Chan)
 {
 	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStateGame() )
 		return;
 
 	ASND_StopVoice(Chan);
 }
+#endif
 
 
 SoundManager::SoundManager( )
@@ -70,15 +144,26 @@ SoundManager::~SoundManager( )
 void SoundManager::Init( )
 { 
 #ifdef ENABLE_SOUND
+#ifdef USE_AESNDLIB
+	AESND_Init();
+#else
 	SND_Init(INIT_RATE_48000);  // note: SND_xxx is the same as ASND_xxx
 	SND_Pause(0);  
 #endif
+#endif
+
+	m_OggPlayer.Init();
 }
 
 void SoundManager::UnInit( )
 { 
+#ifdef USE_AESNDLIB
+	AESND_Pause(true);
+	AESND_Reset();
+#else
 	ASND_Pause(1);  //pause
 	ASND_End();
+#endif
 }
 void SoundManager::LoadSound( std::string FullFileNameWithPath,std::string LookUpName )
 {
@@ -135,25 +220,32 @@ void SoundManager::StoreSoundFromWav( std::string FullFileNameWithPath,std::stri
 
 	if (fmtChunkData.BitResolution == 16 )
 	{
+	
 		if (fmtChunkData.Channels == 1)
-			pRawSample->SetNumberOfChannels(VOICE_MONO_16BIT);
+		{
+			pRawSample->SetVoiceFormat(VOICE_MONO16);
+				printf("VOICE_MONO16");
+		}
 		else
-			pRawSample->SetNumberOfChannels(VOICE_STEREO_16BIT);
+		{
+			pRawSample->SetVoiceFormat(VOICE_STEREO16);
+			printf("VOICE_STEREO16");
+		}
 	}
 	else
 	{
 		if (fmtChunkData.Channels == 1)
-			pRawSample->SetNumberOfChannels(VOICE_MONO_8BIT);
+			pRawSample->SetVoiceFormat(VOICE_MONO8);
 		else
-			pRawSample->SetNumberOfChannels(VOICE_STEREO_8BIT);
+			pRawSample->SetVoiceFormat(VOICE_STEREO8);
 	}
 
 	pRawSample->SetSampleRate(fmtChunkData.SampleRate);
 	pRawSample->SetBitsPerSample(fmtChunkData.BitResolution);
 	//printf("dataLength %d",dataChunkData.dataLength);
-	//printf("Channels %d",fmtChunkData.Channels);
-	//printf("SampleRate %d",fmtChunkData.SampleRate);
-	//printf("BitResolution %d",fmtChunkData.BitResolution);
+	printf("Channels %d",fmtChunkData.Channels);
+	printf("SampleRate %d",fmtChunkData.SampleRate);
+	printf("BitResolution %d",fmtChunkData.BitResolution);
 	//-------------------------------------------------------------
 	u16* pData16 = (u16*)pData;
 	if (fmtChunkData.BitResolution == 16) // 8 or 16 bit samples - anything other than 16 is just seen as 8 bit
@@ -171,15 +263,22 @@ void SoundManager::StoreSoundFromWav( std::string FullFileNameWithPath,std::stri
 
 u32 SoundManager::GetOggTotal(OggVorbis_File* vf)
 {
+	//todo
 	char PCM_Out[4096];
 	u32 Total=0;
 	int current_section;
 	long ret(0);
 	do
 	{
-		static const int BIGENDIAN (1);
-		ret = ov_read(vf,PCM_Out,sizeof(PCM_Out),BIGENDIAN,2,1,&current_section);
+//
+//#ifdef
+//		static const int BIGENDIAN (1);
+//		ret = ov_read(vf,PCM_Out,sizeof(PCM_Out),BIGENDIAN,2,1,&current_section);
+//		Total += ret;
+//#else
+		ret = ov_read(vf,PCM_Out,sizeof(PCM_Out),&current_section);
 		Total += ret;
+//#endif
 	}while (ret!=0);
 
 	return Total;
@@ -221,6 +320,8 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 	{
 		pcm_total = GetOggTotal(&vf);
 
+		printf("pcm_total %d",pcm_total);
+
 		// this next bit is a VERY TEMP fudge - since the GetOggTotal walks the data and breaks things!!!
 		ov_clear(&vf);
 		pFile = WiiFile::FileOpenForRead( FullFileNameWithPath.c_str() );
@@ -245,12 +346,22 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 	// Raw sound data
 	RawSample* pRawSample( new RawSample );
 
-	int NumberOfChannels = VOICE_STEREO_16BIT;
+	int NumberOfChannels = VOICE_STEREO16;
 	if (vi->channels==1)
-		NumberOfChannels = VOICE_MONO_16BIT;
+	{
+		printf("VOICE_MONO16");
+		NumberOfChannels = VOICE_MONO16;
+	}
+	else
+	{
+		printf("VOICE_STEREO16");
+	}
 
 	int SampleRate = vi->rate;
 	int BitsPerSample = 16;
+	
+	printf("rate %d", vi->rate);
+
 
 	u8* pRawData = (u8*)memalign(32, pcm_total );
 	if (pRawData==NULL)
@@ -265,8 +376,14 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 	//u32 CheckTotal=0;
 	while(!eof)
 	{
-		static const int BIGENDIAN (1);
-		long ret=ov_read(&vf,PCM_Out,sizeof(PCM_Out),BIGENDIAN,2,1,&current_section);
+
+//#ifdef 
+//		static const int BIGENDIAN (1);
+//		long ret= ov_read(vf,PCM_Out,sizeof(PCM_Out),BIGENDIAN,2,1,&current_section);
+//#else
+		long ret= ov_read(&vf,PCM_Out,sizeof(PCM_Out),&current_section);
+//#endif
+
 		if (ret == 0) 
 		{
 			eof=1;
@@ -298,13 +415,16 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 	//-------------------------------------------------------------
 	pRawSample->SetRawData(pRawData);
 	pRawSample->SetRawDataLength(pcm_total);
-	pRawSample->SetNumberOfChannels(NumberOfChannels);
+	pRawSample->SetVoiceFormat(NumberOfChannels);
 	pRawSample->SetSampleRate(SampleRate);
 	pRawSample->SetBitsPerSample(BitsPerSample);
 	//-------------------------------------------------------------
 
 
 	m_SoundContainer[ (HashLabel)LookUpName ] = pRawSample ;
+
+
+	//Util::SleepForMilisec(6000);
 }
 
 

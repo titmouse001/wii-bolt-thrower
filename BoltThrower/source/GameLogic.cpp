@@ -30,6 +30,8 @@
 #include "Timer.h"
 #include "GameDisplay.h"
 
+
+
 profiler_t profile_ProbeMineLogic;
 profiler_t profile_Asteroid ;
 profiler_t profile_MoonRocks;
@@ -55,7 +57,7 @@ profiler_t profile_DyingEnemies;
 GameLogic::GameLogic():	//m_bAddMoreShipsFlag(false), 
 m_bEndLevelTrigger(false), m_Score(0),
 m_ZoomAmountForSpaceBackground(3.1f),m_ClippingRadiusNeededForMoonRocks(0),  
-m_GamePaused(false),m_GamePausedByPlayer(false),m_IsBaseShieldOnline(false),m_LastChanUsedForSoundAfterBurn(-1)
+m_GamePaused(false),m_GamePausedByPlayer(false),m_IsBaseShieldOnline(false),m_LastChanUsedForSoundAfterBurn(NULL)
 {
 	m_Timer = new Timer;
 	m_MyVessel = new PlayerVessel;
@@ -106,7 +108,7 @@ void GameLogic::DoControls()
 		if ((WPAD_ButtonsDown(0) & WPAD_BUTTON_A) || (WPAD_ButtonsUp(0) & WPAD_BUTTON_A)) 
 		{
 			// Fire Missle
-			m_pSoundManager->PlaySound( HashString::FireMissle,44,44);
+			m_pSoundManager->PlaySound( HashString::FireMissle,255,255);
 
 			Vessel Missile = *GetPlrVessel();
 			// NOTE: STUPID balue in missle logic need changing with this - TODO redo this
@@ -130,7 +132,7 @@ void GameLogic::DoControls()
 
 		if (WPAD_ButtonsHeld(0) & WPAD_BUTTON_B)  // use thrusters
 		{
-			if (m_LastChanUsedForSoundAfterBurn == -1)
+			if (m_LastChanUsedForSoundAfterBurn == NULL)
 			{
 				m_LastChanUsedForSoundAfterBurn = m_pSoundManager->PlaySound( HashString::AfterBurn,32,32,true);
 			}
@@ -149,10 +151,10 @@ void GameLogic::DoControls()
 		}
 		else
 		{
-			if (m_LastChanUsedForSoundAfterBurn != -1)		
+			if (m_LastChanUsedForSoundAfterBurn != NULL)		
 			{
 				m_pSoundManager->StopSound(m_LastChanUsedForSoundAfterBurn);
-				m_LastChanUsedForSoundAfterBurn = -1;	
+				m_LastChanUsedForSoundAfterBurn = NULL;	
 			}
 		}
 
@@ -309,10 +311,10 @@ void GameLogic::StillAlive()
 
 	if ( IsGamePausedByPlayer() )
 	{
-		if (m_LastChanUsedForSoundAfterBurn != -1)		
+		if (m_LastChanUsedForSoundAfterBurn != NULL)		
 		{
 			m_pSoundManager->StopSound(m_LastChanUsedForSoundAfterBurn);
-			m_LastChanUsedForSoundAfterBurn = -1;	
+			m_LastChanUsedForSoundAfterBurn = NULL;	
 		}
 	}
 	else
@@ -391,10 +393,10 @@ void GameLogic::InGameLogic()
 			m_bDoEndGameEventOnce = false;
 			AmountOfexplosionsToAddEachFrame = 20;
 
-			if ( m_LastChanUsedForSoundAfterBurn != -1)		
+			if ( m_LastChanUsedForSoundAfterBurn != NULL)		
 			{
 				m_pSoundManager->StopSound(m_LastChanUsedForSoundAfterBurn);
-				m_LastChanUsedForSoundAfterBurn = -1;	
+				m_LastChanUsedForSoundAfterBurn = NULL;	
 				AmountOfexplosionsToAddEachFrame = 20;
 			}
 

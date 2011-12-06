@@ -4,6 +4,10 @@
 #include <vector>
 #include "ogc/gx.h"
 
+#include <aesndlib.h>
+
+#include "SoundManager.h"
+
 struct FrameStartEnd
 {
 	int StartFrame;
@@ -260,7 +264,12 @@ private:
 	WiiManager*		m_pWii;
 	SoundManager*	m_pSoundManager;
 
-	int m_LastChanUsedForSoundAfterBurn;  // fudge
+#ifdef USE_AESNDLIB
+	AESNDPB* m_LastChanUsedForSoundAfterBurn; 
+#else
+	int m_LastChanUsedForSoundAfterBurn; 
+#endif
+
 
 };
 

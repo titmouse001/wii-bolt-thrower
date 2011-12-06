@@ -129,7 +129,7 @@ void SetUpGame::Menus()
 					m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
 
 
-					Util::SleepForMilisec(2000);
+				//	Util::SleepForMilisec(2000);
 
 					m_pWii->NextMusic();
 

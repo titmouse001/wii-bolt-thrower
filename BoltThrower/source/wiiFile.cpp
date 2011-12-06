@@ -90,14 +90,14 @@ FILE* WiiFile::FileOpenForRead(const char* const pFileName)
 	FILE* pFile(fopen(pFileName,"rb"));
 	if (pFile == NULL)
 	{
-		//printf("file not found '%s'\n",pFileName);
+		printf("file not found '%s'\n",pFileName);
 		Util::SleepForMilisec(1000*3);   
 		exit(1);
 	}
-//	else
-//	{
-//		printf("loading... '%s'\n",pFileName);
-//	}
+	else
+	{
+		printf("loading... '%s'\n",pFileName);
+	}
 
 	return pFile;
 }

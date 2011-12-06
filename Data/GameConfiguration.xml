@@ -87,7 +87,7 @@
 		<AddSound Name="Explode11"	FileName="Sounds/Explode11.wav" />
 		<AddSound Name="hitmetal"	FileName="Sounds/hitmetal.wav" />
 		<AddSound Name="Explode01"	FileName="Sounds/Explode01.wav" />
-		<AddSound Name="FireMissle"	FileName="Sounds/FireMissle.wav" />
+		<AddSound Name="FireMissle"	FileName="Sounds/FireMissle.ogg" />
 		<AddSound Name="AfterBurn"	FileName="Sounds/AfterBurn.wav" Loop="true"/>
 		<AddSound Name="DropMine"	FileName="Sounds/DropMine.wav" />
 	</Sounds>

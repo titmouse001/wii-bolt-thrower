@@ -30,21 +30,13 @@ SOURCES		:=	$(MODULES)
 DATA		:=	data  
 INCLUDES	:=
 
-#SOURCES   :=	source
-#SOURCES   := $(MODULES)
-#SOURCES   := $(addprefix source/,$(MODULES)) 
-
-
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
 
-#CFLAGS	= -ffast-math -fomit-frame-pointer -pipe -g -O2 -Wall  $(MACHDEP) $(INCLUDE)
-#CFLAGS	= -g -O2 -Wall $(MACHDEP) $(INCLUDE)
-CFLAGS	= -g -O2 -Wall -Wextra $(MACHDEP) $(INCLUDE)
-CXXFLAGS	=	$(CFLAGS)
-
-LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map
+CFLAGS		= -ffast-math -g -O2 -Wall -Wextra $(MACHDEP) $(INCLUDE)
+CXXFLAGS	= $(CFLAGS)
+LDFLAGS		= -g $(MACHDEP) -Wl,-Map,$(notdir $@).map
 
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
@@ -59,7 +51,8 @@ LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map
 
 #LIBS := -lfat -lvorbis -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm
 
-LIBS := -lfat -lvorbisidec -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm
+LIBS := -lfat -lvorbisidec -lpng -lz -lmodplay_AESND -lwiiuse -lbte -laesnd -logc -lm
+#LIBS := -lfat -lvorbisidec -lpng -lz -lmodplay_ASND -lwiiuse -lbte -lasnd -logc -lm
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
