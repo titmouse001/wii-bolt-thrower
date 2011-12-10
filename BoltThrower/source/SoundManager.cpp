@@ -42,7 +42,7 @@ AESNDPB* RawSample::Play(u8 VolumeLeft, u8 VolumeRight, bool bLoop)
 
 
 
-	AESNDPB* Chan = AESND_AllocateVoice2(NULL);  //call back will be set later on
+	AESNDPB* Chan = AllocateNextFreeVoice(NULL);  //call back will be set later on
 	if (Chan!=NULL)
 	{
 		AESND_SetVoiceVolume(Chan,VolumeLeft,VolumeRight);
@@ -119,6 +119,8 @@ void SoundManager::StopSound(AESNDPB* Chan)
 		return;
 
 	AESND_SetVoiceStop(Chan,true);
+	//AESND_FreeVoice(Chan);
+
 }
 #else
 void SoundManager::StopSound(int Chan)
@@ -152,7 +154,7 @@ void SoundManager::Init( )
 #endif
 #endif
 
-	m_OggPlayer.Init();
+	// m_OggPlayer.Init();  now done at play done since voices are no longer fixed slots
 }
 
 void SoundManager::UnInit( )
@@ -360,7 +362,7 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 	int SampleRate = vi->rate;
 	int BitsPerSample = 16;
 	
-	printf("rate %d", vi->rate);
+	//printf("rate %d", vi->rate);
 
 
 	u8* pRawData = (u8*)memalign(32, pcm_total );

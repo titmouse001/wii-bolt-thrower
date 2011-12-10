@@ -50,8 +50,7 @@ LDFLAGS		= -g $(MACHDEP) -Wl,-Map,$(notdir $@).map
 #########LIBS    :=  -lfat -lpng -lz -lmodplay -lwiiuse -lbte -lvorbisidec -lasnd -logc -lm 
 
 #LIBS := -lfat -lvorbis -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm
-
-LIBS := -lfat -lvorbisidec -lpng -lz -lmodplay_AESND -lwiiuse -lbte -laesnd -logc -lm
+LIBS := -lfat -lvorbisidec -lpng -lz -lmodplay -lwiiuse -lbte -laesnd -logc -lm
 #LIBS := -lfat -lvorbisidec -lpng -lz -lmodplay_ASND -lwiiuse -lbte -lasnd -logc -lm
 
 #---------------------------------------------------------------------------------

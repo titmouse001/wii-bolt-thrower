@@ -114,6 +114,7 @@ void SetUpGame::Menus()
 				else if ( Name ==  HashString::Change_Tune )
 				{
 	
+					Util3D::Identity();
 					Util3D::TransRot(-280,-150,0, M_PI *0.5f );
 					m_pWii->GetFontManager()->DisplayTextCentre("Loading...", 
 						0,0,
@@ -133,7 +134,7 @@ void SetUpGame::Menus()
 
 					m_pWii->NextMusic();
 
-					continue; // don't do the loops screen swap since its already do just above
+					continue; // don't do the loops screen swap since its already done
 				}
 				else if ( Name == HashString::download_extra_music )
 				{

@@ -210,7 +210,7 @@ void* OggPlayer::ogg_player_thread2(OggDataInfo* ptr)
 
 void OggPlayer::Init()
 { 
-	m_DedicatedOggVorbisVoice = AESND_AllocateVoice(VoiceCallBackFunction); 
+	m_DedicatedOggVorbisVoice = AESND_AllocateVoiceForMusic(VoiceCallBackFunction); 
 }
 
 void OggPlayer::Play(const void* buffer, s32 len, u8 Volume)
@@ -230,6 +230,8 @@ void OggPlayer::Play(const void* buffer, s32 len, u8 Volume)
 		OggData.ogg_thread_running = false;
 		return;
 	}
+
+	Init();  // grabs a unused voice
 	
 	// fill out OggVorbis_File struct with the ogg streams details information
 	OggData.vi = ov_info(&OggData.vf, -1); 

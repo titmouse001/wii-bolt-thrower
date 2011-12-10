@@ -132,9 +132,10 @@ void GameLogic::DoControls()
 
 		if (WPAD_ButtonsHeld(0) & WPAD_BUTTON_B)  // use thrusters
 		{
-			if (m_LastChanUsedForSoundAfterBurn == NULL)
+			//if (m_LastChanUsedForSoundAfterBurn == NULL)
 			{
-				m_LastChanUsedForSoundAfterBurn = m_pSoundManager->PlaySound( HashString::AfterBurn,32,32,true);
+				//m_LastChanUsedForSoundAfterBurn = m_pSoundManager->PlaySound( HashString::AfterBurn,255,255,true);
+				m_LastChanUsedForSoundAfterBurn = m_pSoundManager->PlaySound( HashString::AfterBurn,255,255);
 			}
 
 			GetPlrVessel()->AddVel( sin(GetPlrVessel()->GetFacingDirection() )*0.075,-cos( GetPlrVessel()->GetFacingDirection() )*0.075,0);
@@ -153,8 +154,9 @@ void GameLogic::DoControls()
 		{
 			if (m_LastChanUsedForSoundAfterBurn != NULL)		
 			{
-				m_pSoundManager->StopSound(m_LastChanUsedForSoundAfterBurn);
-				m_LastChanUsedForSoundAfterBurn = NULL;	
+				//AESND_SetVoiceLoop(m_LastChanUsedForSoundAfterBurn, false);
+				//m_pSoundManager->StopSound(m_LastChanUsedForSoundAfterBurn);
+				//m_LastChanUsedForSoundAfterBurn = NULL;	
 			}
 		}
 

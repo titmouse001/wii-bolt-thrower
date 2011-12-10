@@ -1,0 +1,14 @@
+- enable 64-byte fetch mode for the L2 cache
+- libasnd - add support for unsigned 8-bit and little-endian 16-bit audio
+- USB DVD support
+- proper iso9660 devoptab, decoupled from disc interface
+- USB HID support
+- USB storage compatibility improvements
+- fix tinysmb on GameCube
+- update nandbootinfo before launching a title
+- fix hardware lighting (GX_SetChanCtrl) 
+- increase max ipc retries. fixes reloading to ios 21
+- add large file support to tinysmb
+- try to init an unrecognized expansion device as a classic controller
+
+With thanks to Tantric, tueidj, rodries, clava, Extrems, DacoTaco and dimok for their contributions to this release.
