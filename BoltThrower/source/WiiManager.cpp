@@ -45,6 +45,9 @@
 //#include <sys/stat.h>
 #include "oggplayer/oggplayer.h"
 
+#include <grrmod.h>
+
+
 #define DEBUGCONSOLESTATE	( eDebugConsoleOn )  // it's ignored (off) in final release
 #define COLOUR_FOR_WIPE		( COLOR_BLACK )  // crash at startup colour
 
@@ -68,10 +71,12 @@ WiiManager::WiiManager() :
 							m_Difficulty("medium"),
 							m_MusicStillLeftToDownLoad(false),
 							m_IngameMusicVolume(3),
-							m_pModuleTrackerData(NULL)
+							m_pMusicData(NULL)
 { 
+	// -----------------------------
 	m_pFrameBuffer[0] = NULL;
 	m_pFrameBuffer[1] = NULL;
+	// -----------------------------
 	m_ImageManager			= new ImageManager;
 	m_FontManager			= new FontManager;
 	m_InputDeviceManager	= new InputDeviceManager;
@@ -87,12 +92,15 @@ WiiManager::WiiManager() :
 	m_URLManager			= new URLManager;
 	m_UpdateManager			= new UpdateManager;
 	m_SetUpGame				= new SetUpGame;
-
+	// -----------------------------
+	m_pMusicData			= new FileMemInfo;
+	// -----------------------------
 }
 
 WiiManager::~WiiManager()
 {
 	// note: manager's do their own housekeeping
+	// -----------------------------
 	delete m_ImageManager;		
 	delete m_FontManager;	
 	delete m_InputDeviceManager;
@@ -105,6 +113,9 @@ WiiManager::~WiiManager()
 	delete m_MessageBox;
 	delete m_URLManager;
 	delete m_UpdateManager;
+	// -----------------------------
+	delete m_pMusicData;
+	// -----------------------------
 }
 
 void WiiManager::UnInitWii()
@@ -132,11 +143,10 @@ void WiiManager::UnInitWii()
 		m_pFrameBuffer[1] = NULL;
 	}
 
-	if (m_ModuleTrackerPlayerInterface.mod.modraw!=NULL)
-	{
-		MODPlay_Stop( &m_ModuleTrackerPlayerInterface );
-		MODPlay_Unload( &m_ModuleTrackerPlayerInterface );
-	}
+	GRRMOD_End();
+
+//	m_SoundManager->UnInit();  //call this last
+
 }
 
 void WiiManager::InitWii()
@@ -147,6 +157,8 @@ void WiiManager::InitWii()
 	m_MessageBox->Init();
 	m_SetUpGame->Init();
 	m_UpdateManager->Init();
+
+//	m_SoundManager->Init();
 
 	Util::SetUpPowerButtonTrigger();
 
@@ -822,6 +834,9 @@ void WiiManager::InitDebugConsole(int ScreenOriginX, int ScreenOriginY)
 
 void WiiManager::InitGameResources()
 {
+	printf("InitGameResources 0");
+
+
 	// *** fonts ***
 	for ( vector<FileInfo>::iterator Iter( GetFontInfoBegin());	Iter !=  GetFontInfoEnd() ; ++Iter )
 	{
@@ -835,6 +850,7 @@ void WiiManager::InitGameResources()
 		}
 	}
 	
+	printf("InitGameResources 1");
 
 	// *** Add 3D Objects -  Lightwave 3d Objects, LWO ***
 	for ( vector<FileInfo>::iterator Iter( GetLwoInfoBegin());	Iter !=  GetLwoInfoEnd() ; ++Iter )
@@ -854,12 +870,16 @@ void WiiManager::InitGameResources()
 	
 	}
 
+	printf("InitGameResources 2");
 
 	//***  Sounds, WAV or OGG ***
 	for ( vector<FileInfo>::iterator SoundInfoIter( GetSoundinfoBegin()); SoundInfoIter !=  GetSoundinfoEnd() ; ++SoundInfoIter )
 	{
 		GetSoundManager()->LoadSound(WiiFile::GetGamePath()+SoundInfoIter->FileName,SoundInfoIter->LogicName);
 	}
+
+		printf("InitGameResources 3");
+
 
 	// *** Raw tga ***
 	for ( vector<FileInfo>::iterator SoundInfoIter( GetRawTgaInfoBegin()); SoundInfoIter !=  GetRawTgaInfoEnd() ; ++SoundInfoIter )
@@ -869,6 +889,8 @@ void WiiManager::InitGameResources()
 		m_RawTgaInfoContainer[(HashLabel)SoundInfoIter->LogicName] = Info;
 	}
 
+		printf("InitGameResources 4");
+
 	//---------------------------------------------------------------------------
 	// Collect the files required for loading images
 	std::set<std::string> ContainerOfUnqueFileNames;  // using set to store unique names
@@ -877,7 +899,8 @@ void WiiManager::InitGameResources()
 		ContainerOfUnqueFileNames.insert( FrameInfoIter->second.FileName );
 	}
 
-			
+	printf("InitGameResources 5");
+
 
 	ImageManager* pImageManager( GetImageManager() );
 	for (std::set<std::string>::iterator NameIter(ContainerOfUnqueFileNames.begin()); NameIter != ContainerOfUnqueFileNames.end(); ++NameIter )
@@ -932,14 +955,16 @@ void WiiManager::ScanMusicFolder()
 
 void WiiManager::LoadMusic()
 {
+	printf ("LoadMusic");
+
 	FileInfo* pInfo( GetCurrentMusicInfo() );
 	if (pInfo!=NULL)
 	{
-		if (m_pModuleTrackerData != NULL)
+		if (m_pMusicData->pData != NULL)  // stop anything that's currently playing
 		{
 			char* pTemp = new char[5];
 			memset (pTemp,0,5);
-			memcpy (pTemp,m_pModuleTrackerData,4);
+			memcpy (pTemp,m_pMusicData->pData,4);
 			string Header2 = pTemp;
 			if (Header2 == "OggS")
 			{
@@ -947,17 +972,15 @@ void WiiManager::LoadMusic()
 			}
 			else
 			{
-				if (m_ModuleTrackerPlayerInterface.playing)
-				{
-					MODPlay_Stop( &m_ModuleTrackerPlayerInterface );
-					MODPlay_Unload( &m_ModuleTrackerPlayerInterface );
-				}
+			    GRRMOD_Unload();  // safe to call even if nothing is playing (uses a internal sndPlaying flag)
 			}
 
-			free(m_pModuleTrackerData);
+			free(m_pMusicData->pData);
 		}
 
-		m_pModuleTrackerData = WiiFile::ReadFile(pInfo->FileName);
+		// Load the new music
+		WiiFile::ReadFile( pInfo->FileName, m_pMusicData );  // + fillout info structure (holds... data,size)
+
 	}
 }
 
@@ -974,12 +997,12 @@ FileInfo* WiiManager::GetCurrentMusicInfo()
 
 void WiiManager::SetMusicVolume(int Volume)
 {
-	if (m_pModuleTrackerData==NULL)
+	if (m_pMusicData->pData==NULL)
 		return;
 
 	char* pTemp = new char[5];
 	memset (pTemp,0,5);
-	memcpy (pTemp,m_pModuleTrackerData,4);
+	memcpy (pTemp,m_pMusicData->pData,4);
 	string Header2 = pTemp;
 
 
@@ -1002,15 +1025,14 @@ void WiiManager::SetMusicVolume(int Volume)
 	}
 	else
 	{
-		//if (m_ModuleTrackerPlayerInterface.playing)
+		if ( Volume > 0 )
 		{
-			if ( Volume > 0 )
-			{
-				MODPlay_Start(&m_ModuleTrackerPlayerInterface); 
-				MODPlay_SetVolume( &m_ModuleTrackerPlayerInterface, Volume*20,Volume*20);     
-			}
-			else
-				MODPlay_Stop(&m_ModuleTrackerPlayerInterface);
+			GRRMOD_Start();
+			GRRMOD_SetVolume( Volume*51,  Volume*51 );
+		}
+		else
+		{
+			GRRMOD_Pause();
 		}
 	}
 }
@@ -1018,41 +1040,31 @@ void WiiManager::SetMusicVolume(int Volume)
 
 void WiiManager::PlayMusic()
 {
-	if (m_pModuleTrackerData==NULL)
+
+printf("PlayMusic");
+
+	if (m_pMusicData->pData==NULL)
 			return;
+
 
 	//OggPlayer Ogg;
 
 	char* pTemp = new char[5];
 	memset (pTemp,0,5);
-	memcpy (pTemp,m_pModuleTrackerData,4);
+	memcpy (pTemp,m_pMusicData->pData,4);
 	string Header2 = pTemp;
 	if (Header2 == "OggS")
 	{
-		////-------------
-		//if (m_ModuleTrackerPlayerInterface.playing)
-		//{
-		//	MODPlay_Stop( &m_ModuleTrackerPlayerInterface );
-		//	MODPlay_Unload( &m_ModuleTrackerPlayerInterface );
-		//}
-		////-------------
-		//
 		FileInfo* Info = GetCurrentMusicInfo();
 		if (Info != NULL)
 		{
-		//	Ogg.Stop(); 
-			GetSoundManager()->m_OggPlayer.Play(m_pModuleTrackerData, (s32)Info->Size, 255 );
-		//	Ogg.Play(m_pModuleTrackerData, (s32)Info->Size, 255 );
+			GetSoundManager()->m_OggPlayer.Play(m_pMusicData->pData, (s32)Info->Size, 255 );
 		}
 	}
 	else
 	{
-	//	Ogg.Stop(); 
-
-		MODPlay_Init(&m_ModuleTrackerPlayerInterface);
-		MODPlay_SetMOD(&m_ModuleTrackerPlayerInterface, m_pModuleTrackerData);
-		MODPlay_Start(&m_ModuleTrackerPlayerInterface); 
-		MODPlay_SetVolume( &m_ModuleTrackerPlayerInterface, 100,100);
+		GRRMOD_SetMOD(m_pMusicData->pData, m_pMusicData->Size );
+		GRRMOD_Start();
 	}
 }
 
@@ -1071,8 +1083,8 @@ void WiiManager::NextMusic()
 
 			Iter->b_ThisSlotIsBeingUsed = true;
 
-			//if (m_pModuleTrackerData!=NULL)
-			//	free(m_pModuleTrackerData);
+			//if (m_pMusicData!=NULL)
+			//	free(m_pMusicData);
 
 			LoadMusic();
 			PlayMusic();

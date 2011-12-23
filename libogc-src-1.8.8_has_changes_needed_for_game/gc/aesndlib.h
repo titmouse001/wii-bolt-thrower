@@ -37,8 +37,10 @@ u32 AESND_GetDSPProcessTime();
 f32 AESND_GetDSPProcessUsage();
 AESNDAudioCallback AESND_RegisterAudioCallback(AESNDAudioCallback cb);
 
-AESNDPB* AllocateNextFreeVoice(AESNDVoiceCallback cb);
-AESNDPB* AESND_AllocateVoiceForMusic(AESNDVoiceCallback cb);
+AESNDPB* AESND_AllocateVoice(AESNDVoiceCallback cb); // just calls AESND_AllocateFixedVoice
+AESNDPB* AESND_AllocateNextFreeVoice(AESNDVoiceCallback cb);
+AESNDPB* AESND_AllocateFixedVoice(AESNDVoiceCallback cb);
+
 void AESND_FreeVoice(AESNDPB *pb);
 void AESND_SetVoiceStop(AESNDPB *pb,bool stop);
 void AESND_SetVoiceMute(AESNDPB *pb,bool mute);

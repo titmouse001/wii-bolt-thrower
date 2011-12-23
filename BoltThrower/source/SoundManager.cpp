@@ -1,5 +1,6 @@
-#include "SoundManager.h"
+// Manager: Holds Oggs and Wavs from file in memory
 
+#include "SoundManager.h"
 #include "malloc.h"
 #include "debug.h"
 #include "string.h"
@@ -7,111 +8,85 @@
 #include "WiiManager.h"
 #include "WiiFile.h"
 #include "Util.h"
-
-//#include <codec.h>
-//#include <vorbisfile.h>
-
 #include <tremor/ivorbiscodec.h>
 #include <tremor/ivorbisfile.h>
+#include <grrmod.h>  // for sound init - since it likes to take over the whole shop
 
-//static void __aesndvoicecallback(AESNDPB *pb, u32 state) 
+//static void VoiceCallBack(AESNDPB *pb, u32 state) 
 //{
 //   switch (state) 
 //   {
 //        case VOICE_STATE_STOPPED:
-//	//		 AESND_SetVoiceStop(pb,true);
-//	//		AESND_FreeVoice(pb);
+//	//		printf("VoiceCallBack %p %d",pb,state);  // OK!?!  this AESNDPB is pointing to the main sound call back... not for each voice as I was expecting
 //            break;
 //        case VOICE_STATE_RUNNING:
 //            break;
 //        case VOICE_STATE_STREAM:
 //            break;
 //    }
-//
-//	printf("CALLBACK %d",state);
 //}
 
-#ifdef USE_AESNDLIB
 AESNDPB* RawSample::Play(u8 VolumeLeft, u8 VolumeRight, bool bLoop)
 {
-	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStateGame() )
-		return 0;
-
-	// change library ... AESNDPB* AESND_AllocateVoice(AESNDVoiceCallback cb)
-	// to use VOICE_STOPPED not VOICE_USED to pick free slot
-
-
-
-	AESNDPB* Chan = AllocateNextFreeVoice(NULL);  //call back will be set later on
+	// change library ... AESNDPB* AESND_AllocateVoice(AESNDVoiceCallback cb) to use VOICE_STOPPED not VOICE_USED to pick free slot
+	AESNDPB* Chan = AESND_AllocateNextFreeVoice(NULL); 
 	if (Chan!=NULL)
-	{
-		AESND_SetVoiceVolume(Chan,VolumeLeft,VolumeRight);
+	{		
 		AESND_PlayVoice(Chan,
 			m_VoiceFormat,
 			(void*)m_RawData,
 			m_RawDataLength,m_SampleRate,
 			0,bLoop);
-	//	AESND_SetVoiceStream(Chan,false);
+
+		AESND_SetVoiceVolume(Chan,VolumeLeft,VolumeRight);
 	}
-
-
-	// NEED TO CALL AESND_FreeVoice - so going to need to add the callback on each play
-
-
-// m_RawDataLength*2 ??44100
-
-    //AESND_SetVoiceFrequency(Chan, m_SampleRate);
-	//AESND_SetVoiceFormat(Chan, m_VoiceFormat); // todo rename the use data member used here!!!
 	return Chan;
 }	
-#else
-int RawSample::Play(u8 VolumeLeft, u8 VolumeRight, bool bLoop)
+
+void RawSample::PlayFromVoice(u8 VolumeLeft, u8 VolumeRight, bool bLoop, AESNDPB* VoiceData )
 {
-	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStateGame() )
-		return 0;
-
-	int Chan = ASND_GetFirstUnusedVoice();
-	if (bLoop)
-		ASND_SetInfiniteVoice( Chan, m_VoiceFormat,m_SampleRate,0, m_RawData, m_RawDataLength , VolumeLeft, VolumeRight);
-	else
-		ASND_SetVoice( Chan, m_VoiceFormat,m_SampleRate,0, m_RawData, m_RawDataLength , VolumeLeft, VolumeRight, NULL);
-
-	return Chan;
+	if (VoiceData!=NULL)
+	{
+		AESND_SetVoiceVolume(VoiceData,VolumeLeft,VolumeRight);
+		AESND_PlayVoice(VoiceData,
+			m_VoiceFormat,
+			(void*)m_RawData,
+			m_RawDataLength,m_SampleRate,
+			0,bLoop);
+	}
 }	
-#endif
 
-#ifdef USE_AESNDLIB
+
 AESNDPB* SoundManager::PlaySound(HashLabel SoundName, u8 VolumeLeft, u8 VolumeRight, bool bLoop)
-#else
-int SoundManager::PlaySound(HashLabel SoundName, u8 VolumeLeft, u8 VolumeRight, bool bLoop)
-#endif
 {
 	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStateGame() )
-		return 0;
+		return NULL;
 
-	//todo - replace [] with something that will fail 
 	RawSample* pRaw = GetSound(SoundName);
 	if (pRaw!=NULL)
 	{
-		
 		AESNDPB* pSound = m_SoundContainer[SoundName]->Play( VolumeLeft, VolumeRight, bLoop ); 
-//		if (pSound!=NULL)
-//		{
-//			AESND_RegisterVoiceCallback(pSound, __aesndvoicecallback);
-//		}
 		return pSound;
 	}
-	else
-		ExitPrintf("PlaySound");
 
-#ifdef USE_AESNDLIB
+	ExitPrintf("missing sound");
 	return NULL;
-#else
-	return -1;
-#endif
 }
 
-#ifdef USE_AESNDLIB
+
+void SoundManager::PlaySoundFromVoice(HashLabel SoundName, u8 VolumeLeft, u8 VolumeRight, bool bLoop, AESNDPB* VoiceData)
+{
+	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStateGame() )
+		return;
+
+	RawSample* pRaw = GetSound(SoundName);
+	if (pRaw!=NULL)
+	{
+		m_SoundContainer[SoundName]->PlayFromVoice( VolumeLeft, VolumeRight, bLoop, VoiceData); 
+	}
+	else
+		ExitPrintf("missing sound");
+}
 
 void SoundManager::StopSound(AESNDPB* Chan)
 {
@@ -119,54 +94,30 @@ void SoundManager::StopSound(AESNDPB* Chan)
 		return;
 
 	AESND_SetVoiceStop(Chan,true);
-	//AESND_FreeVoice(Chan);
-
 }
-#else
-void SoundManager::StopSound(int Chan)
-{
-	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStateGame() )
-		return;
 
-	ASND_StopVoice(Chan);
-}
-#endif
-
-
-SoundManager::SoundManager( )
+SoundManager::SoundManager()// : m_FixMusicVoice(NULL)
 { 
 	Init();
 }
 
-SoundManager::~SoundManager( )
+SoundManager::~SoundManager()
 { 
 	UnInit();
 }
 
 void SoundManager::Init( )
 { 
-#ifdef ENABLE_SOUND
-#ifdef USE_AESNDLIB
-	AESND_Init();
-#else
-	SND_Init(INIT_RATE_48000);  // note: SND_xxx is the same as ASND_xxx
-	SND_Pause(0);  
-#endif
-#endif
+	GRRMOD_Init(true);  // this will to things like AESND_Init();  for you
 
-	// m_OggPlayer.Init();  now done at play done since voices are no longer fixed slots
+	m_FixSoundVoice = AESND_AllocateFixedVoice(NULL); // used for players looping thrusters
 }
 
 void SoundManager::UnInit( )
 { 
-#ifdef USE_AESNDLIB
-	AESND_Pause(true);
-	AESND_Reset();
-#else
-	ASND_Pause(1);  //pause
-	ASND_End();
-#endif
+    GRRMOD_End();
 }
+
 void SoundManager::LoadSound( std::string FullFileNameWithPath,std::string LookUpName )
 {
 	Util::StringToLower(FullFileNameWithPath);
@@ -265,8 +216,7 @@ void SoundManager::StoreSoundFromWav( std::string FullFileNameWithPath,std::stri
 
 u32 SoundManager::GetOggTotal(OggVorbis_File* vf)
 {
-	//todo
-	char PCM_Out[4096];
+	char PCM_Out[2048];
 	u32 Total=0;
 	int current_section;
 	long ret(0);
@@ -279,6 +229,7 @@ u32 SoundManager::GetOggTotal(OggVorbis_File* vf)
 //		Total += ret;
 //#else
 		ret = ov_read(vf,PCM_Out,sizeof(PCM_Out),&current_section);
+//		printf("===%d",ret);
 		Total += ret;
 //#endif
 	}while (ret!=0);
@@ -306,7 +257,6 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 		ExitPrintf("Not a Ogg file\n");
 	}
 
-
 	char **ptr=ov_comment(&vf,-1)->user_comments;
 	vorbis_info *vi=ov_info(&vf,-1);
 	while (*ptr)
@@ -320,23 +270,22 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 	s32 pcm_total = ov_pcm_total(&vf,-1);  // should be 64bits , but I'm not using anything that big!
 	if (pcm_total == OV_EINVAL)	
 	{
+	//	printf( "%ld", ov_time_total(&vf,-1) );
+
 		pcm_total = GetOggTotal(&vf);
 
-		printf("pcm_total %d",pcm_total);
+	//	printf("slow VERSION: pcm_total %d",pcm_total);
 
-		// this next bit is a VERY TEMP fudge - since the GetOggTotal walks the data and breaks things!!!
-		ov_clear(&vf);
-		pFile = WiiFile::FileOpenForRead( FullFileNameWithPath.c_str() );
-		if(ov_open(  pFile , &vf, NULL, 0) < 0) 
-		{
-			fclose(pFile);
-			ExitPrintf("Not a Ogg file\n");
-		}
+		// Fudge - not possible to use ov_pcm_total, need to close file to zero seek (not nice, but can't find any other way)
+		ov_clear(&vf); // this will close the open file
+		ov_open(  WiiFile::FileOpenForRead( FullFileNameWithPath.c_str() ) , &vf, NULL, 0);
 	}
 	else
 	{
 		pcm_total *= vi->channels;
 		pcm_total *= sizeof(u16);
+
+	//	printf("FAST VERSION: pcm_total %d",pcm_total);
 	}
 
 //	printf("\nBitstream is %d channel, %ldHz\n",vi->channels,vi->rate);	
@@ -351,13 +300,13 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 	int NumberOfChannels = VOICE_STEREO16;
 	if (vi->channels==1)
 	{
-		printf("VOICE_MONO16");
+//		printf("VOICE_MONO16");
 		NumberOfChannels = VOICE_MONO16;
 	}
-	else
-	{
-		printf("VOICE_STEREO16");
-	}
+//	else
+//	{
+//		printf("VOICE_STEREO16");
+//	}
 
 	int SampleRate = vi->rate;
 	int BitsPerSample = 16;
@@ -407,7 +356,16 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 //		ExitPrintf("not seekable");
 //	double length=ov_time_total(&vf,-1);
 
-	ov_clear(&vf);
+	// **********************************************************************************************
+	// Once a FILE * handle is passed to ov_open() successfully, the application 
+	// MUST NOT fclose() or in any other way manipulate that file handle. 
+	// Vorbisfile will close the file in ov_clear(). If the application must be able to 
+	// close the FILE * handle itself, see ov_open_callbacks() with the use of OV_CALLBACKS_NOCLOSE. 
+    // **********************************************************************************************
+	
+	ov_clear(&vf); // this will close the open file
+
+
 
 //	printf("SampleRate  %d",SampleRate);
 //	printf("SampleRate  %d",BitsPerSample);

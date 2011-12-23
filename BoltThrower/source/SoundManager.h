@@ -32,6 +32,9 @@ class RawSample
 public:
 #ifdef USE_AESNDLIB
 	AESNDPB* Play(u8 VolumeLeft=0xff, u8 VolumeRight=0xff, bool bLoop = false);
+	
+	void PlayFromVoice(u8 VolumeLeft, u8 VolumeRight, bool bLoop, AESNDPB* VoiceData );
+
 #else
 	int Play(u8 VolumeLeft=0xff, u8 VolumeRight=0xff, bool bLoop = false);
 #endif
@@ -61,16 +64,24 @@ public:
 	void LoadSound( std::string FullFileNameWithPath, std::string LookUpName );  // wav, ogg
 
 	std::map<HashLabel,RawSample*> m_SoundContainer;
-	RawSample* GetSound(HashLabel SoundName) { return m_SoundContainer[SoundName]; }
+	RawSample*	GetSound(HashLabel SoundName) { return m_SoundContainer[SoundName]; }
 #ifdef USE_AESNDLIB
-	AESNDPB*  PlaySound(HashLabel SoundName,u8 VolumeLeft = 255, u8 VolumeRight = 255, bool bLoop = false);
-	void StopSound(AESNDPB* Chan);
+	AESNDPB*	PlaySound(HashLabel SoundName,u8 VolumeLeft = 255, u8 VolumeRight = 255, bool bLoop = false);
+	void		PlaySoundFromVoice(HashLabel SoundName, u8 VolumeLeft, u8 VolumeRight, bool bLoop, AESNDPB* VoiceData);
+	void		StopSound(AESNDPB* Chan);
 #else
 	int  PlaySound(HashLabel SoundName,u8 VolumeLeft = 255, u8 VolumeRight = 255, bool bLoop = false);
 	void StopSound(int Chan);
 #endif
 
 	OggPlayer  m_OggPlayer;
+
+
+	AESNDPB*  m_FixSoundVoice;
+	//AESNDPB*  m_FixMusicVoice;
+
+		void Init();
+	void UnInit();
 
 
 private:
@@ -80,8 +91,8 @@ private:
 
 	u32 GetOggTotal(OggVorbis_File* vf);
 
-	void Init();
-	void UnInit();
+//	void Init();
+//	void UnInit();
 
 	//A WAV header consits of several chunks:
 	struct RIFFChunk

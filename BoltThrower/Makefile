@@ -47,11 +47,11 @@ LDFLAGS		= -g $(MACHDEP) -Wl,-Map,$(notdir $@).map
 # -logc -lmodplay -laesnd
 #LIBS	:=	-lpng -lz -lwiiuse -lbte -lfat -lasnd -logc -lmad -lm 
 # note to myself: lbte is the bluetooth lib, I think - well it adds things like wpad.c
-#########LIBS    :=  -lfat -lpng -lz -lmodplay -lwiiuse -lbte -lvorbisidec -lasnd -logc -lm 
 
-#LIBS := -lfat -lvorbis -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm
-LIBS := -lfat -lvorbisidec -lpng -lz -lmodplay -lwiiuse -lbte -laesnd -logc -lm
-#LIBS := -lfat -lvorbisidec -lpng -lz -lmodplay_ASND -lwiiuse -lbte -lasnd -logc -lm
+
+#LIBS := -lfat -lvorbisidec -lpng -lz -lmodplay -lwiiuse -lbte -laesnd -logc -lm
+LIBS := -lfat -lvorbisidec -lpng -lz -lgrrmod -lwiiuse -lbte -laesnd -logc -lm
+
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing

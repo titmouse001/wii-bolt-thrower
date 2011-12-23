@@ -32,8 +32,8 @@ public:
 	const static HashLabel FireMissle;
 	const static HashLabel AfterBurn;
 	const static HashLabel DropMine;
-	const static HashLabel Explode01;
-	const static HashLabel Explode11;
+	const static HashLabel Explode1;
+	const static HashLabel Explode2;
 	const static HashLabel hitmetal;
 
 	// graphics names

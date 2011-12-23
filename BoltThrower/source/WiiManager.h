@@ -206,8 +206,7 @@ public:
 	void	InitGameResources();
 
 	std::map<HashLabel,FrameStartEnd> m_FrameEndStartConstainer;  
-	u8* m_pModuleTrackerData;
-	MODPlay m_ModuleTrackerPlayerInterface;
+	FileMemInfo* m_pMusicData;  // holds things like mods & oggs
 
 	Image* GetSpaceBackground() { return GetImageManager()->GetImage(HashString::SpaceBackground01); }
 	Image* GetTinyLogo() { return GetImageManager()->GetImage(HashString::TinyLogo); }

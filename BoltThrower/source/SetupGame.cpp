@@ -40,23 +40,6 @@ void SetUpGame::Intro()
 			m_pWii->SetGameState(WiiManager::eExit);
 			return;
 		}
-
-		//if ( (WPAD_ButtonsUp(0) & WPAD_BUTTON_1)!= 0 )
-		//{
-		//		//-------------
-		//		//MODPlay_Stop( &m_pWii->m_ModuleTrackerPlayerInterface );
-		//		//MODPlay_Unload( &m_pWii->m_ModuleTrackerPlayerInterface );
-		//		//-------------
-		//		
-		//		OggPlayer Ogg;
-		//		string FullFileName = WiiFile::GetGamePath() + "03-Law of One-Indidginus.ogg"; // "09-Faerie tale-Indidginus.ogg";
-		//		FILE* pOggFile( WiiFile::FileOpenForRead( FullFileName.c_str() ) );
-		//		u32 OggSize = WiiFile::GetFileSize(pOggFile);
-		//		u8* pOggData = (u8*) malloc(OggSize);
-		//		fread( pOggData, OggSize, 1, pOggFile);
-		//		Ogg.PlayOgg(pOggData, OggSize, 0, OGG_ONE_TIME);
-		//}
-
 	} while( (WPAD_ButtonsUp(0) & (WPAD_BUTTON_A | WPAD_BUTTON_B) )== 0 );
 
 	m_pWii->SetGameState(WiiManager::eMenu);
@@ -82,10 +65,9 @@ void SetUpGame::Menus()
 
 			m_pWii->GetGameLogic()->MoonRocksLogic();
 			m_pWii->GetGameLogic()->CelestialBodyLogic();
+
 			m_pWii->GetMenuScreens()->DoMenuScreen();
 	
-
-
 			if ( (WPAD_ButtonsUp(0) & WPAD_BUTTON_B) || (m_pWii->GetMenuScreens()->HasMenuTimedOut()) )  
 			{
 				m_pWii->SetGameState(WiiManager::eIntro);
@@ -114,6 +96,8 @@ void SetUpGame::Menus()
 				else if ( Name ==  HashString::Change_Tune )
 				{
 	
+					//----------------------------------------------------------------------
+					// The menu screen hs been set above, so now just set the message
 					Util3D::Identity();
 					Util3D::TransRot(-280,-150,0, M_PI *0.5f );
 					m_pWii->GetFontManager()->DisplayTextCentre("Loading...", 
@@ -121,16 +105,17 @@ void SetUpGame::Menus()
 						200,HashString::SmallFont);
 					GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
 					m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
-
-					m_pWii->GetMenuScreens()->DoMenuScreen();
+					//----------------------------------------------------------------------
+					// next frame - now need to set the menu screen again before the text message
+					m_pWii->GetMenuScreens()->DoMenuScreen();  // draw menu screen again
+					Util3D::Identity();
+					Util3D::TransRot(-280,-150,0, M_PI *0.5f );
 					m_pWii->GetFontManager()->DisplayTextCentre("Loading...", 
 						0,0,
 						200,HashString::SmallFont);
 					GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
 					m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
-
-
-				//	Util::SleepForMilisec(2000);
+					//----------------------------------------------------------------------
 
 					m_pWii->NextMusic();
 
@@ -271,13 +256,6 @@ void SetUpGame::Play()
 	else
 		m_pWii->SetMusicVolume( 0 );
 
-	////if ( (m_pWii->GetMusicEnabled()) && (m_pWii->GetIngameMusicVolume() > 0) )
-	////{
-	//////	printf("%d", m_pWii->GetIngameMusicVolume()*20);
-	////	MODPlay_SetVolume( &m_pWii->m_ModuleTrackerPlayerInterface, m_pWii->GetIngameMusicVolume()*20,m_pWii->GetIngameMusicVolume()*20);     
-	////}
-	////else
-	////	MODPlay_Stop(&m_pWii->m_ModuleTrackerPlayerInterface);
 
 	m_pWii->GetGameLogic()->InitialiseGame();
 
@@ -308,22 +286,11 @@ void SetUpGame::Play()
 
 void SetUpGame::MainLoop() 
 {	
-	//MODPlay_Init(&m_pWii->m_ModuleTrackerPlayerInterface);
-	
 	m_pWii->SetGameState(WiiManager::eIntro);
 
 	while (1)
 	{
-		//if (!m_pWii->m_ModuleTrackerPlayerInterface.playing)
-		//{
-		//	MODPlay_SetMOD(&m_pWii->m_ModuleTrackerPlayerInterface, m_pWii->m_pModuleTrackerData);
-		//	MODPlay_Start(&m_pWii->m_ModuleTrackerPlayerInterface); 
-		//	MODPlay_SetVolume( &m_pWii->m_ModuleTrackerPlayerInterface, 100,100);    
-		//}
-
 		m_pWii->SetMusicVolume( 5 ); // 0 to 5, 0 is off - 5 is max
-
-
 
 		switch( (int)m_pWii->GetGameState() )
 		{

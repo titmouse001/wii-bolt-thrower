@@ -30,6 +30,8 @@ class OggPlayer
 {
 public:
 
+	OggPlayer();
+
 	struct OggDataInfo
 	{
 		OggVorbis_File vf;

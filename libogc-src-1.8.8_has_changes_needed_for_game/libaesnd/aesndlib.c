@@ -84,6 +84,9 @@ static u8 __dspdram[DSP_DRAMSIZE] ATTRIBUTE_ALIGN(32);
 static u8 mute_buffer[SND_BUFFERSIZE] ATTRIBUTE_ALIGN(32);
 static u8 audio_buffer[2][SND_BUFFERSIZE] ATTRIBUTE_ALIGN(32);
 
+static volatile u32 __NextFreeAfterTheFixedVoices = 0; 
+
+
 static __inline__ void snd_set0b(char *p,int n)
 {
 	while(n>0) { *p++ = 0; n--; }
@@ -466,6 +469,11 @@ void AESND_Init()
 	AUDIO_InitDMA((u32)audio_buffer[__aesndcurrab],SND_BUFFERSIZE);
 	AUDIO_StartDMA();
 
+	__NextFreeAfterTheFixedVoices = 0; // allow for music - always take up slot ZERO
+	// don't care about the call back - the interface will allow it to be set later on in client code 
+	// use AESND_AllocateVoiceForMusic() to get this voice in client code
+	//AESND_AllocateFixedVoice( NULL );  // allocate 1 fix voice at the start - Most things will need a fixed voice for music
+	
 	_CPU_ISR_Restore(level);
 }
 
@@ -486,6 +494,8 @@ void AESND_Reset()
 		} while(__aesnddspinit);
 
 		__aesndinit = 0;
+		
+		__NextFreeAfterTheFixedVoices = 0;
 	}
 	_CPU_ISR_Restore(level);
 }
@@ -536,10 +546,11 @@ AESNDAudioCallback AESND_RegisterAudioCallback(AESNDAudioCallback cb)
 	return aCB;
 }
 
-/* 
-AESNDPB* AESND_AllocateVoice(AESNDVoiceCallback cb)
+AESNDPB* AESND_AllocateVoice(AESNDVoiceCallback cb) // keep supporting previous func name
 {
-	u32 i,level;
+	return AESND_AllocateFixedVoice(cb);
+
+/* 	u32 i,level;
 	AESNDPB *pb = NULL;
 
 	_CPU_ISR_Disable(level);
@@ -563,17 +574,17 @@ AESNDPB* AESND_AllocateVoice(AESNDVoiceCallback cb)
 	}
 	_CPU_ISR_Restore(level);
 
-	return pb;
+	return pb; */
 }
- */
  
-AESNDPB* AllocateNextFreeVoice(AESNDVoiceCallback cb)
+AESNDPB* AESND_AllocateNextFreeVoice(AESNDVoiceCallback cb)
 {
 	u32 i,level;
 	AESNDPB *pb = NULL;
 
 	_CPU_ISR_Disable(level);
-	for(i=0 + 1 ;i<MAX_VOICES;i++)   // +1 as the first slot is reserved music
+	for(i=0 + __NextFreeAfterTheFixedVoices ;i<MAX_VOICES;i++)   // +__NextFreeAfterTheFixedVoices as the first items in the list are reserved for things like music
+	//for(i=MAX_VOICES-1 ; i >= __NextFreeAfterTheFixedVoices; i--)  
 	{
 		pb = &__aesndvoicepb[i];
 		if((pb->flags&VOICE_STOPPED))
@@ -599,19 +610,18 @@ AESNDPB* AllocateNextFreeVoice(AESNDVoiceCallback cb)
 }
 
 
-AESNDPB* AESND_AllocateVoiceForMusic(AESNDVoiceCallback cb)
+AESNDPB* AESND_AllocateFixedVoice(AESNDVoiceCallback cb)
 {
-	#define VOICESLOTFORMUSIC (0)
-	
 	u32 level;
 	AESNDPB *pb = NULL;
 
 	_CPU_ISR_Disable(level);
 
-	pb = &__aesndvoicepb[VOICESLOTFORMUSIC];
-	if (pb->flags&VOICE_STOPPED)
+	pb = &__aesndvoicepb[__NextFreeAfterTheFixedVoices];
+	//if (pb->flags&VOICE_STOPPED)
+	if(!(pb->flags&VOICE_USED)) 
 	{
-		pb->voiceno = VOICESLOTFORMUSIC;
+		pb->voiceno = __NextFreeAfterTheFixedVoices;
 		pb->flags = (VOICE_USED|VOICE_STOPPED);
 		pb->pds = pb->yn1 = pb->yn2 = 0;
 		pb->buf_start = 0;
@@ -623,11 +633,15 @@ AESNDPB* AESND_AllocateVoiceForMusic(AESNDVoiceCallback cb)
 		pb->freq_h = 0x0001;
 		pb->freq_l = 0x0000;
 		pb->cb = cb;
+		
+		__NextFreeAfterTheFixedVoices++;
 	}
 	_CPU_ISR_Restore(level);
 
 	return pb;
 }
+ 
+ 
 void AESND_FreeVoice(AESNDPB *pb)
 {
 	u32 level;

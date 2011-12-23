@@ -27,8 +27,8 @@ const HashLabel HashString::SmallFont("SmallFont");
 const HashLabel HashString::FireMissle("FireMissle");
 const HashLabel HashString::AfterBurn("AfterBurn");
 const HashLabel HashString::DropMine("DropMine");
-const HashLabel HashString::Explode01("Explode01");
-const HashLabel HashString::Explode11("Explode11");
+const HashLabel HashString::Explode1("Explode1");
+const HashLabel HashString::Explode2("Explode2");
 const HashLabel HashString::hitmetal("hitmetal");
 
 //graphics

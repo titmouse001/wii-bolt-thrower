@@ -8,6 +8,14 @@ using namespace std;
 
 #include <vector>
 
+
+struct FileMemInfo
+{
+	u8* pData;
+	u32	Size;
+};
+
+
 class FileInfo  // general (used for just about anything!!!)
 {
 public:
@@ -48,9 +56,10 @@ namespace WiiFile
 	int		GetFileSize(FILE* pFile);
 
 	u8*		mallocfread(FILE* pFile);
+	u8*		mallocfread(FILE* pFile, FileMemInfo* Info);
 
 	u8*		ReadFile(string FileName);
-
+	u8*		ReadFile(string FileName,FileMemInfo* Info);
 
 	u32		ReadInt32(FILE* pFile);
 	u16		ReadInt16(FILE* pFile);

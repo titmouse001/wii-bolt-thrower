@@ -13,6 +13,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
+
 #if (BYTE_ORDER == BIG_ENDIAN)
 #define ENDIAN16(Value) (Value = ((Value&0x00ff)<<8) |  ((Value&0xff00)>>8))
 #define ENDIAN32(Value) (Value = ((Value&0xff000000)>>24) |  ((Value&0x00ff0000)>>8) | ((Value&0x0000ff00)<<8) |  ((Value&0x000000ff)<<24))
@@ -94,10 +95,10 @@ FILE* WiiFile::FileOpenForRead(const char* const pFileName)
 		Util::SleepForMilisec(1000*3);   
 		exit(1);
 	}
-//	else
-//	{
-//		printf("loading... '%s'\n",pFileName);
-//	}
+	else
+	{
+		printf("loading... '%s'\n",pFileName);
+	}
 
 	return pFile;
 }
@@ -109,8 +110,20 @@ u8* WiiFile::mallocfread(FILE* pFile)
 	size_t result = fread (pData,1,FileSize,pFile);
 	if (result != FileSize) 
 		ExitPrintf ("Reading error"); 
-//	else
-//		fclose(pFile);
+
+	return pData;
+}
+
+u8* WiiFile::mallocfread(FILE* pFile, FileMemInfo* pInfo)
+{
+	uint FileSize = GetFileSize(pFile);
+	u8* pData = (u8*)malloc(FileSize );
+	size_t result = fread (pData,1,FileSize,pFile);
+	if (result != FileSize) 
+		ExitPrintf ("Reading error"); 
+
+	pInfo->pData = pData;
+	pInfo->Size = result;
 
 	return pData;
 }
@@ -121,6 +134,16 @@ u8* WiiFile::ReadFile(string FileName)
 	FILE* pFile = FileOpenForRead(FileName);
 	pData = mallocfread(pFile);
 	fclose (pFile);
+	return pData;
+}
+
+u8* WiiFile::ReadFile(string FileName,FileMemInfo* pInfo)
+{
+	u8* pData(NULL);
+	FILE* pFile = FileOpenForRead(FileName);
+	pData = mallocfread(pFile,pInfo); // info is filled out
+	fclose (pFile);
+
 	return pData;
 }
 

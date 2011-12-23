@@ -228,9 +228,22 @@ void MODPlay_Init(MODPlay *mod)
     AUDIO_Init(NULL);
 #else
 	
-	//modvoice = AESND_AllocateVoice(__aesndvoicecallback);
+	if (modvoice == NULL)
+	{
+		// stop multiple call from eating up all the voices
+		modvoice = AESND_AllocateFixedVoice(__aesndvoicecallback);  // titmouse 2011, AESND_AllocateVoice will eat a new voice each time and it can never be released
+	}
 	
-	modvoice = AESND_AllocateVoiceForMusic(__aesndvoicecallback);  // titmouse 2011
+/* 	 // titmouse 2011
+	if (Chan!=NULL) 
+	{
+		modvoice = Chan;
+		AESND_RegisterVoiceCallback(modvoice,__aesndvoicecallback);
+	}
+	else
+	{
+		modvoice = AESND_AllocateVoice(__aesndvoicecallback); 
+	} */
 		
 	
 	if(modvoice) {

@@ -6,6 +6,8 @@
 #include <tremor/ivorbiscodec.h>
 #include <tremor/ivorbisfile.h>
 #include "oggplayer.h"
+#include "../Singleton.h"
+#include "../Wiimanager.h"
 #include "../DEBUG.h"
 
 //class OggPlayerInfo
@@ -139,6 +141,10 @@ static OggPlayer::OggDataInfo OggData;
 static lwpq_t oggplayer_queue = LWP_TQUEUE_NULL;
 static lwp_t h_oggplayer = LWP_THREAD_NULL;
 
+OggPlayer::OggPlayer() : m_DedicatedOggVorbisVoice (NULL) 
+{
+}
+
 void OggPlayer::VoiceCallBackFunction(AESNDPB *pb, u32 state) 
 {
 	if (state == VOICE_STATE_STREAM)
@@ -210,7 +216,15 @@ void* OggPlayer::ogg_player_thread2(OggDataInfo* ptr)
 
 void OggPlayer::Init()
 { 
-	m_DedicatedOggVorbisVoice = AESND_AllocateVoiceForMusic(VoiceCallBackFunction); 
+	//AESNDPB* Chan = Singleton<WiiManager>::GetInstanceByPtr()->GetSoundManager()->m_FixMusicVoice;
+	//AESND_RegisterVoiceCallback(Chan,VoiceCallBackFunction);
+
+	if (m_DedicatedOggVorbisVoice==NULL)
+	{
+		m_DedicatedOggVorbisVoice = AESND_AllocateFixedVoice(VoiceCallBackFunction);
+	}
+
+	//m_DedicatedOggVorbisVoice = Chan; //AESND_AllocateFixedVoice(VoiceCallBackFunction); 
 }
 
 void OggPlayer::Play(const void* buffer, s32 len, u8 Volume)

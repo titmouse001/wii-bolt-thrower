@@ -175,7 +175,11 @@ void Render3D::LoadTextures(Object3D& Obj3D)
 		{
 			std::string FileNameWithPath = *iter;
 			std::string basename ( FileNameWithPath.substr( FileNameWithPath.find_last_of( '/' ) +1 ) );  
-			// todo: what about ??? d:thing.tga using no dirs ???
+
+			// check for route, e.g. "C:thing.tga"
+			basename = basename.substr( basename.find_last_of( ':' ) +1 );  
+						
+
 
 			std::string LongFileName( WiiFile::GetGamePath() + "lwo/textures/" + basename );
 			const HashLabel Hash((HashLabel)LongFileName);

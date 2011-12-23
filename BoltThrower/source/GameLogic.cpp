@@ -108,7 +108,7 @@ void GameLogic::DoControls()
 		if ((WPAD_ButtonsDown(0) & WPAD_BUTTON_A) || (WPAD_ButtonsUp(0) & WPAD_BUTTON_A)) 
 		{
 			// Fire Missle
-			m_pSoundManager->PlaySound( HashString::FireMissle,255,255);
+			m_pSoundManager->PlaySound( HashString::FireMissle,34,34);
 
 			Vessel Missile = *GetPlrVessel();
 			// NOTE: STUPID balue in missle logic need changing with this - TODO redo this
@@ -132,10 +132,14 @@ void GameLogic::DoControls()
 
 		if (WPAD_ButtonsHeld(0) & WPAD_BUTTON_B)  // use thrusters
 		{
-			//if (m_LastChanUsedForSoundAfterBurn == NULL)
+			if (m_LastChanUsedForSoundAfterBurn == NULL)
 			{
 				//m_LastChanUsedForSoundAfterBurn = m_pSoundManager->PlaySound( HashString::AfterBurn,255,255,true);
-				m_LastChanUsedForSoundAfterBurn = m_pSoundManager->PlaySound( HashString::AfterBurn,255,255);
+			//	m_LastChanUsedForSoundAfterBurn = m_pSoundManager->PlaySound( HashString::AfterBurn,40,40,true);
+
+				m_pSoundManager->PlaySoundFromVoice( HashString::AfterBurn,40,40,true, m_pSoundManager->m_FixSoundVoice );
+				m_LastChanUsedForSoundAfterBurn = m_pSoundManager->m_FixSoundVoice;
+
 			}
 
 			GetPlrVessel()->AddVel( sin(GetPlrVessel()->GetFacingDirection() )*0.075,-cos( GetPlrVessel()->GetFacingDirection() )*0.075,0);
@@ -155,8 +159,8 @@ void GameLogic::DoControls()
 			if (m_LastChanUsedForSoundAfterBurn != NULL)		
 			{
 				//AESND_SetVoiceLoop(m_LastChanUsedForSoundAfterBurn, false);
-				//m_pSoundManager->StopSound(m_LastChanUsedForSoundAfterBurn);
-				//m_LastChanUsedForSoundAfterBurn = NULL;	
+				m_pSoundManager->StopSound(m_LastChanUsedForSoundAfterBurn);
+				m_LastChanUsedForSoundAfterBurn = NULL;	
 			}
 		}
 
@@ -776,7 +780,7 @@ void GameLogic::FeoShieldLevelLogic()   // explode enemy ships
 			Boom.SetGravity(1.0f);
 			m_DyingEnemiesContainer->push_back(Boom); // add to DyingEnemies
 
-			m_pSoundManager->PlaySound( HashString::Explode01,100,100);
+			m_pSoundManager->PlaySound( HashString::Explode1,100,100);
 			BadIter = m_SmallEnemiesContainer->erase(BadIter); // remove from this list
 		}
 		else
@@ -798,7 +802,7 @@ void GameLogic::FeoShieldLevelLogic()   // explode enemy ships
 			Boom.SetGravity(1.0f);
 			m_DyingEnemiesContainer->push_back(Boom); // Add to DyingEnemies
 
-			m_pSoundManager->PlaySound( HashString::Explode01,100,100);
+			m_pSoundManager->PlaySound( HashString::Explode1,100,100);
 			GunShipIter = m_GunShipContainer->erase(GunShipIter); // remove from this list
 		}
 		else
@@ -855,7 +859,7 @@ void GameLogic::PlayerCollisionLogic()
 					0.5f, // Start Scale
 					0.20f ); // Scale Factor
 
-				m_pSoundManager->PlaySound( HashString::Explode01,100,100);
+				m_pSoundManager->PlaySound( HashString::Explode1,100,100);
 				ProjectileIter = m_ProjectileContainer->erase( ProjectileIter );
 			}
 			else
@@ -946,7 +950,7 @@ void GameLogic::ProbeMineLogic(std::vector<Vessel>*  pVesselContainer, float Thr
 
 					ProbeMineIter = m_ProbeMineContainer->erase( ProbeMineIter );  // SAFE to erase - about to exit loop
 					bMineDeleted = true;
-					m_pSoundManager->PlaySound( HashString::Explode11,100,100 );
+					m_pSoundManager->PlaySound( HashString::Explode2,100,100 );
 					break; // dont bother with checking the rest of the bad ships since the mine has exploded (only takes out one ship)
 				}
 				else if (!HaveLockOnSoForgetTheRest)

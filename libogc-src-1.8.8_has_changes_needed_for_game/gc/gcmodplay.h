@@ -3,6 +3,7 @@
 
 #include <gctypes.h>
 #include "modplay/modplay.h"
+#include <aesndlib.h>
 
 #ifdef __cplusplus
    extern "C" {
