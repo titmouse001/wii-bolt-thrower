@@ -222,9 +222,8 @@ void OggPlayer::Init()
 	if (m_DedicatedOggVorbisVoice==NULL)
 	{
 		m_DedicatedOggVorbisVoice = AESND_AllocateFixedVoice(VoiceCallBackFunction);
+		//m_DedicatedOggVorbisVoice = AESND_AllocateVoice(VoiceCallBackFunction);
 	}
-
-	//m_DedicatedOggVorbisVoice = Chan; //AESND_AllocateFixedVoice(VoiceCallBackFunction); 
 }
 
 void OggPlayer::Play(const void* buffer, s32 len, u8 Volume)

@@ -251,7 +251,7 @@ public:
 	bool  InsideRadius(Vessel& rVessel, float radius);
 
 	float GetSpin() const { return m_Spin; }
-	void SetSpin(float fValue)  { m_Spin = fValue; }
+	void SetSpin(float fValue)  { m_Spin = fValue; }	
 
 	float GetGravity() const { return m_Gravity; }
 	void SetGravity(float fValue) { m_Gravity = fValue;}

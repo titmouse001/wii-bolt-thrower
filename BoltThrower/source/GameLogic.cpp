@@ -192,7 +192,11 @@ void GameLogic::StillAlive()
 			ScrollFactor = 0.015f;	
 	}
 	// move Camera using factor
-	m_pWii->GetCamera()->CameraMovementLogic(GetPlrVessel()->GetX(), GetPlrVessel()->GetY(), m_pWii->GetCamera()->GetCamZ(), ScrollFactor);
+	m_pWii->GetCamera()->CameraMovementLogic(
+		GetPlrVessel()->GetX(),
+		GetPlrVessel()->GetY(), 
+		m_pWii->GetCamera()->GetCameraHeightFor2DViewPort(),
+		ScrollFactor);
 
 	MissionManager* pMissionManager( m_pWii->GetMissionManager() );
 	Mission& MissionData( pMissionManager->GetMissionData() );
@@ -1894,7 +1898,9 @@ void GameLogic::InitialiseGame()
 	GetPlrVessel()->ClearPickUpTotal();
 	GetPlrVessel()->SetFacingDirection( m_pWii->GetXmlVariable(HashString::PlayerFacingDirection) );
 	GetPlrVessel()->SetPos( m_pWii->GetXmlVariable(HashString::PlayerStartingPointX),m_pWii->GetXmlVariable(HashString::PlayerStartingPointY),0.0f );
-	m_pWii->GetCamera()->SetCameraView(GetPlrVessel()->GetX(),GetPlrVessel()->GetY());
+
+	m_pWii->GetCamera()->SetCameraView( GetPlrVessel()->GetX(),GetPlrVessel()->GetY());
+
 	GetPlrVessel()->SetVel( m_pWii->GetXmlVariable(HashString::PlayerStartingVelocityX), m_pWii->GetXmlVariable(HashString::PlayerStartingVelocityY),0.0f );
 	GetPlrVessel()->SetShieldLevel( m_pWii->GetXmlVariable(HashString::PlayerMaxShieldLevel) );
 

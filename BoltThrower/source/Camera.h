@@ -18,6 +18,7 @@ public:
 
 	void SetCameraView(float x, float y)  ;
 	void SetCameraView(float x, float y, float z)  ;
+	void SetCameraView(guVector& LookAt, guVector& Cam);
 	void SetCameraView(f32 LookAtX, f32 LookAtY, f32 LookAtZ, f32 CamX, f32 CamY, f32 CamZ);
 
 	void ForceCameraView(float x, float y);
@@ -53,6 +54,8 @@ public:
 	void RecallCameraView()	{ m_camera = m_StoredCamera; SetCameraView(); }
 
 
+	float GetCameraHeightFor2DViewPort();
+	
 private:
 
 	void SetCameraView();

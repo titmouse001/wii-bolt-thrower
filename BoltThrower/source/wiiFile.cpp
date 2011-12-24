@@ -1,5 +1,9 @@
 #include "WiiFile.h"
 #include <stdlib.h>
+#include "malloc.h"  //memalign
+#include <string.h> //memset
+
+
 #include "fat.h"
 #include "debug.h"
 #include "ogcsys.h"
@@ -117,10 +121,17 @@ u8* WiiFile::mallocfread(FILE* pFile)
 u8* WiiFile::mallocfread(FILE* pFile, FileMemInfo* pInfo)
 {
 	uint FileSize = GetFileSize(pFile);
-	u8* pData = (u8*)malloc(FileSize );
+	
+	//u8* pData = (u8*)malloc(FileSize );
+	u8* pData = (u8*)memalign(32, FileSize);
+
+		DCFlushRange(pData, FileSize);
+
 	size_t result = fread (pData,1,FileSize,pFile);
 	if (result != FileSize) 
 		ExitPrintf ("Reading error"); 
+
+	//memset(pData,0,result);
 
 	pInfo->pData = pData;
 	pInfo->Size = result;

@@ -24,7 +24,7 @@ public:
 	void DebugInformation();
 private:
 
-
+	void DisplayPlayer();
 
 	void DisplayPickUps();
 	void DisplayShieldGenerators();

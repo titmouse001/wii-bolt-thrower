@@ -1,11 +1,9 @@
+#include <math.h>
+
 #include "Camera.h"
 #include "WiiManager.h"
 #include "debug.h"
-#include <math.h>
-
-
 #include "CullFrustum\FrustumR.h"
-
 #include "CullFrustum\Vec3.h"
 
 // when... FOV set at 90 , giving a full left & right view. 
@@ -18,26 +16,12 @@ void Camera::InitialiseCamera()
 	WiiManager& Wii( Singleton<WiiManager>::GetInstanceByRef() );  // backbone stuff
 	static const guVector UP = {0.0F, -1.0F, 0.0F}; 
 	m_up = UP; 
-
-//	f32 w = Wii.GetScreenWidth();
-	f32 h = Wii.GetScreenHeight();
-	float Fov = 45.0f;
-	float triangle = 90.0f - (Fov * 0.5f); 
-	float rads = triangle * (M_PI/180.0f);
-	float CameraHeight = tan(rads) * (h * 0.5); 
-
-	//printf("Camera Height %f",CameraHeight);
+	float CameraHeight = GetCameraHeightFor2DViewPort();
 	SetCameraView( (Wii.GetScreenWidth()/2), (Wii.GetScreenHeight()/2), -(CameraHeight));
 }
 
-////void Camera::CameraMovementLogic(float MoveToX, float MoveToY,float fFactor)
-////{
-////	CameraMovementLogic(MoveToX, MoveToY, GetCamZ(),fFactor);
-////}
-void Camera::CameraMovementLogic(float MoveToX, float MoveToY, float MoveToZ,float fFactor)
+void Camera::CameraMovementLogic(float MoveToX, float MoveToY, float MoveToZ, float fFactor)
 {
-	//static float fFactor(0.075f);
-	//static float fFactor(0.065f);
 	AddCamX( ( MoveToX - GetCamX() ) * fFactor );
 	AddCamY( ( MoveToY - GetCamY() ) * fFactor );
 	AddCamZ( ( MoveToZ - GetCamZ() ) * fFactor );
@@ -45,18 +29,16 @@ void Camera::CameraMovementLogic(float MoveToX, float MoveToY, float MoveToZ,flo
 	SetCameraView();
 }
 
-extern FrustumR frustum;
-
-void Camera::SetCameraView()  //private
+void Camera::SetCameraView() 
 {
 	m_look	= m_camera; 
 	m_look.z = 0.0f;
 	guLookAt(m_cameraMatrix, &m_camera,	&m_up, &m_look);
-
 	Vec3 v1(m_camera.x,m_camera.y,m_camera.z);
 	Vec3 v2(m_look.x,m_look.y,m_look.z);
 	Vec3 v3(m_up.x,m_up.y,m_up.z);
 
+	// *** This will update the frustum view ***
 	Singleton<WiiManager>::GetInstanceByRef().m_Frustum.setCamDef(v1,v2,v3);
 }
 
@@ -64,26 +46,38 @@ void Camera::SetCameraView(float x, float y)
 { 
 	m_camera.x = x; 
 	m_camera.y = y;  
-
-	WiiManager& Wii( Singleton<WiiManager>::GetInstanceByRef() );  
-	f32 h = Wii.GetScreenHeight();
-	float Fov = 45.0f;
-	float triangle = 90.0f - (Fov * 0.5f); 
-	float rads = triangle * (M_PI/180.0f);
-	float CameraHeight = tan(rads) * (h * 0.5); 
-	m_camera.z = -CameraHeight;
-
+	m_camera.z = GetCameraHeightFor2DViewPort();
 	SetCameraView();
+}
+
+void Camera::SetCameraView(float x, float y, float z)  
+{ 
+	m_camera.x = x; 
+	m_camera.y = y; 
+	m_camera.z = z; 
+	SetCameraView();
+}
+
+void Camera::SetCameraView(guVector& LookAt, guVector& Cam)
+{
+	guLookAt(m_cameraMatrix, &Cam,	&m_up, &LookAt);
+}
+
+void Camera::SetCameraView(f32 LookAtX, f32 LookAtY, f32 LookAtZ, f32 CamX, f32 CamY, f32 CamZ)
+{
+	m_look.x = LookAtX;
+	m_look.y = LookAtY;
+	m_look.z = LookAtZ;
+	m_camera.x = CamX; 
+	m_camera.y = CamY;  
+	m_camera.z = CamZ;  
+
+	SetCameraView(m_look, m_camera);
 }
 
 void Camera::ForceCameraView(float x, float y)  
 {
-	WiiManager& Wii( Singleton<WiiManager>::GetInstanceByRef() );  
-	f32 h = Wii.GetScreenHeight();
-	float Fov = 45.0f;
-	float triangle = 90.0f - (Fov * 0.5f); 
-	float rads = triangle * (M_PI/180.0f);
-	float CameraHeight = tan(rads) * (h * 0.5); 
+	float CameraHeight = GetCameraHeightFor2DViewPort();
 
 	guVector camera	= {x, y, CameraHeight }; 
 	guVector look	= {x, y, 0.0f };
@@ -96,27 +90,21 @@ void Camera::ForceCameraView(float x, float y)
 	Singleton<WiiManager>::GetInstanceByRef().m_Frustum.setCamDef(v1,v2,v3);
 }
 
-void Camera::SetCameraView(float x, float y, float z)  
-{ 
-	m_camera.x = x; 
-	m_camera.y = y; 
-	m_camera.z = z; 
-	SetCameraView();
-}
-
-
-void Camera::SetCameraView(f32 LookAtX, f32 LookAtY, f32 LookAtZ, f32 CamX, f32 CamY, f32 CamZ)
+float Camera::GetCameraHeightFor2DViewPort()
 {
-	m_look.x = LookAtX;
-	m_look.y = LookAtY;
-	m_look.z = LookAtZ;
-	m_camera.x = CamX; 
-	m_camera.y = CamY;  
-	m_camera.z = CamZ;  
+	WiiManager& Wii( Singleton<WiiManager>::GetInstanceByRef() );  // backbone stuff
 
-	guLookAt(m_cameraMatrix, &m_camera,	&m_up, &m_look);
+	f32 h = Wii.GetScreenHeight();
+	float Fov = 45.0f;
+	float triangle = 90.0f - (Fov * 0.5f); 
+	float rads = triangle * (M_PI/180.0f);
+	
+	return -(tan(rads) * (h * 0.5)); 
 }
 
+// -------------------------------------------------------------
+// Lighting
+// -------------------------------------------------------------
 
 void Camera::SetLightOn3(float x, float y, float z)
 {
@@ -189,9 +177,6 @@ void Camera::SetLightOn2()
     GX_SetChanMatColor(GX_COLOR0A0,MaterialColour);
 
 }
-
-
-
 
 void Camera::SetVesselLightOn(float x, float y, float z)
 {

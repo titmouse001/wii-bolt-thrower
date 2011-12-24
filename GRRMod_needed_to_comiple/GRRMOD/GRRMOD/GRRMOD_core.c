@@ -42,6 +42,7 @@ static void* player(void *);
 
 static s32 mod_freq = 48000;
 static AESNDPB  *modvoice = NULL;
+static bool g_stereo = true;
 
 #ifdef _GRRMOD_DEBUG
 static u64 mixtime = 0;
@@ -60,30 +61,38 @@ static void __aesndvoicecallback(AESNDPB *pb,u32 state);
  *         -    -1 : Failed to initialize engine.
  * @see GRRMOD_End
  */
-s8 GRRMOD_Init(bool stereo) {
+s8 GRRMOD_Init(bool stereo) 
+{
+	g_stereo = stereo;
+
     GRRMOD_MOD_Register(&RegFunc);
     //GRRMOD_MP3_Register(&RegFunc);
 
     s8 errorCode = RegFunc.Init(stereo);
     if(errorCode != 0) {
         return errorCode;
-    }
+	}
 
     AESND_Init();
+	
+	
+// moved the AESND_AllocateVoice (set just once) to just before the create thread, NOW NO clicking on other voices at start
+//    modvoice = AESND_AllocateVoice(__aesndvoicecallback);
+//    if(modvoice == NULL) {
+//      return -1;
+//    }
 
-    modvoice = AESND_AllocateVoice(__aesndvoicecallback);
-    if(modvoice == NULL) {
-        return -1;
-    }
-
-    AESND_SetVoiceFormat(modvoice, stereo ? VOICE_STEREO16 : VOICE_MONO16);
-    AESND_SetVoiceFrequency(modvoice, mod_freq);
-    AESND_SetVoiceVolume(modvoice, 255, 255);
-    AESND_SetVoiceStream(modvoice, true);
+	
+	// Titmouse
+   // AESND_SetVoiceFormat(modvoice, stereo ? VOICE_STEREO16 : VOICE_MONO16);
+   // AESND_SetVoiceFrequency(modvoice, mod_freq);
+   // AESND_SetVoiceVolume(modvoice, 255, 255);
+ //   AESND_SetVoiceStream(modvoice, true);
 
     GRRMOD_SetFrequency(48000);
 
-    LWP_InitQueue(&player_queue);
+	// Titmouse
+//    LWP_InitQueue(&player_queue);
 
     sndPlaying = false;
     thr_running = false;
@@ -120,7 +129,9 @@ void GRRMOD_Unload() {
 /**
  * This function starts the specified module playback.
  */
-void GRRMOD_Start() {
+void GRRMOD_Start(int Volume) 
+{
+	
     if(sndPlaying) return;
 
     RegFunc.Start();
@@ -136,10 +147,23 @@ void GRRMOD_Start() {
     curr_audio = 0;
     paused = false;
     sndPlaying = true;
-    if(LWP_CreateThread(&hplayer, player, NULL, player_stack, STACKSIZE, 80)!=-1) {
+	
+	if (modvoice == NULL) 
+		modvoice = AESND_AllocateVoice(__aesndvoicecallback);
+
+    
+	if(LWP_CreateThread( &hplayer, player, NULL, NULL, 0, 70 )!=-1) 
+	{
+		AESND_SetVoiceFormat(modvoice, g_stereo ? VOICE_STEREO16 : VOICE_MONO16);
+		AESND_SetVoiceFrequency(modvoice, mod_freq);
+		GRRMOD_SetVolume(Volume,Volume);// AESND_SetVoiceVolume(modvoice, 255, 255);
+		AESND_SetVoiceStream(modvoice, true);
+		
+		// now kick callback into life by starting the voice
         AESND_SetVoiceStop(modvoice, false);
         return;
     }
+	
     sndPlaying = false;
 }
 
@@ -166,6 +190,11 @@ void GRRMOD_Pause() {
 
     RegFunc.Pause();
     paused = !paused;
+}
+
+bool GRRMOD_GetPause() 
+{
+    return paused;
 }
 
 /**
@@ -241,6 +270,13 @@ static void* player(void *arg) {
 u64 start;
 #endif
 
+	// return;  STILL CLICKS WITH THIS!!!
+
+    LWP_InitQueue(&player_queue);
+	
+	
+	// return;  STILL CLICKS WITH THIS!!!
+
     u32 i;
     thr_running = true;
     while(sndPlaying) {
@@ -254,7 +290,9 @@ u64 start;
 #ifdef _GRRMOD_DEBUG
                 start = gettime();
 #endif
+
                 RegFunc.Update(((u8*)audioBuf[curr_audio]));
+				
 #ifdef _GRRMOD_DEBUG
                 mixtime = gettime() - start;
 #endif

@@ -56,9 +56,10 @@ void GRRMOD_SetVolume(s16 volume_l, s16 volume_r);
 u32 GRRMOD_GetVoiceFrequency(u8 voice);
 u32 GRRMOD_GetVoiceVolume(u8 voice);
 u32 GRRMOD_GetRealVoiceVolume(u8 voice);
-void GRRMOD_Start();
+void GRRMOD_Start(int Volume);
 void GRRMOD_Stop();
 void GRRMOD_Pause();
+bool GRRMOD_GetPause();
 char *GRRMOD_GetSongTitle();
 char *GRRMOD_GetModType();
 

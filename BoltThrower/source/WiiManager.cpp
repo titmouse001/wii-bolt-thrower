@@ -94,6 +94,9 @@ WiiManager::WiiManager() :
 	m_SetUpGame				= new SetUpGame;
 	// -----------------------------
 	m_pMusicData			= new FileMemInfo;
+	m_pMusicData->pData = NULL;
+	m_pMusicData->Size = 0;
+
 	// -----------------------------
 }
 
@@ -834,7 +837,7 @@ void WiiManager::InitDebugConsole(int ScreenOriginX, int ScreenOriginY)
 
 void WiiManager::InitGameResources()
 {
-	printf("InitGameResources 0");
+//	printf("InitGameResources 0");
 
 
 	// *** fonts ***
@@ -850,7 +853,7 @@ void WiiManager::InitGameResources()
 		}
 	}
 	
-	printf("InitGameResources 1");
+//	printf("InitGameResources 1");
 
 	// *** Add 3D Objects -  Lightwave 3d Objects, LWO ***
 	for ( vector<FileInfo>::iterator Iter( GetLwoInfoBegin());	Iter !=  GetLwoInfoEnd() ; ++Iter )
@@ -870,7 +873,7 @@ void WiiManager::InitGameResources()
 	
 	}
 
-	printf("InitGameResources 2");
+//	printf("InitGameResources 2");
 
 	//***  Sounds, WAV or OGG ***
 	for ( vector<FileInfo>::iterator SoundInfoIter( GetSoundinfoBegin()); SoundInfoIter !=  GetSoundinfoEnd() ; ++SoundInfoIter )
@@ -889,7 +892,7 @@ void WiiManager::InitGameResources()
 		m_RawTgaInfoContainer[(HashLabel)SoundInfoIter->LogicName] = Info;
 	}
 
-		printf("InitGameResources 4");
+	//	printf("InitGameResources 4");
 
 	//---------------------------------------------------------------------------
 	// Collect the files required for loading images
@@ -899,7 +902,7 @@ void WiiManager::InitGameResources()
 		ContainerOfUnqueFileNames.insert( FrameInfoIter->second.FileName );
 	}
 
-	printf("InitGameResources 5");
+	//printf("InitGameResources 5");
 
 
 	ImageManager* pImageManager( GetImageManager() );
@@ -955,7 +958,7 @@ void WiiManager::ScanMusicFolder()
 
 void WiiManager::LoadMusic()
 {
-	printf ("LoadMusic");
+	//printf ("LoadMusic");
 
 	FileInfo* pInfo( GetCurrentMusicInfo() );
 	if (pInfo!=NULL)
@@ -978,10 +981,16 @@ void WiiManager::LoadMusic()
 			free(m_pMusicData->pData);
 		}
 
+
+	//ExitPrintf ("LoadMusicEND %s",pInfo->FileName.c_str());
+ 
 		// Load the new music
 		WiiFile::ReadFile( pInfo->FileName, m_pMusicData );  // + fillout info structure (holds... data,size)
 
+	
+
 	}
+
 }
 
 FileInfo* WiiManager::GetCurrentMusicInfo()
@@ -997,6 +1006,10 @@ FileInfo* WiiManager::GetCurrentMusicInfo()
 
 void WiiManager::SetMusicVolume(int Volume)
 {
+	return;
+
+	ExitPrintf("volume");
+
 	if (m_pMusicData->pData==NULL)
 		return;
 
@@ -1027,7 +1040,11 @@ void WiiManager::SetMusicVolume(int Volume)
 	{
 		if ( Volume > 0 )
 		{
-			GRRMOD_Start();
+			if (GRRMOD_GetPause())
+			{
+				GRRMOD_Pause();
+			}
+
 			GRRMOD_SetVolume( Volume*51,  Volume*51 );
 		}
 		else
@@ -1040,12 +1057,11 @@ void WiiManager::SetMusicVolume(int Volume)
 
 void WiiManager::PlayMusic()
 {
-
-printf("PlayMusic");
+	
+ // printf("PlayMusic");
 
 	if (m_pMusicData->pData==NULL)
 			return;
-
 
 	//OggPlayer Ogg;
 
@@ -1064,12 +1080,16 @@ printf("PlayMusic");
 	else
 	{
 		GRRMOD_SetMOD(m_pMusicData->pData, m_pMusicData->Size );
-		GRRMOD_Start();
+		static const int MenuMusicVolume(255);
+		GRRMOD_Start( MenuMusicVolume );
 	}
 }
 
+
 void WiiManager::NextMusic()
 {
+	//	ExitPrintf("PlayMusic");
+
 	for ( vector<FileInfo>::iterator Iter( m_MusicFilesContainer.begin() ); Iter != m_MusicFilesContainer.end() ; ++Iter )
 	{
 		if (Iter->b_ThisSlotIsBeingUsed == true)

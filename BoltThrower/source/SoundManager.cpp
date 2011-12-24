@@ -29,16 +29,28 @@
 AESNDPB* RawSample::Play(u8 VolumeLeft, u8 VolumeRight, bool bLoop)
 {
 	// change library ... AESNDPB* AESND_AllocateVoice(AESNDVoiceCallback cb) to use VOICE_STOPPED not VOICE_USED to pick free slot
+
 	AESNDPB* Chan = AESND_AllocateNextFreeVoice(NULL); 
+	//AESNDPB* Chan = AESND_AllocateVoice(NULL); 
+
 	if (Chan!=NULL)
 	{		
+
+		//DCFlushRange(m_RawData, m_RawDataLength);
+
+		AESND_SetVoiceFormat(Chan, m_VoiceFormat);
+		AESND_SetVoiceFrequency(Chan, m_SampleRate);
+		AESND_SetVoiceVolume(Chan,VolumeLeft,VolumeRight);
+    AESND_SetVoiceStream(Chan, false);
+		//AESND_SetVoiceBuffer(Chan, (void*)m_RawData, m_RawDataLength);
+
+
 		AESND_PlayVoice(Chan,
 			m_VoiceFormat,
 			(void*)m_RawData,
 			m_RawDataLength,m_SampleRate,
 			0,bLoop);
 
-		AESND_SetVoiceVolume(Chan,VolumeLeft,VolumeRight);
 	}
 	return Chan;
 }	
@@ -47,6 +59,9 @@ void RawSample::PlayFromVoice(u8 VolumeLeft, u8 VolumeRight, bool bLoop, AESNDPB
 {
 	if (VoiceData!=NULL)
 	{
+		//DCFlushRange(m_RawData, m_RawDataLength);
+
+
 		AESND_SetVoiceVolume(VoiceData,VolumeLeft,VolumeRight);
 		AESND_PlayVoice(VoiceData,
 			m_VoiceFormat,
@@ -110,7 +125,10 @@ void SoundManager::Init( )
 { 
 	GRRMOD_Init(true);  // this will to things like AESND_Init();  for you
 
+//AESND_Init();
+
 	m_FixSoundVoice = AESND_AllocateFixedVoice(NULL); // used for players looping thrusters
+//	m_FixSoundVoice = AESND_AllocateVoice(NULL); // used for players looping thrusters
 }
 
 void SoundManager::UnInit( )

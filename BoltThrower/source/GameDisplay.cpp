@@ -141,6 +141,9 @@ void GameDisplay::DisplayAllForIngame()
 
 	if ( !m_pGameLogic->GetPlrVessel()->HasShieldFailed() )  
 	{
+
+		DisplayPlayer();
+
 		// 2D section
 		//our ship
 		m_pImageManager->GetImage(m_pGameLogic->GetPlrVessel()->GetFrame())->DrawImageXYZ( 
@@ -447,6 +450,35 @@ void GameDisplay::DisplayInformationPanels()
 		m_pWii->GetFontManager()->DisplayText(m_pWii->GetText("ScrapPartsCollected"),100,0,200,HashString::SmallFont);
 }
 
+
+void GameDisplay::DisplayPlayer()
+{
+		PlayerVessel* pPlayerVessel( m_pGameLogic->GetPlrVessel() );
+
+		//=========================
+		GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
+		m_pWii->GetCamera()->SetVesselLightOn(pPlayerVessel->GetX(), pPlayerVessel->GetY(), pPlayerVessel->GetZ() - 100000);
+		//--------------------------
+		Mtx Model,mat;
+		guMtxIdentity(Model);
+		guMtxRotRad(Model,'x', -M_PI/2 );
+
+		guMtxRotRad(mat,'y',0 );// -pPlayerVessel->GetLastValueAddedToFacingDirection()*8 );
+		guMtxConcat(mat,Model,Model);
+
+		guMtxRotRad(mat,'z', pPlayerVessel->GetFacingDirection() + M_PI/2 );
+		guMtxConcat(mat,Model,Model);
+
+		guMtxScaleApply(Model,Model,0.10,0.10,0.10);
+		guMtxTrans(mat, pPlayerVessel->GetX(), pPlayerVessel->GetY(), pPlayerVessel->GetZ() );
+		guMtxConcat(mat,Model,Model);
+		guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
+		m_pWii->Render.RenderModelHardNorms(HashString::WiiMote, Model);
+		//--------------------------
+		m_pWii->GetCamera()->SetLightOff();
+		GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
+		//=====================
+}
 
 
 void GameDisplay::DisplaySkull()
