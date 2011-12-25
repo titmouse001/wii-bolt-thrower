@@ -553,7 +553,6 @@ void GameLogic::ProjectileLogic()
 
 void GameLogic::ExhaustLogic()
 {
-
 	m_pWii->profiler_start(&profile_Exhaust);
 
 	u8 fps = Util::CalculateFrameRate(true);
@@ -579,10 +578,7 @@ void GameLogic::ExhaustLogic()
 			Iter = m_ExhaustContainer->erase( Iter );
 		}
 	}
-
-	
 	m_pWii->profiler_stop(&profile_Exhaust);
-
 }
 
 void GameLogic::ExplosionLogic()
@@ -1888,7 +1884,7 @@ void GameLogic::InitMenu()
 
 void GameLogic::InitialiseGame()
 {
-	m_pWii->GetCamera()->InitialiseCamera(); // 3D View
+	m_pWii->GetCamera()->SetUpView(); // 3D View
 
 	m_pImageManager = (m_pWii->GetImageManager());
 

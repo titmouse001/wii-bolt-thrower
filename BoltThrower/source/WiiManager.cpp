@@ -96,7 +96,6 @@ WiiManager::WiiManager() :
 	m_pMusicData			= new FileMemInfo;
 	m_pMusicData->pData = NULL;
 	m_pMusicData->Size = 0;
-
 	// -----------------------------
 }
 
@@ -160,8 +159,8 @@ void WiiManager::InitWii()
 	m_MessageBox->Init();
 	m_SetUpGame->Init();
 	m_UpdateManager->Init();
-
 //	m_SoundManager->Init();
+
 
 	Util::SetUpPowerButtonTrigger();
 
@@ -176,6 +175,8 @@ void WiiManager::InitWii()
 	InitialiseVideo();
 	InitGX();
 	SetUp3DProjection();
+
+	m_Camera->Init();
 
 	// XML configuration - this places sections of data into specificly named containers found in the code
 	CreateSettingsFromXmlConfiguration(WiiFile::GetGamePath() + "GameConfiguration.xml");
@@ -848,7 +849,7 @@ void WiiManager::InitGameResources()
 		if (Iter->LogicName == "SmallFont")
 		{
 			// do message as soon as the font becomes available
-			GetCamera()->InitialiseCamera();
+			GetCamera()->SetUpView();
 			GetGameDisplay()->DisplaySmallSimpleMessage("Loading...");
 		}
 	}

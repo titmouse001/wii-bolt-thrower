@@ -1064,7 +1064,7 @@ void GameDisplay::DebugInformation()
 	if (FPS<60) ++DroppedFrames;
 
 	m_pWii->Printf(x,y+=22,"FPS: %d Dropped: %d",FPS,DroppedFrames);
-	return;
+//	return;
 
 	if (m_pGameLogic->GetAsteroidContainerSize()!=0)
 		m_pWii->Printf(x,y+=22,"Asteroids: %d (%s)",m_pGameLogic->GetAsteroidContainerSize(), m_pWii->profiler_output(&profile_Asteroid).c_str());

@@ -12,9 +12,10 @@ class Camera
 
 public:
 	
-	Camera() : m_FieldOfView( 45.0f ) {;}
+	Camera();
 
-	void InitialiseCamera();
+	void Init();
+	void SetUpView();
 
 	void SetCameraView(float x, float y)  ;
 	void SetCameraView(float x, float y, float z)  ;
@@ -52,13 +53,14 @@ public:
 
 	void StoreCameraView()	{ m_StoredCamera = m_camera; }
 	void RecallCameraView()	{ m_camera = m_StoredCamera; SetCameraView(); }
-
-
-	float GetCameraHeightFor2DViewPort();
 	
+	float GetCameraHeightFor2DViewPort() { return m_CameraHeightFor3DViewPort; } 
+
 private:
 
-	void SetCameraView();
+	float	CalculateCameraHeightFor2DViewPort();
+
+	void	SetCameraView();
 
 	Mtx			m_cameraMatrix;
 	guVector	m_camera;
@@ -66,9 +68,8 @@ private:
 	guVector	m_look;
 	guVector	m_StoredCamera;
 
-
-	float		m_FieldOfView;
-
+	float	m_CameraHeightFor3DViewPort;
+	float	m_FieldOfView;
 
 };
 

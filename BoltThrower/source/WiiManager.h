@@ -206,7 +206,6 @@ public:
 	void	InitGameResources();
 
 	std::map<HashLabel,FrameStartEnd> m_FrameEndStartConstainer;  
-	FileMemInfo* m_pMusicData;  // holds things like mods & oggs
 
 	Image* GetSpaceBackground() { return GetImageManager()->GetImage(HashString::SpaceBackground01); }
 	Image* GetTinyLogo() { return GetImageManager()->GetImage(HashString::TinyLogo); }
@@ -257,7 +256,8 @@ public:
 
 	vector<FileInfo> m_MusicFilesContainer;
 
-	string	m_ExePath;
+	string			m_ExePath;
+	FileMemInfo*	m_pMusicData;  // holds things like mods & oggs
 
 private:
 	
@@ -292,8 +292,8 @@ private:
 	bool					m_bMusicEnabled;
 	string					m_Difficulty;
 public:
-	u8						m_IngameMusicVolume;
 	bool					m_MusicStillLeftToDownLoad;
+	u8						m_IngameMusicVolume;
 private:
 
 	map<HashLabel,FrameInfo> m_FrameinfoContainer;

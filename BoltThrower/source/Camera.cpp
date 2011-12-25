@@ -11,12 +11,21 @@
 // Note: Camera looks up to flip the view so it will work the same way as the 2d view.
 //	CameraFactor, this affects the camera height, the real 3D world width/height of the screen
 
-void Camera::InitialiseCamera()
+Camera::Camera() : m_FieldOfView( 45.0f ) 
+{
+}
+
+void Camera::Init()
+{
+	m_CameraHeightFor3DViewPort = CalculateCameraHeightFor2DViewPort();
+}
+
+void Camera::SetUpView()
 {
 	WiiManager& Wii( Singleton<WiiManager>::GetInstanceByRef() );  // backbone stuff
 	static const guVector UP = {0.0F, -1.0F, 0.0F}; 
 	m_up = UP; 
-	float CameraHeight = GetCameraHeightFor2DViewPort();
+	float CameraHeight = m_CameraHeightFor3DViewPort;
 	SetCameraView( (Wii.GetScreenWidth()/2), (Wii.GetScreenHeight()/2), -(CameraHeight));
 }
 
@@ -46,7 +55,7 @@ void Camera::SetCameraView(float x, float y)
 { 
 	m_camera.x = x; 
 	m_camera.y = y;  
-	m_camera.z = GetCameraHeightFor2DViewPort();
+	m_camera.z = m_CameraHeightFor3DViewPort;
 	SetCameraView();
 }
 
@@ -77,7 +86,7 @@ void Camera::SetCameraView(f32 LookAtX, f32 LookAtY, f32 LookAtZ, f32 CamX, f32 
 
 void Camera::ForceCameraView(float x, float y)  
 {
-	float CameraHeight = GetCameraHeightFor2DViewPort();
+	float CameraHeight = m_CameraHeightFor3DViewPort;
 
 	guVector camera	= {x, y, CameraHeight }; 
 	guVector look	= {x, y, 0.0f };
@@ -90,7 +99,7 @@ void Camera::ForceCameraView(float x, float y)
 	Singleton<WiiManager>::GetInstanceByRef().m_Frustum.setCamDef(v1,v2,v3);
 }
 
-float Camera::GetCameraHeightFor2DViewPort()
+float Camera::CalculateCameraHeightFor2DViewPort()
 {
 	WiiManager& Wii( Singleton<WiiManager>::GetInstanceByRef() );  // backbone stuff
 

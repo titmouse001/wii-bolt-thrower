@@ -43,7 +43,7 @@ int main(int /* argc */, char**  argv )
 	//printf( CreateHashString("code.google.com").c_str() );
 
 	rWiiManager.InitGameResources();
-	rWiiManager.GetCamera()->InitialiseCamera(); // 3D View
+	rWiiManager.GetCamera()->SetUpView(); // 3D View
 
 #if (0)
 	//-------------------------------------------------
