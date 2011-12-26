@@ -1056,6 +1056,7 @@ void GameDisplay::DebugInformation()
 	extern profiler_t profile_ShotAndGunTurret;
 	extern profiler_t profile_DyingEnemies;
 
+	static u8 LastFPS(0);
 	static int DroppedFrames(0);
 	int y=-200;
 	int x=-290;
@@ -1063,33 +1064,33 @@ void GameDisplay::DebugInformation()
 	u8 FPS( Util::CalculateFrameRate(true) );
 	if (FPS<60) ++DroppedFrames;
 
-	m_pWii->Printf(x,y+=22,"FPS: %d Dropped: %d",FPS,DroppedFrames);
-//	return;
+	m_pWii->Printf(x,y+=32,"%02dfps %ddropped",FPS,DroppedFrames/60);
+	return;
 
 	if (m_pGameLogic->GetAsteroidContainerSize()!=0)
-		m_pWii->Printf(x,y+=22,"Asteroids: %d (%s)",m_pGameLogic->GetAsteroidContainerSize(), m_pWii->profiler_output(&profile_Asteroid).c_str());
+		m_pWii->Printf(x,y+=22,"%03d %s",m_pGameLogic->GetAsteroidContainerSize(), m_pWii->profiler_output(&profile_Asteroid).c_str());
 	if (m_pGameLogic->GetMoonRocksContainerSize()!=0)
-		m_pWii->Printf(x,y+=22,"Moon Rocks: %d (%s)",m_pGameLogic->GetMoonRocksContainerSize(), m_pWii->profiler_output(&profile_MoonRocks).c_str());
+		m_pWii->Printf(x,y+=22,"%03d %s",m_pGameLogic->GetMoonRocksContainerSize(), m_pWii->profiler_output(&profile_MoonRocks).c_str());
 	if (m_pGameLogic->GetSmallEnemiesContainerSize()!=0)
-		m_pWii->Printf(x,y+=22,"Small Ships: %d (%s)",m_pGameLogic->GetSmallEnemiesContainerSize(), m_pWii->profiler_output(&profile_SmallEnemies).c_str());
+		m_pWii->Printf(x,y+=22,"%03d %s",m_pGameLogic->GetSmallEnemiesContainerSize(), m_pWii->profiler_output(&profile_SmallEnemies).c_str());
 	if (m_pGameLogic->GetGunShipContainerSize()!=0)
-		m_pWii->Printf(x,y+=22,"Gun Ships: %d (%s)",m_pGameLogic->GetGunShipContainerSize(), m_pWii->profiler_output(&profile_GunShip).c_str() );
+		m_pWii->Printf(x,y+=22,"%03d %s",m_pGameLogic->GetGunShipContainerSize(), m_pWii->profiler_output(&profile_GunShip).c_str() );
 	if (m_pGameLogic->GetProbeMineContainerSize()!=0)
-		m_pWii->Printf(x,y+=22,"Probe Mines: %d (%s)",m_pGameLogic->GetProbeMineContainerSize(), m_pWii->profiler_output(&profile_ProbeMineLogic).c_str());
+		m_pWii->Printf(x,y+=22,"%03d %s",m_pGameLogic->GetProbeMineContainerSize(), m_pWii->profiler_output(&profile_ProbeMineLogic).c_str());
 	if (m_pGameLogic->GetExplosionsContainerSize()!=0)
-		m_pWii->Printf(x,y+=22,"Explosions: %d (%s)",m_pGameLogic->GetExplosionsContainerSize(), m_pWii->profiler_output(&profile_Explosions).c_str() );
+		m_pWii->Printf(x,y+=22,"%03d %s",m_pGameLogic->GetExplosionsContainerSize(), m_pWii->profiler_output(&profile_Explosions).c_str() );
 	if (m_pGameLogic->GetSporesContainerSize()!=0)
-		m_pWii->Printf(x,y+=22,"Spores: %d (%s)",m_pGameLogic->GetSporesContainerSize(), m_pWii->profiler_output(&profile_Spores).c_str());
+		m_pWii->Printf(x,y+=22,"%03d %s",m_pGameLogic->GetSporesContainerSize(), m_pWii->profiler_output(&profile_Spores).c_str());
 	if (m_pGameLogic->GetMissileContainerSize()!=0)
-		m_pWii->Printf(x,y+=22,"Missiles: %d (%s)",m_pGameLogic->GetMissileContainerSize(), m_pWii->profiler_output(&profile_Missile).c_str());
+		m_pWii->Printf(x,y+=22,"%03d %s",m_pGameLogic->GetMissileContainerSize(), m_pWii->profiler_output(&profile_Missile).c_str());
 	if (m_pGameLogic->GetExhaustContainerSize()!=0)
-		m_pWii->Printf(x,y+=22,"Exhaust Trails: %d (%s)",m_pGameLogic->GetExhaustContainerSize(), m_pWii->profiler_output(&profile_Exhaust).c_str());
+		m_pWii->Printf(x,y+=22,"%03d %s",m_pGameLogic->GetExhaustContainerSize(), m_pWii->profiler_output(&profile_Exhaust).c_str());
 	if (m_pGameLogic->GetProjectileContainerSize()!=0)
-		m_pWii->Printf(x,y+=22,"Projectiles: %d (%s)",m_pGameLogic->GetProjectileContainerSize(), m_pWii->profiler_output(&profile_Projectile).c_str());
+		m_pWii->Printf(x,y+=22,"%03d %s",m_pGameLogic->GetProjectileContainerSize(), m_pWii->profiler_output(&profile_Projectile).c_str());
 	if (m_pGameLogic->GetShotForGunTurretContainerSize()!=0)
-		m_pWii->Printf(x,y+=22,"Turret&Shot: %d (%s)",m_pGameLogic->GetShotForGunTurretContainerSize(), m_pWii->profiler_output(&profile_ShotAndGunTurret).c_str()  );
+		m_pWii->Printf(x,y+=22,"%03d %s",m_pGameLogic->GetShotForGunTurretContainerSize(), m_pWii->profiler_output(&profile_ShotAndGunTurret).c_str()  );
 	if (m_pGameLogic->GetDyingEnemiesContainerSize()!=0)
-		m_pWii->Printf(x,y+=22,"Dying Enemies: %d (%s)",m_pGameLogic->GetDyingEnemiesContainerSize(), m_pWii->profiler_output(&profile_DyingEnemies).c_str() );
+		m_pWii->Printf(x,y+=22,"%03d %s",m_pGameLogic->GetDyingEnemiesContainerSize(), m_pWii->profiler_output(&profile_DyingEnemies).c_str() );
 	
 	//	m_pWii->Printf(x,y+=22,"CurrentMission: %d (%s)",m_pWii->GetMissionManager()->GetCurrentMission(), m_pWii->profiler_output(&profile_Mission).c_str() );
 

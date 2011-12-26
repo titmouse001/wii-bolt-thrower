@@ -13,6 +13,7 @@
 #include <set>
 #include <math.h>
 #include <limits.h>
+#include <iomanip> //std::setw
 #include <wiiuse/wpad.h>
 
 #include "WiiManager.h"
@@ -46,7 +47,6 @@
 #include "oggplayer/oggplayer.h"
 
 #include <grrmod.h>
-
 
 #define DEBUGCONSOLESTATE	( eDebugConsoleOn )  // it's ignored (off) in final release
 #define COLOUR_FOR_WIPE		( COLOR_BLACK )  // crash at startup colour
@@ -882,7 +882,7 @@ void WiiManager::InitGameResources()
 		GetSoundManager()->LoadSound(WiiFile::GetGamePath()+SoundInfoIter->FileName,SoundInfoIter->LogicName);
 	}
 
-		printf("InitGameResources 3");
+		//printf("InitGameResources 3");
 
 
 	// *** Raw tga ***
@@ -1282,7 +1282,10 @@ void WiiManager::profiler_stop(profiler_t* pjob)
 		pjob->total_time += pjob->duration;
 		
 		if (pjob->duration < pjob->min_time)
-			pjob->min_time = pjob->duration;
+		{
+			if (pjob->duration != 0)
+				pjob->min_time = pjob->duration;
+		}
 		
 		if (pjob->duration > pjob->max_time)
 			pjob->max_time = pjob->duration;
@@ -1309,7 +1312,10 @@ string WiiManager::profiler_output(profiler_t* pjob)
 	u64 dur_us = Util::TicksToMicrosecs(pjob->duration);
 	
 	std::stringstream ss;
-	ss << pjob->name << " times, min:" << min_us << " max:" << max_us << " now:" << dur_us;
+	ss << "items, min:" << std::setw( 4 ) << std::setfill( '0' ) << min_us 
+		<< " max:" << std::setw( 4 ) << std::setfill( '0' ) << max_us 
+		<< " now:" << std::setw( 4 ) << std::setfill( '0' ) << dur_us 
+		<< " " << pjob->name;
 
 	return ss.str();
 
