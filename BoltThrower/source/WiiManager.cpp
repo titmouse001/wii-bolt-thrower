@@ -1,13 +1,6 @@
 //
 // WiiManager - Singleton class
 //
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <malloc.h>
-//#include "MapManager.h"
-//#include "HTTP/HTTP_Util.h"
-//#include "profiler/timer.h"
-
 #include <stdarg.h>   //  for things like va_list
 #include <vector>
 #include <set>
@@ -42,10 +35,7 @@
 #include "debug.h"
 #include <string>
 #include <sstream>
-//#include <dirent.h>
-//#include <sys/stat.h>
 #include "oggplayer/oggplayer.h"
-
 #include <grrmod.h>
 
 #define DEBUGCONSOLESTATE	( eDebugConsoleOn )  // it's ignored (off) in final release
@@ -838,9 +828,6 @@ void WiiManager::InitDebugConsole(int ScreenOriginX, int ScreenOriginY)
 
 void WiiManager::InitGameResources()
 {
-//	printf("InitGameResources 0");
-
-
 	// *** fonts ***
 	for ( vector<FileInfo>::iterator Iter( GetFontInfoBegin());	Iter !=  GetFontInfoEnd() ; ++Iter )
 	{
@@ -853,17 +840,14 @@ void WiiManager::InitGameResources()
 			GetGameDisplay()->DisplaySmallSimpleMessage("Loading...");
 		}
 	}
-	
-//	printf("InitGameResources 1");
 
 	// *** Add 3D Objects -  Lightwave 3d Objects, LWO ***
 	for ( vector<FileInfo>::iterator Iter( GetLwoInfoBegin());	Iter !=  GetLwoInfoEnd() ; ++Iter )
 	{
 	
 		Render.Add3DObject( WiiFile::GetGamePath() + Iter->FileName, !Iter->m_bNorms ) 
-			->SetName(Iter->LogicName);
-			Render.CreateDisplayList(Iter->LogicName);  
-
+							->SetName(Iter->LogicName);
+		Render.CreateDisplayList(Iter->LogicName);  
 
 		if (Iter->m_IndexLayerForBones != -1)
 		{
@@ -874,16 +858,11 @@ void WiiManager::InitGameResources()
 	
 	}
 
-//	printf("InitGameResources 2");
-
 	//***  Sounds, WAV or OGG ***
 	for ( vector<FileInfo>::iterator SoundInfoIter( GetSoundinfoBegin()); SoundInfoIter !=  GetSoundinfoEnd() ; ++SoundInfoIter )
 	{
 		GetSoundManager()->LoadSound(WiiFile::GetGamePath()+SoundInfoIter->FileName,SoundInfoIter->LogicName);
 	}
-
-		//printf("InitGameResources 3");
-
 
 	// *** Raw tga ***
 	for ( vector<FileInfo>::iterator SoundInfoIter( GetRawTgaInfoBegin()); SoundInfoIter !=  GetRawTgaInfoEnd() ; ++SoundInfoIter )
@@ -893,8 +872,6 @@ void WiiManager::InitGameResources()
 		m_RawTgaInfoContainer[(HashLabel)SoundInfoIter->LogicName] = Info;
 	}
 
-	//	printf("InitGameResources 4");
-
 	//---------------------------------------------------------------------------
 	// Collect the files required for loading images
 	std::set<std::string> ContainerOfUnqueFileNames;  // using set to store unique names
@@ -902,9 +879,6 @@ void WiiManager::InitGameResources()
 	{
 		ContainerOfUnqueFileNames.insert( FrameInfoIter->second.FileName );
 	}
-
-	//printf("InitGameResources 5");
-
 
 	ImageManager* pImageManager( GetImageManager() );
 	for (std::set<std::string>::iterator NameIter(ContainerOfUnqueFileNames.begin()); NameIter != ContainerOfUnqueFileNames.end(); ++NameIter )
@@ -941,7 +915,6 @@ void WiiManager::InitGameResources()
 
 	ScanMusicFolder();
 	PlayMusic();
-
 }
 
 void WiiManager::ScanMusicFolder()
@@ -959,8 +932,6 @@ void WiiManager::ScanMusicFolder()
 
 void WiiManager::LoadMusic()
 {
-	//printf ("LoadMusic");
-
 	FileInfo* pInfo( GetCurrentMusicInfo() );
 	if (pInfo!=NULL)
 	{
@@ -981,17 +952,10 @@ void WiiManager::LoadMusic()
 
 			free(m_pMusicData->pData);
 		}
-
-
-	//ExitPrintf ("LoadMusicEND %s",pInfo->FileName.c_str());
  
 		// Load the new music
 		WiiFile::ReadFile( pInfo->FileName, m_pMusicData );  // + fillout info structure (holds... data,size)
-
-	
-
 	}
-
 }
 
 FileInfo* WiiManager::GetCurrentMusicInfo()
@@ -1007,10 +971,6 @@ FileInfo* WiiManager::GetCurrentMusicInfo()
 
 void WiiManager::SetMusicVolume(int Volume)
 {
-	return;
-
-	ExitPrintf("volume");
-
 	if (m_pMusicData->pData==NULL)
 		return;
 
@@ -1022,20 +982,15 @@ void WiiManager::SetMusicVolume(int Volume)
 
 	if (Header2 == "OggS")
 	{
-		//OggPlayer Ogg;  // TODO !!!!
 		if ( Volume > 0)
 		{
 			GetSoundManager()->m_OggPlayer.SetVolume(Volume * (255/5));
 			GetSoundManager()->m_OggPlayer.Pause(false);
-			//Ogg.SetVolume(Volume * (255/5));
-			//Ogg.Pause(false);
 		}
 		else
 		{
 			GetSoundManager()->m_OggPlayer.Pause();
-			//Ogg.Pause();
 		}
-		
 	}
 	else
 	{
@@ -1058,13 +1013,8 @@ void WiiManager::SetMusicVolume(int Volume)
 
 void WiiManager::PlayMusic()
 {
-	
- // printf("PlayMusic");
-
 	if (m_pMusicData->pData==NULL)
 			return;
-
-	//OggPlayer Ogg;
 
 	char* pTemp = new char[5];
 	memset (pTemp,0,5);
@@ -1089,8 +1039,6 @@ void WiiManager::PlayMusic()
 
 void WiiManager::NextMusic()
 {
-	//	ExitPrintf("PlayMusic");
-
 	for ( vector<FileInfo>::iterator Iter( m_MusicFilesContainer.begin() ); Iter != m_MusicFilesContainer.end() ; ++Iter )
 	{
 		if (Iter->b_ThisSlotIsBeingUsed == true)
@@ -1104,18 +1052,12 @@ void WiiManager::NextMusic()
 
 			Iter->b_ThisSlotIsBeingUsed = true;
 
-			//if (m_pMusicData!=NULL)
-			//	free(m_pMusicData);
-
 			LoadMusic();
 			PlayMusic();
 
 			break;
 		}
 	}
-
-
-
 }
 
 string WiiManager::GetNameOfCurrentMusic()
@@ -1144,7 +1086,6 @@ void WiiManager::BuildMenus(bool KeepSettings)
 		MusicVolume = GetMenuManager()->GetMenuItemIndex(HashString::IngameMusicVolumeState);
 	}
 
-
 	SetMusicEnabled( (bool) Music );
 	SetIngameMusicVolume( MusicVolume );
 
@@ -1167,7 +1108,6 @@ void WiiManager::BuildMenus(bool KeepSettings)
 	y+=step;
 	//move this one into options
 
-
 	if ( m_MusicFilesContainer.size() > 1)
 		GetMenuManager()->AddMenu( -width*0.25, y, width,height,"Change_Tune",false,true);
 	else
@@ -1182,8 +1122,6 @@ void WiiManager::BuildMenus(bool KeepSettings)
 	GetMenuManager()->AddMenu( -width*0.35, y, width,height ,"Credits",false,true );
 
 	//==========================================================
-
-
 	// Options Menu - one time setup
 	GetMenuManager()->SetMenuGroup("OptionsMenu");
 
@@ -1359,8 +1297,6 @@ int WiiManager::GetConfigValueWithDifficultyApplied(HashLabel Name)
 }
 float WiiManager::ApplyDifficultyFactor(float Value) 
 {
-	///float Factor = GetXmlVariable( (HashLabel)GetMenuManager()->GetMenuItemText(HashString::DifficultySetting) );
-
 	int Index = GetMenuManager()->GetMenuItemIndex(HashString::DifficultySetting);
 	if (Index==0)
 		Value *= GetXmlVariable( (HashLabel)"easy" );
@@ -1369,7 +1305,6 @@ float WiiManager::ApplyDifficultyFactor(float Value)
 	else if (Index==2)
 		Value *= GetXmlVariable( (HashLabel)"hard" );
 
-	//return Value * Factor;
 	return Value;
 }
 
@@ -1378,12 +1313,9 @@ string WiiManager::GetText(string Name)
 	if (m_SupportedLanguages.empty())
 		return "-";
 
-	//printf(Name.c_str());
 	map< string, string >* ptr( &m_SupportedLanguages[m_Language] );
-//	printf((*ptr)[Name].c_str());
 	return (*ptr)[Name]; // todo  ... some checking needed here
 }
 
 //int WiiManager::GetSizeOfDownloadInfoContainer() { return m_DownloadinfoContainer.size(); }
-
-//LWO VAR "index" is seen HERE!!!!
+//NOTE: things like LWO VAR "index" are seen HERE!!!!

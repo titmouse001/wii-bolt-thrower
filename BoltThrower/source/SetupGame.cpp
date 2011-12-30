@@ -280,9 +280,8 @@ void SetUpGame::Play()
 			m_pWii->SetGameState(WiiManager::eExit);
 		}
 
-	};
+	}
 }
-
 
 void SetUpGame::MainLoop() 
 {	
@@ -308,26 +307,3 @@ void SetUpGame::MainLoop()
 		}
 	}
 }
-
-
-
-
-//string FullFileName = Util::GetGamePath() + "03-Law of One-Indidginus.ogg"; // "09-Faerie tale-Indidginus.ogg";
-//FILE* pOggFile( WiiFile::FileOpenForRead( FullFileName.c_str() ) );
-//u32 OggSize = WiiFile::GetFileSize(pOggFile);
-//u8* pOggData = (u8*) malloc(OggSize);
-//fread( pOggData, OggSize, 1, pOggFile);
-//PlayOgg(pOggData, OggSize, 0, OGG_ONE_TIME);
-
-//-------------
-//u8* pOggData = (u8*) malloc(222);
-//memset(pOggData,0,4);
-//int fd = open (FullFileName.c_str(), O_RDONLY ); // WRONLY);
-//read( fd, pOggData, 4);
-//printf("%x", pOggData[0] );
-//printf("%x", pOggData[1] );
-//printf("%x", pOggData[2] );
-//printf("%x", pOggData[3] );
-//close(fd);
-
-
