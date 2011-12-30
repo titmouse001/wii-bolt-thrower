@@ -81,16 +81,31 @@
 		/>
 		<AddLWO Name="Material_PickUp"	FileName="lwo/Material_PickUP.lwo" 				UseModelsNormalData="1"/>
 		<AddLWO Name="Shot"	FileName="lwo/Shot.lwo" 									UseModelsNormalData="1"/>
-	</LightWaveObjects>	
+	</LightWaveObjects>
 
   <Sounds>
-		<AddSound Name="Explode11"	FileName="Sounds/Explode11.wav" />
-		<AddSound Name="hitmetal"	FileName="Sounds/hitmetal.wav" />
-		<AddSound Name="Explode01"	FileName="Sounds/Explode01.wav" />
-		<AddSound Name="FireMissle"	FileName="Sounds/FireMissle.ogg" />
-		<AddSound Name="AfterBurn"	FileName="Sounds/AfterBurn.wav" Loop="true"/>
-		<AddSound Name="DropMine"	FileName="Sounds/DropMine.wav" />
-	</Sounds>
+    
+    <AddSound Name="Explode1"	FileName="Sounds/Explode1.ogg" />
+    <AddSound Name="Explode2"	FileName="Sounds/Explode2.ogg" />
+    <AddSound Name="Explode3"	FileName="Sounds/Explode3.ogg" />
+    
+    <AddSound Name="ExplodeBig1"	FileName="Sounds/ExplodeBig1.ogg" />
+    <AddSound Name="ExplodeBig2"	FileName="Sounds/ExplodeBig2.ogg" />
+    
+    <AddSound Name="Hull_bang1"	FileName="Sounds/Hull_bang1.ogg" />
+    <AddSound Name="Hull_bang2"	FileName="Sounds/Hull_bang2.ogg" />
+    <AddSound Name="Hull_bang3"	FileName="Sounds/Hull_bang3.ogg" />
+    <AddSound Name="Hull_bang4"	FileName="Sounds/Hull_bang4.ogg" />
+    
+    <AddSound Name="FireMissle"	FileName="Sounds/FireMissile.ogg" />
+   
+    <AddSound Name="AfterBurn"	FileName="Sounds/MainThrust.ogg" Loop="true"/>
+    
+    <AddSound Name="DropMine"	FileName="Sounds/DropMine.ogg" />
+
+    <AddSound Name="Alarm2"	FileName="Sounds/Alarm2.ogg" />
+    
+  </Sounds>
 
 	<RawTga>
 		<AddRawTga Name="TinyLogoForMineIntroLayout" FileName="Graphics/TinyLogo.tga" />			
@@ -155,13 +170,12 @@
 		<AddImage Name="GunShipProjectileFrames"  StartX="192" StartY="0" ItemWidth="16" ItemHeight="16" NumberItems="1"/>	
 	
 		<AddImage Name="SpinningSpaceDebre01"  StartX="288" StartY="208" ItemWidth="16" ItemHeight="16" NumberItems="8" Direction="Down"/>	
-		<AddImage Name="SpinningSpaceDebre02"  StartX="304" StartY="208" ItemWidth="16" ItemHeight="16" NumberItems="8" Direction="Down"/>	
+		<AddImage Name="SpinningSpaceDebre02"  StartX="304" StartY="208" ItemWidth="16" ItemHeight="16" NumberItems="8" Direction="Down"/>
 
-	</Graphics>
-	
-	<Graphics FileName="Graphics/Radar.png">	
-		<AddImage Name="RadarCircle"  StartX="0" StartY="0" ItemWidth="128" ItemHeight="128" NumberItems="1"/>	
-	</Graphics>
+    <AddImage Name="RadarCircle"  StartX="256" StartY="80" ItemWidth="64" ItemHeight="64" NumberItems="1"/>
+    
+  </Graphics>
+
 
 	<Graphics FileName="Graphics/SpaceBackground01.jpg">	
 		<AddImage Name="SpaceBackground01"  StartX="0" StartY="0" ItemWidth="1024" ItemHeight="858" NumberItems="1"/>	
