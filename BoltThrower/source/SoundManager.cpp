@@ -71,6 +71,60 @@ void RawSample::PlayFromVoice(u8 VolumeLeft, u8 VolumeRight, bool bLoop, AESNDPB
 	}
 }	
 
+//--------------------
+
+void SoundManager::PlayRandomExplodeSound()
+{
+	int VolumeFactor = 255 - (rand()%60);
+	switch (rand()%3)
+	{
+		case 0:
+			PlaySound( HashString::Explode1, VolumeFactor, VolumeFactor );
+		break;
+		case 1:
+			PlaySound( HashString::Explode2, VolumeFactor, VolumeFactor );
+		break;
+		case 2:
+			PlaySound( HashString::Explode3, VolumeFactor, VolumeFactor );
+		break;
+	}
+}
+
+void SoundManager::PlayRandomBigExplodeSound()
+{
+	int VolumeFactor = 255 - (rand()%30);
+	switch (rand()%2)
+	{
+		case 0:
+			PlaySound( HashString::ExplodeBig1, VolumeFactor, VolumeFactor );
+		break;
+		case 1:
+			PlaySound( HashString::ExplodeBig2, VolumeFactor, VolumeFactor );
+		break;
+	}
+}
+
+void SoundManager::PlayRandomHullBang()
+{
+	int VolumeFactor = 255 - (((rand()%128)/2)*2);
+	switch (rand()%4)
+	{
+		case 0:
+			PlaySound( HashString::Hull_bang1, VolumeFactor, VolumeFactor );
+		break;
+		case 1:
+			PlaySound( HashString::Hull_bang2, VolumeFactor, VolumeFactor );
+		break;
+		case 2:
+			PlaySound( HashString::Hull_bang3, VolumeFactor, VolumeFactor );
+		break;
+		case 3:
+			PlaySound( HashString::Hull_bang4, VolumeFactor, VolumeFactor );
+		break;
+	}
+}
+//---------------------
+
 
 AESNDPB* SoundManager::PlaySound(HashLabel SoundName, u8 VolumeLeft, u8 VolumeRight, bool bLoop)
 {

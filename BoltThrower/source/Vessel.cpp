@@ -94,18 +94,21 @@ void Vessel::AddTurrentDirection(float fValue)
 // note: The radius param takes a squared value
 bool  Vessel::InsideRadius(float center_x, float center_y, float radius)
 {
-	float square_dist = ((GetX()-center_x)*(GetX()-center_x) ) + ((GetY()-center_y)*(GetY()-center_y)) ;
-	return ( fabs(square_dist) < (radius) );
+	//float square_dist = ((GetX()-center_x)*(GetX()-center_x) ) + ((GetY()-center_y)*(GetY()-center_y)) ;
+	//return ( fabs(square_dist) < (radius) );
+	float XToCheck( GetX() - center_x );
+	float YToCheck( GetY() - center_y );
+	float square_dist ( (XToCheck * XToCheck) + (YToCheck * YToCheck) );
+	return (square_dist <= radius);
 }
 
 // note: The radius param takes a squared value
 bool  Vessel::InsideRadius(Vessel& rVessel, float radius)
 {
-	float XToCheck(rVessel.GetX());
-	float YToCheck(rVessel.GetY());
-
-	float square_dist = ((GetX()-XToCheck)*(GetX()-XToCheck) ) + ((GetY()-YToCheck)*(GetY()-YToCheck)) ;
-	return ( fabs(square_dist) < radius );
+	float XToCheck( GetX() - rVessel.GetX() );
+	float YToCheck( GetY() - rVessel.GetY() );
+	float square_dist ( (XToCheck * XToCheck) + (YToCheck * YToCheck) );
+	return (square_dist <= radius);
 }
 
 ////

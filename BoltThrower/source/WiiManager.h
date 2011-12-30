@@ -2,6 +2,7 @@
 #define WiiManager_H
 
 #include "Singleton.h"
+#include "config.h"
 #include "font.h"
 #include "Camera.h"
 #include "MapManager.h"
@@ -51,7 +52,10 @@ struct FrameInfo
 	ImageManager::EDirection eDirection;
 };
 
- struct profiler_t
+#if defined BUILD_FINAL_RELEASE
+struct profiler_t { };
+#else
+struct profiler_t
 {
 	std::string 	name;
 	u32		active;
@@ -62,6 +66,7 @@ struct FrameInfo
 	u64		start_time;
 	u64		duration;
 } ;
+#endif
 
 
 
@@ -208,12 +213,9 @@ public:
 	std::map<HashLabel,FrameStartEnd> m_FrameEndStartConstainer;  
 
 	Image* GetSpaceBackground() { return GetImageManager()->GetImage(HashString::SpaceBackground01); }
-	Image* GetTinyLogo() { return GetImageManager()->GetImage(HashString::TinyLogo); }
 
 	//-----------------------------------------------------------------
 	// Profiler Section
-	//static u64 __ticks_to_us(u64 ticks);  // Microseconds (us)
-	//static u64 __ticks_to_cycles(u64 ticks); //Clock cycles taken
 	void profiler_create(profiler_t* pjob, std::string name);
 	string profiler_output(profiler_t* pjob);
 	void profiler_start(profiler_t* pjob);

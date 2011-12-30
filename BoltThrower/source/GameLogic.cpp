@@ -1,14 +1,10 @@
-// todo list
-// ADded this functionality to gamelib...m_pImageManager->GetImage(HashString::WiiMoteButtonA)->DrawImage(100,100);
-// added debugprintf to jpeg stufff ... merge with Glib
-// move sound fix - chan var is wrong .. should be holding Voice format, VOICE_MONO_16BIT... 
-
 #include "GameLogic.h"
 #include "Singleton.h"
 
 #include <gccore.h>
 #include <math.h>
 #include <sstream>
+#include <algorithm>
 
 #include "WiiManager.h"
 #include "CullFrustum\FrustumR.h"
@@ -31,7 +27,7 @@
 #include "GameDisplay.h"
 
 
-
+//#ifndef BUILD_FINAL_RELEASE
 profiler_t profile_ProbeMineLogic;
 profiler_t profile_Asteroid ;
 profiler_t profile_MoonRocks;
@@ -45,6 +41,7 @@ profiler_t profile_Projectile;
 //profiler_t profile_Mission;
 profiler_t profile_ShotAndGunTurret;
 profiler_t profile_DyingEnemies;
+//#endif
 
 //	 KEEP reminder... TargetIter  = m_GunShipContainer->begin(); //		pTarget = &(*m_GunShipContainer->begin());  !!! WARNING:  THIS METHOD DOES NOT WORK (gives very odd results - ptr will not update with shifting data) !!!
 
@@ -54,7 +51,7 @@ profiler_t profile_DyingEnemies;
 // 2 blue pickup glow
 // 3 probe mines - show red lock on lines
 
-GameLogic::GameLogic():	//m_bAddMoreShipsFlag(false), 
+GameLogic::GameLogic():	
 m_bEndLevelTrigger(false), m_Score(0),
 m_ZoomAmountForSpaceBackground(3.1f),m_ClippingRadiusNeededForMoonRocks(0),  
 m_GamePaused(false),m_GamePausedByPlayer(false),m_IsBaseShieldOnline(false),m_LastChanUsedForSoundAfterBurn(NULL)
@@ -81,7 +78,7 @@ m_GamePaused(false),m_GamePausedByPlayer(false),m_IsBaseShieldOnline(false),m_La
 
 	m_ExhaustContainer->reserve(700); // best guess for the top end - it will grow if needed 
 	m_SmallEnemiesContainer->reserve(50);
-	m_ProbeMineContainer->reserve(330);
+	m_ProbeMineContainer->reserve(329);
 	m_ExplosionsContainer->reserve(20);
 }
 
@@ -530,9 +527,9 @@ void GameLogic::ProjectileLogic()
 {
 	for (std::vector<Vessel>::iterator Iter(m_ProjectileContainer->begin()); Iter!= m_ProjectileContainer->end(); /*NOP*/)
 	{	
-		Iter->AddFrame();
 		if ( (floor)(Iter->GetFrame()) <= Iter->GetEndFrame() )
 		{
+			Iter->AddFrame();
 			Iter->AddFacingDirection( Iter->GetSpin() );
 			Iter->AddVelToPos(); 
 			Iter->VelReduce();
@@ -686,7 +683,7 @@ void GameLogic::SporesCollisionLogic()
 
 void GameLogic::MissileCollisionLogic()
 {
-	float fRocketCollisionRadius = 3*16;
+	float fRocketCollisionRadius = 3*16; // large gun ship
 	fRocketCollisionRadius *= fRocketCollisionRadius;
 
 	for (std::vector<Vessel>::iterator MissileIter(m_MissileContainer->begin()); MissileIter!=m_MissileContainer->end(); ++MissileIter )
@@ -710,7 +707,7 @@ void GameLogic::MissileCollisionLogic()
 						0.001f,									// Start Scale
 						0.25f );								// Scale Factor
 
-					m_pSoundManager->PlaySound( HashString::hitmetal,100,100);
+					m_pSoundManager->PlayRandomHullBang();
 				}
 
 				MissileIter->SetFuel(0);
@@ -730,7 +727,7 @@ void GameLogic::MissileCollisionLogic()
 				BadIter->AddShieldLevel(-1);
 				if (BadIter->IsShieldOk())  // hit something but their shileds are holding
 				{
-					m_pSoundManager->PlaySound( HashString::hitmetal,100,100);
+					m_pSoundManager->PlayRandomHullBang();
 					BadIter->AddFacingDirection(M_PI*0.5);
 					BadIter->AddVel( sin( MissileIter->GetFacingDirection() )*1.55,-cos( MissileIter->GetFacingDirection() )*1.55, 0 );
 				}
@@ -797,7 +794,8 @@ void GameLogic::FeoShieldLevelLogic()   // explode enemy ships
 			Boom.SetGravity(1.0f);
 			m_DyingEnemiesContainer->push_back(Boom); // add to DyingEnemies
 
-			m_pSoundManager->PlaySound( HashString::Explode1,100,100);
+			m_pSoundManager->PlayRandomExplodeSound();
+
 			//BadIter = m_SmallEnemiesContainer->erase(BadIter); // remove from this list
 			*BadIter = m_SmallEnemiesContainer->back();  
 			m_SmallEnemiesContainer->pop_back();
@@ -949,9 +947,8 @@ void GameLogic::ProbeMineLogic(std::vector<Vessel>*  pVesselContainer, float Thr
 		{
 			if ( BadIter->HasShieldFailed() )  
 				continue;
-	
-			// Only show what is inside the viewport
-			if ( ProbeMineIter->InsideRadius(*BadIter, ActiveRangeSquared ) )
+
+			//if ( ProbeMineIter->InsideRadius(*BadIter, ActiveRangeSquared ) )
 			{
 				// Has the mine hit a ship?
 				if ( ProbeMineIter->InsideRadius(*BadIter, CraftSize ) )
@@ -988,64 +985,59 @@ void GameLogic::ProbeMineLogic(std::vector<Vessel>*  pVesselContainer, float Thr
 				}
 				else if (!HaveLockOnSoForgetTheRest)
 				{
-					// TODO maybe look into a priority things on each mine, gets higher each timer its ignored!
-					//if (m_pWii->GetFrameCounter()%4) //... hmmmmmm this counter  will do all of them in on go! rand() may help CPU be placing the load across a number of frames 
-					//if (rand()%4==0)
+					// Lock onto ships passing on the X-axis
+					if ( fabs( ProbeMineIter->GetX() - BadIter->GetX() ) < ScanRange )
 					{
-						// Lock onto ships passing on the X-axis
-						if ( fabs( ProbeMineIter->GetX() - BadIter->GetX() ) < ScanRange )
+						Vessel ProbeMineTail = *ProbeMineIter;
+						if (ProbeMineIter->GetY() > BadIter->GetY() )
 						{
-							Vessel ProbeMineTail = *ProbeMineIter;
-							if (ProbeMineIter->GetY() > BadIter->GetY() )
-							{
-								ProbeMineIter->AddVel(0, -ThrustPower, 0);
-								ProbeMineIter->SetFrame( ProbeMineIter->GetFrameStart() + 3 ); // use Bottom thruster
-								ProbeMineTail.AddVel(0.5 - ((rand()%100)*0.01),2.0 + ((rand()%300)*0.01),0);
-								ProbeMineTail.SetFrameGroup( HashString::ProbeMineDownThrust16x16x5, 0.5f );
-							}
-							else
-							{
-								ProbeMineIter->AddVel(0, ThrustPower, 0);
-								ProbeMineIter->SetFrame( ProbeMineIter->GetFrameStart() + 1 ); // use Top thruster
-								ProbeMineTail.AddVel(0.5 - ((rand()%100)*0.01),-2.0 - ((rand()%300)*0.01),0);
-								ProbeMineTail.SetFrameGroup( HashString::ProbeMineUpThrust16x16x5, 0.5f );
-							}
-							if (rand()%8==0)
-							{
-								ProbeMineTail.SetGravity(0.975f);
-								m_ExhaustContainer->push_back(ProbeMineTail);	
-							}
-
-							HaveLockOnSoForgetTheRest = true;  // this does not skip the collision check - might be in contact with somehting else at the same time as spotting new pray as it only pick the first thing it sees.
+							ProbeMineIter->AddVel(0, -ThrustPower, 0);
+							ProbeMineIter->SetFrame( ProbeMineIter->GetFrameStart() + 3 ); // use Bottom thruster
+							ProbeMineTail.AddVel(0.5 - ((rand()%100)*0.01),2.0 + ((rand()%300)*0.01),0);
+							ProbeMineTail.SetFrameGroup( HashString::ProbeMineDownThrust16x16x5, 0.25F+((rand()%50)*0.01F) );
+						}
+						else
+						{
+							ProbeMineIter->AddVel(0, ThrustPower, 0);
+							ProbeMineIter->SetFrame( ProbeMineIter->GetFrameStart() + 1 ); // use Top thruster
+							ProbeMineTail.AddVel(0.5 + ((rand()%100)*0.01),-2.0 - ((rand()%300)*0.01),0);
+							ProbeMineTail.SetFrameGroup( HashString::ProbeMineUpThrust16x16x5, 0.25F+((rand()%50)*0.01F) );
+						}
+						if (rand()%8==0)
+						{
+							ProbeMineTail.SetGravity(0.975f);
+							m_ExhaustContainer->push_back(ProbeMineTail);	
 						}
 
-						// Lock onto ships passing on the Y-axis
-						if ( fabs( ProbeMineIter->GetY() - BadIter->GetY() ) < ScanRange )
-						{
-							// rocket tail
-							Vessel ProbeMineTail = *ProbeMineIter;
-							if (ProbeMineIter->GetX() > BadIter->GetX() )
-							{
-								ProbeMineIter->AddVel(-ThrustPower, 0, 0);
-								ProbeMineIter->SetFrame( ProbeMineIter->GetFrameStart() + 2); // use Right thruster
-								ProbeMineTail.AddVel(2.0 + ((rand()%300)*0.01),0.5 - ((rand()%100)*0.01),0);
-								ProbeMineTail.SetFrameGroup( HashString::ProbeMineRightThrust16x16x5, 0.5f );
-							}
-							else
-							{
-								ProbeMineIter->AddVel(ThrustPower, 0, 0);
-								ProbeMineIter->SetFrame( ProbeMineIter->GetFrameStart() + 4); // use Left thruster
-								ProbeMineTail.AddVel(-2.0 - ((rand()%300)*0.01),0.5 - ((rand()%100)*0.01),0);
-								ProbeMineTail.SetFrameGroup( HashString::ProbeMineLeftThrust16x16x5, 0.5f );
-							}
-							if (rand()%8==0)
-							{
-								ProbeMineTail.SetGravity(0.975f);
-								m_ExhaustContainer->push_back(ProbeMineTail);	
-							}
+						HaveLockOnSoForgetTheRest = true;  // this does not skip the collision check - might be in contact with somehting else at the same time as spotting new pray as it only pick the first thing it sees.
+					}
 
-							HaveLockOnSoForgetTheRest = true;
+					// Lock onto ships passing on the Y-axis
+					if ( fabs( ProbeMineIter->GetY() - BadIter->GetY() ) < ScanRange )
+					{
+						// rocket tail
+						Vessel ProbeMineTail = *ProbeMineIter;
+						if (ProbeMineIter->GetX() > BadIter->GetX() )
+						{
+							ProbeMineIter->AddVel(-ThrustPower, 0, 0);
+							ProbeMineIter->SetFrame( ProbeMineIter->GetFrameStart() + 2); // use Right thruster
+							ProbeMineTail.AddVel(2.0 + ((rand()%300)*0.01),0.5 - ((rand()%100)*0.01),0);
+							ProbeMineTail.SetFrameGroup( HashString::ProbeMineRightThrust16x16x5, 0.25F+((rand()%50)*0.01F) );
 						}
+						else
+						{
+							ProbeMineIter->AddVel(ThrustPower, 0, 0);
+							ProbeMineIter->SetFrame( ProbeMineIter->GetFrameStart() + 4); // use Left thruster
+							ProbeMineTail.AddVel(-2.0 - ((rand()%300)*0.01),0.5 - ((rand()%100)*0.01),0);
+							ProbeMineTail.SetFrameGroup( HashString::ProbeMineLeftThrust16x16x5, 0.25F+((rand()%50)*0.01F) );
+						}
+						if (rand()%8==0)
+						{
+							ProbeMineTail.SetGravity(0.975f);
+							m_ExhaustContainer->push_back(ProbeMineTail);	
+						}
+
+						HaveLockOnSoForgetTheRest = true;
 					}
 				}
 			}
@@ -1066,7 +1058,6 @@ void GameLogic::GunShipLogic()
 {
 	m_pWii->profiler_start(&profile_GunShip);
 
-
 	guVector ChaseTarget(m_CPUTarget);
 	for (std::vector<Vessel>::iterator GunShipIter( m_GunShipContainer->begin()); GunShipIter!= m_GunShipContainer->end(); ++GunShipIter)
 	{
@@ -1081,42 +1072,45 @@ void GameLogic::GunShipLogic()
 		// gun ship firing		
 		if (rand()%GunShipIter->GetFireRate() == 0)
 		{
-			Vessel Boom = *GunShipIter;
-			Boom.SetSpeedFactor( 1.0f );
+			Vessel Projectile = *GunShipIter;
+			Projectile.SetSpeedFactor( 1.0f );
 
-			Boom.SetFrameGroup(HashString::GunShipProjectileFrames,0.005f);
-			Boom.SetGravity(1.0f);
-			Boom.SetSpin( 0.25f );
+			Projectile.SetFrameGroup(HashString::GunShipProjectileFrames,0.005f);
+			Projectile.SetGravity(1.0f);
+			Projectile.SetSpin( 0.25f );
 
 			// rotate around ship origin first
-			Boom.SetPos(Boom.GetX() - ( sin(GunShipIter->GetFacingDirection()) * (m_pWii->GetXmlVariable(HashString::TurretNo2ForGunShipOriginX)) ) , 
-				Boom.GetY() - ( -cos(GunShipIter->GetFacingDirection()) * m_pWii->GetXmlVariable(HashString::TurretForGunShipOriginY) ) , 
-				Boom.GetZ()  );
+			Projectile.SetPos(
+				Projectile.GetX() - ( sin(GunShipIter->GetFacingDirection()) * (m_pWii->GetXmlVariable(HashString::TurretNo2ForGunShipOriginX)) ) , 
+				Projectile.GetY() - ( -cos(GunShipIter->GetFacingDirection()) * m_pWii->GetXmlVariable(HashString::TurretForGunShipOriginY) ) , 
+				Projectile.GetZ()  );
 
 			if ( m_pWii->GetFrameCounter() & 1 ) // picks a gun port to fire from
 			{	
-				Boom.SetPos( Boom.GetX() - ( -sin(GunShipIter->GetFacingDirection()+(M_PI/2)) * (m_pWii->GetXmlVariable(HashString::TurretNo1ForGunShipOriginX)) ) , 
-					Boom.GetY() - ( -cos(GunShipIter->GetFacingDirection()+(M_PI/2)) * m_pWii->GetXmlVariable(HashString::TurretForGunShipOriginY) ) , 
-					Boom.GetZ()  );
+				Projectile.SetPos( 
+					Projectile.GetX() - ( -sin(GunShipIter->GetFacingDirection()+(M_PI/2)) * (m_pWii->GetXmlVariable(HashString::TurretNo1ForGunShipOriginX)) ) , 
+					Projectile.GetY() - ( -cos(GunShipIter->GetFacingDirection()+(M_PI/2)) * m_pWii->GetXmlVariable(HashString::TurretForGunShipOriginY) ) , 
+					Projectile.GetZ()  );
 			}
 			else
 			{
-				Boom.SetPos( Boom.GetX() - ( sin(GunShipIter->GetFacingDirection()+(M_PI+(M_PI/2))) * (m_pWii->GetXmlVariable(HashString::TurretNo2ForGunShipOriginX)) ) , 
-					Boom.GetY() - ( -cos(GunShipIter->GetFacingDirection()+(M_PI+(M_PI/2))) * m_pWii->GetXmlVariable(HashString::TurretForGunShipOriginY) ) , 
-					Boom.GetZ()  );
+				Projectile.SetPos( 
+					Projectile.GetX() - ( sin(GunShipIter->GetFacingDirection()+(M_PI+(M_PI/2))) * (m_pWii->GetXmlVariable(HashString::TurretNo2ForGunShipOriginX)) ) , 
+					Projectile.GetY() - ( -cos(GunShipIter->GetFacingDirection()+(M_PI+(M_PI/2))) * m_pWii->GetXmlVariable(HashString::TurretForGunShipOriginY) ) , 
+					Projectile.GetZ()  );
 			}	
 			float dir = GunShipIter->GetTurrentDirection();
 			float mx(sin( dir )* 32.0f);
 			float my(cos( dir )* 32.0f);
-			Boom.AddPos(mx * 0.45f, -my * 0.45f, 0);		
+			Projectile.AddPos(mx * 0.45f, -my * 0.45f, 0);		
 			
-			f32 TurretLockOn = atan2( m_CPUTarget.x - Boom.GetX(), Boom.GetY() - m_CPUTarget.y  );
+			f32 TurretLockOn = atan2( m_CPUTarget.x - Projectile.GetX(), Projectile.GetY() - m_CPUTarget.y  );
 
 			float temp_mx(sin( TurretLockOn )* 32.0f);
 			float temp_my(cos( TurretLockOn )* 32.0f);
-			Boom.SetVel( temp_mx * GunShipIter->GetBulletSpeedFactor(), -temp_my * GunShipIter->GetBulletSpeedFactor(), 0);  
+			Projectile.SetVel( temp_mx * GunShipIter->GetBulletSpeedFactor(), -temp_my * GunShipIter->GetBulletSpeedFactor(), 0);  
 
-			m_ProjectileContainer->push_back(Boom);	
+			m_ProjectileContainer->push_back(Projectile);	
 		}
 
 		GunShipIter->SetVel( sin(GunShipIter->GetFacingDirection())*1.75,
@@ -1710,7 +1704,6 @@ void GameLogic::InitialiseSmallGunTurret(int Amount, float Dist, float x1, float
 
 void GameLogic::InitialiseMoonRocks(int Amount, float RadiusFactor)
 {
-//	m_bAddMoreShipsFlag = false;
 	m_pMoonRocksContainer->clear();
 
 	float minvalue = 999999;
@@ -1725,14 +1718,12 @@ void GameLogic::InitialiseMoonRocks(int Amount, float RadiusFactor)
 		float y = (50-rand()%100)*2; // using coarse values to avoid overlapping 3d rocks
 		float z = cos(ang)*(r) ;
 
-
 		Asteroid.SetPos( x, y, z );
 		//1/250 = 0.004   //r-=250.0;  //r*=0.004f
 		float d = (r - 250.0f) * 0.0015f;
-		Asteroid.SetScale( d+((rand()%10000)*0.000025f), 
-			d+((rand()%10000)*0.000025f), 
-			d+((rand()%10000)*0.000025f));
-
+		Asteroid.SetScale( 	d+((rand()%10000)*0.000025f), 
+							d+((rand()%10000)*0.000025f), 
+							d+((rand()%10000)*0.000025f));
 
 		float dist = (x*x) + (y*y) + (z*z);
 
@@ -1740,11 +1731,14 @@ void GameLogic::InitialiseMoonRocks(int Amount, float RadiusFactor)
 		minvalue = fmin(dist,minvalue);
 
 		Asteroid.SetRotateAmount(	(5000-(rand()%10000)) * 0.000025f, 
-			(5000-(rand()%10000)) * 0.000025f, 
-			(5000-(rand()%10000)) * 0.000025f );
+									(5000-(rand()%10000)) * 0.000025f, 
+									(5000-(rand()%10000)) * 0.000025f );
 
 		m_pMoonRocksContainer->push_back(Asteroid);
 	}
+
+	// shuffle... this will cover the whole circle in a manner where we can just pull numbers in a squence from the container.
+	random_shuffle( m_pMoonRocksContainer->begin(), m_pMoonRocksContainer->end() ); 
 
 	m_ClippingRadiusNeededForMoonRocks = sqrt( fmax(maxvalue, fabs(minvalue)) );
 }
@@ -1793,8 +1787,6 @@ void GameLogic::InitialiseEnermyAmardaArroundLastShieldGenerator(int Amount, flo
 
 void GameLogic::InitialiseIntro()
 {
-//	m_bAddMoreShipsFlag = false;
-
 	//----------------------------------------
 	m_AsteroidContainer->clear();
 	m_CelestialBodyContainer->clear();
@@ -1909,10 +1901,10 @@ void GameLogic::Intro()
 
 
 
-	if (m_ProbeMineContainer->size() < 240)
+	if (m_ProbeMineContainer->size() < 329)
 		ProbeMineLogic(m_SmallEnemiesContainer, 0.0450f, 380.0f); // fast mines
 	else
-		ProbeMineLogic(m_SmallEnemiesContainer, 0.0035f, 555.0f); // slow mines - keeps intact logo for a while
+		ProbeMineLogic(m_SmallEnemiesContainer, 0.0035f, 555.0f); // slow mines - keeps logo intact for a while longer at intro start up
 
 	m_pWii->GetGameDisplay()->DisplayAllForIntro();
 }
@@ -2061,6 +2053,7 @@ void GameLogic::InitialiseGame()
 	m_CelestialBodyContainer->push_back(Moon);
 
 	//--------------
+#ifndef BUILD_FINAL_RELEASE
 	//debug - remove for final release
 	m_pWii->profiler_create(&profile_ProbeMineLogic, "Mines");
 	m_pWii->profiler_create(&profile_Asteroid, "Asteroid");
@@ -2075,7 +2068,7 @@ void GameLogic::InitialiseGame()
 //	m_pWii->profiler_create(&profile_Mission, "Mission");
 	m_pWii->profiler_create(&profile_ShotAndGunTurret, "ShotForGunTurret");
 	m_pWii->profiler_create(&profile_DyingEnemies, "DyingEnemies");
-
+#endif
 	//--------------
 
 

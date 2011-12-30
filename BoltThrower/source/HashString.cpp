@@ -29,8 +29,13 @@ const HashLabel HashString::AfterBurn("AfterBurn");
 const HashLabel HashString::DropMine("DropMine");
 const HashLabel HashString::Explode1("Explode1");
 const HashLabel HashString::Explode2("Explode2");
-const HashLabel HashString::hitmetal("hitmetal");
-
+const HashLabel HashString::Explode3("Explode3");
+const HashLabel HashString::ExplodeBig1("ExplodeBig1");
+const HashLabel HashString::ExplodeBig2("ExplodeBig2");
+const HashLabel HashString::Hull_bang1("Hull_bang1");
+const HashLabel HashString::Hull_bang2("Hull_bang2");
+const HashLabel HashString::Hull_bang3("Hull_bang3");
+const HashLabel HashString::Hull_bang4("Hull_bang4");
 //graphics
 const HashLabel HashString::PlayersShip32x32("PlayersShip32x32");
 const HashLabel HashString::AimingPointer32x32("AimingPointer32x32");
@@ -145,7 +150,6 @@ const HashLabel HashString::RadarCircle("RadarCircle");
 
 const HashLabel HashString::SpaceBackground01("SpaceBackground01");
 
-const HashLabel HashString::TinyLogo("TinyLogo");
 const HashLabel HashString::TinyLogoForMineIntroLayout("TinyLogoForMineIntroLayout");
 
 const HashLabel HashString::AsteroidWidthCoverage("AsteroidWidthCoverage");

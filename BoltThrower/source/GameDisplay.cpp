@@ -142,7 +142,7 @@ void GameDisplay::DisplayAllForIngame()
 	if ( !m_pGameLogic->GetPlrVessel()->HasShieldFailed() )  
 	{
 
-		DisplayPlayer();
+		//DisplayPlayer();
 
 		// 2D section
 		//our ship
@@ -317,7 +317,6 @@ void GameDisplay::DisplayMoon()
 			// moon
 			Mtx Model,mat;
 			Util3D::MatrixRotateY(Model, MoonIter->GetRotateY());
-			//			guMtxRotRad( Model,'y', MoonIter->GetRotateY() ) ;
 			guMtxTrans( mat, MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ() );  // distance back
 			guMtxConcat(mat,Model,Model);
 			guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
@@ -326,14 +325,12 @@ void GameDisplay::DisplayMoon()
 			else
 				m_pWii->Render.RenderModel(HashString::MoonHiRess, Model);
 
-
 			if (m_pGameLogic->IsBaseShieldOnline())
 			{
 				// moon shield
 				GX_SetCullMode(GX_CULL_NONE);
 				GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_FALSE);
 				Util3D::MatrixRotateY(Model, MoonIter->GetRotateY()*8);
-				//				guMtxRotRad(Model,'y', MoonIter->GetRotateY()*8) ;
 				guMtxTrans(mat, 0, 0, MoonIter->GetZ());
 				guMtxConcat(mat,Model,Model);
 				guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
@@ -346,38 +343,36 @@ void GameDisplay::DisplayMoon()
 		// moon rocks
 		if (m_pWii->m_Frustum.sphereInFrustum(v,m_pGameLogic->GetClippingRadiusNeededForMoonRocks()) != FrustumR::OUTSIDE)
 		{
-			float AmountOfRocksToDisplay( MoonIter->GetAmountOfRocks() );
-			float Total( m_pGameLogic->GetMoonRocksContainerSize() );
-			u32 Step(Total/AmountOfRocksToDisplay);
-			u32 WorkingStep(Step);
+		//	float AmountOfRocksToDisplay( MoonIter->GetAmountOfRocks() );
+		//	float Total( m_pGameLogic->GetMoonRocksContainerSize() );
+		//	u32 Step(Total/AmountOfRocksToDisplay);
+		//	u32 WorkingStep(Step);
+
+			float MaxDisplayCount( MoonIter->GetAmountOfRocks() );
 
 			m_pWii->Render.RenderModelPreStage(HashString::Rock1);  // rock1 & rock2 use the same texture
 
 			for (std::vector<Item3D>::iterator iter(m_pGameLogic->GetMoonRocksContainerBegin()); 
 				iter!= m_pGameLogic->GetMoonRocksContainerEnd(); ++iter)
 			{
+				////////IDEA- create rocks in random order then this bit is not needed!!!
 
-				//IDEA- create rocks in random order then this bit is not needed!!!
-
-				//can't just take the first amount we need as the rocks will clump - since they have been created in squence
-				WorkingStep--;
-				if (WorkingStep<=0)   // throw some away (rocks are shared across all moons - but some have less) 
-					WorkingStep=Step; 
-				else
-					continue;
+				////////can't just take the first amount we need as the rocks will clump - since they have been created in squence
+				//////WorkingStep--;
+				//////if (WorkingStep<=0)   // throw some away (rocks are shared across all moons - but some have less) 
+				//////	WorkingStep=Step; 
+				//////else
+				//////	continue;
 
 				Mtx Model,mat;
 				Util3D::MatrixRotateZ(Model, iter->GetRotateZ());
 				Util3D::MatrixRotateY(mat, iter->GetRotateY());
-
-				//guMtxRotRad(Model,'z', iter->GetRotateZ() ); 
-				//guMtxRotRad(mat,'y', iter->GetRotateY() );
 				guMtxConcat(mat,Model, Model);
 				guMtxScaleApply(Model, Model, iter->GetScaleX(),iter->GetScaleY(),iter->GetScaleZ());
 				guMtxTransApply(Model, Model, iter->GetX(), iter->GetY(), iter->GetZ());
 
-				Util3D::MatrixRotateY(mat, MoonIter->GetRotateY());
-				//guMtxRotRad(mat,'y', MoonIter->GetRotateY() ); // spin around moon axis
+				Util3D::MatrixRotateY(mat, MoonIter->GetRotateY());  // spin around moon axis
+
 				guMtxConcat(mat,Model,Model);
 				guMtxTransApply(Model,Model, MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ());
 				guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
@@ -398,6 +393,9 @@ void GameDisplay::DisplayMoon()
 						m_pWii->Render.RenderModelMinimal(HashString::Rock2, Model);  //lowress
 				}
 
+				MaxDisplayCount--;
+				if (MaxDisplayCount <= 0 )
+					break;
 			}
 		}
 	}
@@ -526,7 +524,7 @@ void GameDisplay::DisplayRadar() // big and messy...needs a refactor
 		}
 	}
 
-	m_pWii->GetImageManager()->GetImage(HashString::RadarCircle)->DrawImageXYZ(fCamX - (320-64), fCamY - (240-64),0,128);
+	m_pWii->GetImageManager()->GetImage(HashString::RadarCircle)->DrawImageXYZ(fCamX - (320-64), fCamY - (240-64),0,128,0,2.0f);
 
 	// this next bit is relative to last draw
 	GX_SetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
@@ -817,7 +815,13 @@ void GameDisplay::DisplayExhaust()
 		if ( iter->InsideRadius(fCamX, fCamY, Radius ) )
 		{
 			Image* pImage = m_pImageManager->GetImage( (floor)(iter->GetFrame()) );
-			pImage->DrawImageXYZ(iter->GetX(),iter->GetY(),iter->GetZ(),iter->GetAlpha(),iter->GetFacingDirection(),iter->GetCurrentScaleFactor());
+			pImage->DrawImageXYZ( 
+				iter->GetX(),
+				iter->GetY(),
+				iter->GetZ(),
+				iter->GetAlpha(),
+				iter->GetFacingDirection(),
+				iter->GetCurrentScaleFactor() );
 		}
 	}
 }
@@ -1040,7 +1044,7 @@ void GameDisplay::DisplaySimpleMessage(std::string Text, float fAngle)
 
 void GameDisplay::DebugInformation()
 {
-#ifndef LAUNCH_VIA_WII
+#ifndef BUILD_FINAL_RELEASE
 
 	extern profiler_t profile_ProbeMineLogic;
 	extern profiler_t profile_Asteroid ;

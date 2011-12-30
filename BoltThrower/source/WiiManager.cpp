@@ -1253,8 +1253,17 @@ void WiiManager::SetFrustumView(int w, int h)
 }
 
 
+// ==================================================================================
+// *** ProFile Section ***
+// ==================================================================================
+#if defined (BUILD_FINAL_RELEASE)
+void WiiManager::profiler_create(profiler_t* pjob, std::string name) { pjob; name; } // STUB
+void WiiManager::profiler_start(profiler_t* pjob) {pjob;} // STUB
+void WiiManager::profiler_stop(profiler_t* pjob) {pjob;} // STUB
+void WiiManager::profiler_reset(profiler_t* pjob) {pjob;} // STUB
+string WiiManager::profiler_output(profiler_t* pjob) {pjob; return "";} // STUB
+#else
 
-// Profiler section
 void WiiManager::profiler_create(profiler_t* pjob, std::string name)
 {
 	profiler_reset(pjob);
@@ -1318,9 +1327,12 @@ string WiiManager::profiler_output(profiler_t* pjob)
 		<< " " << pjob->name;
 
 	return ss.str();
-
-	//reutn "%s duration min:%llu max:%llu" + pjob->name.c_str() min_us,max_us );
 }
+#endif
+// ==================================================================================
+// *** ProFile End ***
+// ==================================================================================
+
 
 int WiiManager::GetConfigValueWithDifficultyApplied(HashLabel Name) 
 {

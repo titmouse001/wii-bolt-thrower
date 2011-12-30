@@ -74,6 +74,11 @@ public:
 	void StopSound(int Chan);
 #endif
 
+
+	void PlayRandomExplodeSound();
+	void PlayRandomBigExplodeSound();
+	void PlayRandomHullBang();
+
 	OggPlayer  m_OggPlayer;
 
 

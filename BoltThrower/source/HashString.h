@@ -34,7 +34,13 @@ public:
 	const static HashLabel DropMine;
 	const static HashLabel Explode1;
 	const static HashLabel Explode2;
-	const static HashLabel hitmetal;
+	const static HashLabel Explode3;
+	const static HashLabel ExplodeBig1;
+	const static HashLabel ExplodeBig2;
+	const static HashLabel Hull_bang1;
+	const static HashLabel Hull_bang2;
+	const static HashLabel Hull_bang3;
+	const static HashLabel Hull_bang4;
 
 	// graphics names
 	const static HashLabel PlayersShip32x32;
@@ -146,9 +152,6 @@ public:
 	const static HashLabel RadarCircle;
 
 	const static HashLabel SpaceBackground01;
-	
-	const static HashLabel TinyLogo;
-
 	const static HashLabel TinyLogoForMineIntroLayout;
 
 	const static HashLabel AsteroidWidthCoverage;

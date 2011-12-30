@@ -9,53 +9,27 @@ static const std::string s_ReleaseVersion("0.60");
 static const std::string s_DateOfRelease("Oct 2011");
 static const float s_fVersion( atof( s_ReleaseVersion.c_str() ) );
 
+#define OPTION (1)  
+
+// (1) WII SEND
+// (2) WII EMULATOR ... dolphin emu has been improved, opt 2 is not really needed now
+// (3) WII NATIVE
+
 //--------------------------------------------------------------------------------------------------------------
-// NOTE 1:
-// *** Running via PC Development mode ***
-// Comment out ***BUILD_FINAL_RELEASE*** to run the complied code on the Wii via wireless.
-//
-// This works by changing the game path dir so its no longer relative to the executable.
+// This config changes the game path dir so its no longer relative to the executable.
 // This allows you to launch ‘wiiload.exe’ on the PC that in turn pipes (wirelessly) the compiled 
 // code *.dol file over to the Wii.  The Wii's homebrew channel needs to be running to recieve. 
-//
-//--------------------------------------------------------------------------------------------------------------
-// NOTE 2:
-// For final release make sure 'BUILD_FINAL_RELEASE' is included
-//
-//--------------------------------------------------------------------------------------------------------------
-//
-// NOTE 3:
-// Running under Wii 'Dolphin' emulator - must include BUILD_FOR_EMULATOR
-// This a is as a work around to run under the emu, sorry but it disables all sounds
-//
 //--------------------------------------------------------------------------------------------------------------
 
+#if (OPTION==1)
 #define LAUNCH_VIA_WIISEND 
-//#define LAUNCH_VIA_WII_EMULATOR 
-//#define LAUNCH_VIA_WII	
-
-
-#ifdef LAUNCH_VIA_WIISEND
-#undef BUILD_FINAL_RELEASE
-#undef BUILD_FOR_EMULATOR
-#endif
-
-#ifdef LAUNCH_VIA_WII_EMULATOR
-#undef BUILD_FINAL_RELEASE
-#define BUILD_FOR_EMULATOR
-#endif
-
-#ifdef LAUNCH_VIA_WII
-#define BUILD_FINAL_RELEASE
-#undef BUILD_FOR_EMULATOR
-#endif
-
-
-#ifdef BUILD_FOR_EMULATOR
-#define DISABLE_SOUND
-#undef BUILD_FINAL_RELEASE
+#elif (OPTION==2)
+#define LAUNCH_VIA_WII_EMULATOR 
 #else
-#define ENABLE_SOUND
+#define LAUNCH_VIA_WII	
+#define BUILD_FINAL_RELEASE
 #endif
+
+#define ENABLE_SOUND
 
 #endif
