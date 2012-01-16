@@ -47,6 +47,10 @@ public:
 	const static HashLabel AimingPointer32x32;
 
 	
+	const static HashLabel HealthPickUp32x32;
+
+
+	
 	const static HashLabel MediumEnemyShipType01_32x32;
 	const static HashLabel MediumEnemyShipType02_32x32;
 	const static HashLabel MediumEnemyShipType03_32x32;
@@ -147,7 +151,7 @@ public:
 	const static HashLabel ShieldGenerator;
 	const static HashLabel Skull;
 
-
+	const static HashLabel BarRightSmall;
 
 	const static HashLabel RadarCircle;
 

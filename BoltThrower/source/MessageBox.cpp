@@ -101,7 +101,7 @@ void MessageBox::DisplayMessageBox(float BoxWidth , float BoxHeight )
 	}
 
 	Image* pWiiMoteButtonA = m_pWii->GetImageManager()->GetImage(HashString::WiiMoteButtonA);
-	pWiiMoteButtonA->DrawImageXYZ(BoxWidth/2 - (pWiiMoteButtonA->GetWidth()*0.5) ,BoxHeight/2 - (pWiiMoteButtonA->GetHeight()*0.5) + moveoff ,0,255*GetFadeValue());
+	pWiiMoteButtonA->DrawImageXYZ(BoxWidth/2 - (pWiiMoteButtonA->GetWidth()*0.5) ,BoxHeight/2 - (pWiiMoteButtonA->GetHeight()*0.5) + moveoff ,0,190*GetFadeValue());
 
 	m_pWii->GetCamera()->RecallCameraView();
 }

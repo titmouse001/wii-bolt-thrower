@@ -244,7 +244,7 @@ void OggPlayer::Play(const void* buffer, s32 len, u8 Volume)
 		return;
 	}
 
-	Init();  // grabs a unused voice
+	//Init();  // grabs a unused voice
 	
 	// fill out OggVorbis_File struct with the ogg streams details information
 	OggData.vi = ov_info(&OggData.vf, -1); 

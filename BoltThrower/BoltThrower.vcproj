@@ -141,6 +141,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\Panels3D.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\Panels3D.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\Render3D.cpp"
 				>
 			</File>
@@ -453,10 +461,6 @@
 				</File>
 				<File
 					RelativePath=".\source\CullFrustum\AABox.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\CullFrustum\frustummain.cpp"
 					>
 				</File>
 				<File

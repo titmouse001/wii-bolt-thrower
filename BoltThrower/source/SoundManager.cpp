@@ -75,7 +75,7 @@ void RawSample::PlayFromVoice(u8 VolumeLeft, u8 VolumeRight, bool bLoop, AESNDPB
 
 void SoundManager::PlayRandomExplodeSound()
 {
-	int VolumeFactor = 255 - (rand()%60);
+	int VolumeFactor = 200 - (rand()%60);
 	switch (rand()%3)
 	{
 		case 0:
@@ -167,12 +167,12 @@ void SoundManager::StopSound(AESNDPB* Chan)
 
 SoundManager::SoundManager()// : m_FixMusicVoice(NULL)
 { 
-	Init();
+	//Init();
 }
 
 SoundManager::~SoundManager()
 { 
-	UnInit();
+	//UnInit();
 }
 
 void SoundManager::Init( )
@@ -183,6 +183,10 @@ void SoundManager::Init( )
 
 	m_FixSoundVoice = AESND_AllocateFixedVoice(NULL); // used for players looping thrusters
 //	m_FixSoundVoice = AESND_AllocateVoice(NULL); // used for players looping thrusters
+
+
+	m_OggPlayer.Init();
+
 }
 
 void SoundManager::UnInit( )

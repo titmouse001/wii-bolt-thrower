@@ -8,9 +8,10 @@
 #include <math.h>
 //#include <vector>
 
+//#define HACK_COLOR_OR_TEXTURE (0)
 
 //
-// To keep this simple only one texture uis used per 3d object
+// To keep this simple only one texture is used per 3d object
 // the loading code does support more, but the display does not.
 //
 // FUTURE STUFF: * To support multiple texures maybe fit them into one large texture and change the UV's - good for display lists
@@ -37,8 +38,14 @@ void Render3D::CreateDisplayList(std::string ModelName)
 		{
 
 			//printf ("\n\n%s has %d points in model\n", AllModelsIter->GetName().c_str(),AllModelsIter->GetTotalPointsInObject());
-			//GX_LINESTRIP
-			GX_Begin(GX_TRIANGLES, GX_VTXFMT5,	AllModelsIter->GetTotalPointsInObject() );
+			//GX_Begin(GX_LINESTRIP, GX_VTXFMT5,	AllModelsIter->GetTotalPointsInObject() );
+			
+//			if (HACK_COLOR_OR_TEXTURE) // pos,nrm,col - colour+alpha with normals
+				GX_Begin(GX_TRIANGLES, GX_VTXFMT4,	AllModelsIter->GetTotalPointsInObject() );
+//			else // pos,nrm,tex - texture with normals
+//				GX_Begin(GX_TRIANGLES, GX_VTXFMT5,	AllModelsIter->GetTotalPointsInObject() );
+		
+
 			for ( VectorOfPolyXYZ::iterator iter(AllModelsIter->GetPolyBegin()) ; iter!=AllModelsIter->GetPolyEnd() ; ++iter)
 			{
 				for ( VectorOfPointXYZ::iterator iterPoints(iter->GetPointBegin()) ; iterPoints!=iter->GetPointEnd() ; ++iterPoints)
@@ -46,7 +53,11 @@ void Render3D::CreateDisplayList(std::string ModelName)
 					GX_Position3f32(iterPoints->Getx(),iterPoints->Gety(), iterPoints->Getz()); 
 					// use inverted norms
 					GX_Normal3f32(iterPoints->GetNormX(),iterPoints->GetNormY(), iterPoints->GetNormZ()); 
-					GX_TexCoord2f32(iterPoints->Getu(),iterPoints->Getv());
+					
+//					if (HACK_COLOR_OR_TEXTURE) // pos,nrm,col - colour+alpha with normals
+						GX_Color4u8(255,255,255,255);
+//					else // pos,nrm,tex - texture with normals
+						GX_TexCoord2f32(iterPoints->Getu(),iterPoints->Getv());
 				}
 			}
 			GX_End();
@@ -115,14 +126,22 @@ void Render3D::RenderModelPreStage(HashLabel ModelName)
 {	
 	SetTextureFromModelName(ModelName, GX_PNMTX0);
 
-	GX_SetNumTexGens(1);
-	GX_SetTevOp(GX_TEVSTAGE0,GX_MODULATE);
-	GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
+	//GX_SetNumTexGens(1);
+	//GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
 
 	GX_ClearVtxDesc();
 	GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
 	GX_SetVtxDesc(GX_VA_NRM, GX_DIRECT);
-	GX_SetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+//	if (HACK_COLOR_OR_TEXTURE)
+	{
+		//GX_SetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+		GX_SetVtxDesc(GX_VA_CLR0, GX_DIRECT);
+	}
+	//else
+	{
+		GX_SetTevOp(GX_TEVSTAGE0,GX_MODULATE);
+		GX_SetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+	}
 }
 
 void Render3D::RenderModelMinimal(HashLabel ModelName, Mtx& ModelView)

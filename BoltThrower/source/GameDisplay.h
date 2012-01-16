@@ -22,16 +22,20 @@ public:
 
 	void DisplayMoon();
 	void DebugInformation();
+
+	void Display3DInfoBar(float x , float y, std::string Message, float Tilt = 0.0f);
+
 private:
 
 	void DisplayPlayer();
 
 	void DisplayPickUps();
+	void DisplayHealthPickUps();
 	void DisplayShieldGenerators();
 	void DisplayGunTurrets();
 	void DisplayShotForGunTurret();
 	//void DisplayMoon();
-	void DisplayInformationPanels();
+	//void DisplayInformationPanels();
 	void DisplaySkull();
 	void DisplayRadar();
 	void DisplaySporeThings();

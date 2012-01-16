@@ -59,12 +59,11 @@ void MenuScreens::DoMenuScreen()
 	bbb+=0.005f;
 	//-------------------
 	GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
-	m_pWii->GetCamera()->SetLightOn3();
+	m_pWii->GetCamera()->SetLightColour(255);
+	m_pWii->GetCamera()->SetMaterialColour(0xF0);
+	m_pWii->GetCamera()->SetAmbientLight(0x2F);
+	m_pWii->GetCamera()->DoLight(-200.0f, -320.0f, -240.0f);
 	//--------------------------
-
-	m_pWii->GetGameDisplay()->DisplayMoon();
-
-
 
 	Mtx Model,mat;
 	orient_t Orientation;
@@ -81,16 +80,21 @@ void MenuScreens::DoMenuScreen()
 	pitch += (DegToRad(Orientation.pitch) - pitch)*0.15f;
 	roll += (DegToRad(Orientation.roll) - roll)*0.15f;
 	guMtxRotRad(Model,'y', -M_PI/2 + yaw) ;
-	guMtxRotRad(mat2,'x', M_PI + M_PI/6 - pitch );
+	guMtxRotRad(mat2,'x', M_PI + M_PI/16 - pitch );
 	guMtxRotRad(mat3,'z', M_PI - roll) ;
 	guMtxConcat(mat3,Model,Model);
 	guMtxConcat(mat2,Model,Model);
-	guMtxScaleApply(Model,Model,0.20f,0.20f,0.20f);
-	guMtxTrans(mat, 40,0, -450);
+	guMtxScaleApply(Model,Model,0.18f,0.18f,0.18f);
+	guMtxTrans(mat, 35,12, -450);
 	guMtxConcat(mat,Model,Model);
 	guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
 	m_pWii->Render.RenderModelHardNorms( HashString::WiiMote, Model );
 	//--------------------------
+
+	m_pWii->GetCamera()->DoDefaultLight(50000.0f, 10000.0f, -10000.0f);
+
+	m_pWii->GetGameDisplay()->DisplayMoon();
+
 
 	m_pWii->GetCamera()->SetLightOff();
 	GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
@@ -195,7 +199,9 @@ void MenuScreens::DoControlsScreen()
 	bbb+=0.025f;
 		//-------------------
 	GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
-	m_pWii->GetCamera()->SetLightOn3();
+
+	m_pWii->GetCamera()->DoDefaultLight(200.0f, 100.0f, -1000.0f);
+
 	//--------------------------
 	Mtx Model,mat;
 	//--------------------------
@@ -281,7 +287,7 @@ void MenuScreens::DoCreditsScreen()
 	bbb+=0.025f;
 	GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
 
-	m_pWii->GetCamera()->SetLightOn3();
+	m_pWii->GetCamera()->DoDefaultLight(250.0f, 1000.0f, -1000.0f);
 
 	Mtx Model,mat;
 	guMtxRotRad(Model,'x',M_PI );
@@ -351,7 +357,7 @@ void MenuScreens::DoOptionsScreen()
 	bbb+=0.025f;
 	GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
 
-	m_pWii->GetCamera()->SetLightOn3();
+	m_pWii->GetCamera()->DoDefaultLight(250.0f, 40.0f, -600.0f);
 
 	Mtx Model,mat;
 	guMtxRotRad(Model,'x',cos(bbb*0.5));

@@ -40,6 +40,11 @@ const HashLabel HashString::Hull_bang4("Hull_bang4");
 const HashLabel HashString::PlayersShip32x32("PlayersShip32x32");
 const HashLabel HashString::AimingPointer32x32("AimingPointer32x32");
 
+
+const HashLabel HashString::HealthPickUp32x32("HealthPickUp32x32");
+
+
+
 const HashLabel HashString::MediumEnemyShipType01_32x32("MediumEnemyShipType01_32x32" );
 const HashLabel HashString::MediumEnemyShipType02_32x32("MediumEnemyShipType02_32x32" );
 const HashLabel HashString::MediumEnemyShipType03_32x32("MediumEnemyShipType03_32x32" );
@@ -143,7 +148,7 @@ const HashLabel HashString::MoonShield("MoonShield");
 const HashLabel HashString::ShieldGenerator("ShieldGenerator");
 
 const HashLabel HashString::Skull("Skull");
-
+const HashLabel HashString::BarRightSmall("BarRightSmall");
 
 
 const HashLabel HashString::RadarCircle("RadarCircle");

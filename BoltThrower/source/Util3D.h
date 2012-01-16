@@ -19,6 +19,9 @@ namespace Util3D
 	void MatrixRotateY(Mtx mt,f32 rad);
 	void MatrixRotateX(Mtx mt,f32 rad);
 
+	float sine(float x);
+	float cosine(float x);
+
 }
 
 #endif

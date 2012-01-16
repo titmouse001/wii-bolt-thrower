@@ -22,6 +22,8 @@
 #include "CullFrustum\Vec3.h"
 #include "CullFrustum\FrustumR.h"
 
+#include "Panels3D.h"
+
 using namespace std;
 
 class ImageManager;
@@ -39,6 +41,7 @@ class GameDisplay;
 class URLManager;
 class UpdateManager;
 class SetUpGame;
+
 
 struct FrameInfo
 {
@@ -260,6 +263,8 @@ public:
 
 	string			m_ExePath;
 	FileMemInfo*	m_pMusicData;  // holds things like mods & oggs
+
+	PannelManager	m_PannelManager;
 
 private:
 	

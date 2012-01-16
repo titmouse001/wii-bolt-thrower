@@ -242,6 +242,7 @@ public:
 	void SetVel(guVector& Vel ) { m_Vel = Vel; }
 	void SetVelX(float Val) { m_Vel.x = Val; }
 	void SetVelY(float Val) { m_Vel.y = Val; }
+	void SetVelZ(float Val) { m_Vel.z = Val; }
 
 	void SetFacingDirection(float Value) { m_FacingDirection = Value; }
 	void AddFacingDirection(float Value) ;
@@ -252,7 +253,7 @@ public:
 
 	float GetSpin() const { return m_Spin; }
 	void SetSpin(float fValue)  { m_Spin = fValue; }	
-
+	
 	float GetGravity() const { return m_Gravity; }
 	void SetGravity(float fValue) { m_Gravity = fValue;}
 
@@ -278,7 +279,7 @@ public:
 
 	int GetShieldLevel() const { return m_iShieldLevel; }
 	void SetShieldLevel(int Value) { m_iShieldLevel = Value; }
-	void AddShieldLevel(int Value) { m_iShieldLevel += Value; }
+	void AddShieldLevel(int Value); // { m_iShieldLevel += Value; }
 	bool IsShieldOk() const { return m_iShieldLevel > 0; }
 	bool HasShieldFailed() const { return m_iShieldLevel <= 0; }
 

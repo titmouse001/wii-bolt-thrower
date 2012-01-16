@@ -1,5 +1,8 @@
 #include <math.h>
 #include <gccore.h>
+#include <sstream>
+#include <iomanip> //std::setw
+
 #include "Singleton.h"
 
 #include "GameDisplay.h"
@@ -38,27 +41,49 @@ void GameDisplay::DisplayAllForIntro()
 	GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
 	m_pWii->GetCamera()->SetLightOn2();
 
+	//static f32 lightx=0.0f;
+
+//m_pWii->GetCamera()->SetSpotLight((guVector){ sin(lightx)*200.5f, 0.0f, -1000.0f }, 
+//								  (guVector){ sin(lightx)*200.5f, 0.0f, 0.0f }, 
+//								  -4.0f, 5.0f, 0.0f,  //ang 
+//								  1.0f, 0.0f, 0.0f );  //dist
+ //  lightx+=0.1f;
+
+//	 float shy = 10.0f;
+
+//	static const GXColor AmbientColour  = { 0x40, 0x40, 0x40, 0xFF };
+//	GX_SetChanAmbColor(GX_COLOR0A0,AmbientColour);
+//   m_pWii->GetCamera()->SetLightSpec(0, (guVector){0.0f,0.0f,0.0f}, shy);
+
+	//m_pWii->GetCamera()->SetLightDiff(0,(guVector){sin(lightx)*4.0f,0.0f,-1000.0f },20.0f,1.0f,0xFF0000FF);
+
+
 	static float bbb(0);
 	bbb+=0.005f;
 
 	{
 		// Viper
-		Mtx Model,mat;
+		Mtx Model,mat,m2;
 		guMtxIdentity(Model);
 		Util3D::MatrixRotateX(Model, bbb*4.33);
 		Util3D::MatrixRotateY(mat, bbb*2.33);
-		guMtxConcat(mat,Model,Model);
-		guMtxScaleApply(Model,Model,0.35f,0.35f,0.35f);
-		guMtxTransApply(Model,Model, 0, 0, 900.0f );
+		guMtxConcat(mat,Model,m2);
+		guMtxScaleApply(m2,Model,0.35f,0.35f,0.35f);
+		guMtxTransApply(Model,m2, 0, 0, 900.0f );
 		Util3D::MatrixRotateY(mat, bbb);
-		guMtxConcat(mat,Model,Model);
-		guMtxTransApply(Model,Model, 0, -140, 475.0f );
-		guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
+		guMtxConcat(mat,m2,Model);
+		guMtxTransApply(Model,m2, 0, -140, 475.0f );
+		guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),m2,Model);
 		m_pWii->Render.RenderModelHardNorms(HashString::Viper, Model);
 	}
 
+
+
 	// 3D section
 	DisplayMoon();
+	
+
+
 
 	//DisplayGunTurrets();
 
@@ -89,6 +114,7 @@ void GameDisplay::DisplayAllForIntro()
 
 	GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
 	m_pWii->GetCamera()->SetLightOn2();
+
 	DisplayGunTurrets();
 	m_pWii->GetCamera()->SetLightOff();
 	GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
@@ -132,8 +158,23 @@ void GameDisplay::DisplayAllForIngame()
 	DisplayShieldGenerators();
 
 	if ( m_pGameLogic->GetPlrVessel()->HasShieldFailed() )  
+	{
+
+		m_pWii->GetCamera()->SetLightOn(1,m_pWii->GetCamera()->GetCamX(),m_pWii->GetCamera()->GetCamY(),-1000);
+
+		static const GXColor AmbientColour  = { 0xff, 0xff, 0xff, 0x1a }; 
+		GX_SetChanAmbColor(GX_COLOR0A0,AmbientColour);
+		m_pWii->GetCamera()->SetLightDiff(2, 
+								(guVector){
+									m_pWii->GetCamera()->GetCamX(),
+									m_pWii->GetCamera()->GetCamY(),-75.0f},20.0f,1.0f);
+
 		DisplaySkull();
-	
+	}
+
+	m_pWii->GetCamera()->SetLightOff();
+
+	m_pWii->GetCamera()->SetLightOn();
 	DisplayPickUps();
 
 	m_pWii->GetCamera()->SetLightOff();
@@ -154,7 +195,7 @@ void GameDisplay::DisplayAllForIngame()
 			m_pGameLogic->GetPlrVessel()->GetY(), m_pGameLogic->GetPlrVessel()->GetZ(), 128 - (m_pGameLogic->GetPlrVessel()->GetShieldLevel()*2), (rand()%(314*2)) * 0.01  );
 	}
 
-
+	DisplayHealthPickUps();
 	DisplayBadShips();
 	DisplayGunShips();
 	DisplaySporeThings();
@@ -169,7 +210,9 @@ void GameDisplay::DisplayAllForIngame()
 
 	m_pWii->GetCamera()->StoreCameraView();
 	m_pWii->GetCamera()->SetCameraView(m_pWii->GetScreenWidth()*0.5f, m_pWii->GetScreenHeight()*0.5f) ;
-	DisplayInformationPanels();
+
+	m_pWii->m_PannelManager.Show();
+
 	m_pWii->GetCamera()->RecallCameraView();
 
 
@@ -181,6 +224,7 @@ void GameDisplay::DisplayAllForIngame()
 		m_pImageManager->GetImage( m_pWii->m_FrameEndStartConstainer[HashString::AimingPointer32x32].StartFrame )
 			->DrawImageXYZ( iter->x,iter->y, 0, 255, m_pGameLogic->GetPlrVessel()->GetFacingDirection() );
 	}
+
 
 //	GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
 
@@ -242,20 +286,18 @@ void GameDisplay::DisplayShieldGenerators()
 	m_pWii->Render.RenderModelPreStage(HashString::Satellite);  // rock1 & rock2 use the same texture
 	for (std::vector<Item3DChronometry>::iterator iter(m_pGameLogic->GetShieldGeneratorContainerBegin() ); iter!= m_pGameLogic->GetShieldGeneratorContainerEnd(); /*NOP*/)
 	{
+		// set Satellite
 		iter->Rotate(); //TODO this is a logic only part
 		iter->AddVelToPos();
-
 		Mtx Model,mat;
 		Util3D::MatrixRotateZ(Model, iter->GetRotateZ());
 		Util3D::MatrixRotateY(mat, iter->GetRotateY());
-//		guMtxRotRad(Model,'z',iter->GetRotateZ() ); 
-//		guMtxRotRad(mat,'y',iter->GetRotateY() );
 		guMtxConcat(mat,Model,Model);
 		guMtxScaleApply(Model,Model,iter->GetScaleX(),iter->GetScaleY(),iter->GetScaleZ());
 		guMtxTrans(mat, iter->GetX(), iter->GetY(), iter->GetZ());
 		guMtxConcat(mat,Model,Model);
-		guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
-		m_pWii->Render.RenderModelMinimalHardNorms(HashString::Satellite, Model);
+		guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,mat);
+		m_pWii->Render.RenderModelMinimalHardNorms(HashString::Satellite, mat);
 
 		if (pPlayerVessel->InsideRadius(iter->GetX(), iter->GetY(),60*60))
 		{
@@ -273,7 +315,7 @@ void GameDisplay::DisplayShieldGenerators()
 			iter->SetCountdownSeconds(4);
 		}
 
-		if (iter->GetZ() < -450 )
+		if (iter->GetZ() < -485.0f )
 			iter = m_pGameLogic->EraseItemFromShieldGeneratorContainer(iter);
 		else
 			++iter;
@@ -287,19 +329,35 @@ void GameDisplay::DisplayPickUps()
 	for (std::vector<Item3D>::iterator iter(m_pGameLogic->GetMaterialPickUpContainerBegin()); 
 			iter!= m_pGameLogic->GetMaterialPickUpContainerEnd(); ++iter)
 	{
-		Mtx Model,mat;
+		Mtx Model,mat,m2;
 		
 		Util3D::MatrixRotateZ(Model, iter->GetRotateZ());
 		Util3D::MatrixRotateY(mat, iter->GetRotateY());
-//		guMtxRotRad(Model,'z', iter->GetRotateZ() ); 
-//		guMtxRotRad(mat,'y',iter->GetRotateY() );
-		guMtxConcat(mat,Model,Model);
-		guMtxScaleApply(Model,Model,iter->GetScaleX(),iter->GetScaleY(),iter->GetScaleZ());
-		guMtxTrans(mat, iter->GetX(), iter->GetY(), iter->GetZ());
-		guMtxConcat(mat,Model,Model);
-		guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
-		m_pWii->Render.RenderModelMinimalHardNorms(HashString::Material_PickUp, Model);
+		guMtxConcat(mat,Model,m2);
+		guMtxScaleApply(m2,Model,iter->GetScaleX(),iter->GetScaleY(),iter->GetScaleZ());
+		guMtxTransApply(Model,Model,iter->GetX(), iter->GetY(), iter->GetZ());
+		guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,mat);
+		m_pWii->Render.RenderModelMinimalHardNorms(HashString::Material_PickUp, mat);
 	}
+}
+
+
+void GameDisplay::DisplayHealthPickUps()
+{
+	float fCamX( m_pWii->GetCamera()->GetCamX() );
+	float fCamY( m_pWii->GetCamera()->GetCamY() );
+	float Radius(m_pWii->GetXmlVariable(HashString::ViewRadiusForSprites));
+	Radius*=Radius;
+
+	for (std::vector<Vessel>::iterator Iter(m_pGameLogic->GetHealthPickUpContainerBegin()); 
+		Iter!= m_pGameLogic->GetHealthPickUpContainerEnd(); ++Iter)
+	{
+		if ( Iter->InsideRadius(fCamX, fCamY, Radius ) )
+		{
+			m_pImageManager->GetImage(Iter->GetFrame())->DrawImage(*Iter);
+		}
+	}
+
 }
 
 void GameDisplay::DisplayMoon()
@@ -317,8 +375,7 @@ void GameDisplay::DisplayMoon()
 			// moon
 			Mtx Model,mat;
 			Util3D::MatrixRotateY(Model, MoonIter->GetRotateY());
-			guMtxTrans( mat, MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ() );  // distance back
-			guMtxConcat(mat,Model,Model);
+			guMtxTransApply( Model, Model , MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ() );  // distance back
 			guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
 			if (MoonIter->GetDetailLevel() == Low)
 				m_pWii->Render.RenderModel(HashString::MoonLowRess, Model);
@@ -331,8 +388,7 @@ void GameDisplay::DisplayMoon()
 				GX_SetCullMode(GX_CULL_NONE);
 				GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_FALSE);
 				Util3D::MatrixRotateY(Model, MoonIter->GetRotateY()*8);
-				guMtxTrans(mat, 0, 0, MoonIter->GetZ());
-				guMtxConcat(mat,Model,Model);
+				guMtxTransApply(Model,Model, 0, 0, MoonIter->GetZ());
 				guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
 				m_pWii->Render.RenderModelHardNorms(HashString::MoonShield, Model);
 				GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
@@ -343,40 +399,39 @@ void GameDisplay::DisplayMoon()
 		// moon rocks
 		if (m_pWii->m_Frustum.sphereInFrustum(v,m_pGameLogic->GetClippingRadiusNeededForMoonRocks()) != FrustumR::OUTSIDE)
 		{
-		//	float AmountOfRocksToDisplay( MoonIter->GetAmountOfRocks() );
+
+			float AmountOfRocksToDisplay( MoonIter->GetAmountOfRocks() );
+
 		//	float Total( m_pGameLogic->GetMoonRocksContainerSize() );
 		//	u32 Step(Total/AmountOfRocksToDisplay);
 		//	u32 WorkingStep(Step);
-
-			float MaxDisplayCount( MoonIter->GetAmountOfRocks() );
+//			float MaxDisplayCount( MoonIter->GetAmountOfRocks() );
 
 			m_pWii->Render.RenderModelPreStage(HashString::Rock1);  // rock1 & rock2 use the same texture
+			std::vector<Item3D>::iterator IterEnd = m_pGameLogic->GetMoonRocksContainerBegin();
+			std::advance(IterEnd,MoonIter->GetAmountOfRocks());
 
-			for (std::vector<Item3D>::iterator iter(m_pGameLogic->GetMoonRocksContainerBegin()); 
-				iter!= m_pGameLogic->GetMoonRocksContainerEnd(); ++iter)
+			for (std::vector<Item3D>::iterator iter(m_pGameLogic->GetMoonRocksContainerBegin());iter!=IterEnd;++iter)
+//			for (std::vector<Item3D>::iterator iter(m_pGameLogic->GetMoonRocksContainerBegin());iter!=m_pGameLogic->GetMoonRocksContainerEnd();++iter)
 			{
 				////////IDEA- create rocks in random order then this bit is not needed!!!
-
+				//** NOW DONE - works! **
 				////////can't just take the first amount we need as the rocks will clump - since they have been created in squence
 				//////WorkingStep--;
 				//////if (WorkingStep<=0)   // throw some away (rocks are shared across all moons - but some have less) 
 				//////	WorkingStep=Step; 
 				//////else
 				//////	continue;
-
-				Mtx Model,mat;
+				Mtx Model,mat,m2;
 				Util3D::MatrixRotateZ(Model, iter->GetRotateZ());
 				Util3D::MatrixRotateY(mat, iter->GetRotateY());
-				guMtxConcat(mat,Model, Model);
-				guMtxScaleApply(Model, Model, iter->GetScaleX(),iter->GetScaleY(),iter->GetScaleZ());
+				guMtxConcat(mat,Model, m2);
+				guMtxScale(Model, iter->GetScaleX(),iter->GetScaleY(),iter->GetScaleZ());
 				guMtxTransApply(Model, Model, iter->GetX(), iter->GetY(), iter->GetZ());
-
 				Util3D::MatrixRotateY(mat, MoonIter->GetRotateY());  // spin around moon axis
-
-				guMtxConcat(mat,Model,Model);
-				guMtxTransApply(Model,Model, MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ());
-				guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
-
+				guMtxConcat(mat,Model,m2);
+				guMtxTransApply(m2,m2, MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ());
+				guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),m2,Model);
 				if (MoonIter->GetDetailLevel() == Low)
 				{
 					m_pWii->Render.RenderModelMinimal(HashString::Rock2, Model);  //lowress
@@ -393,9 +448,10 @@ void GameDisplay::DisplayMoon()
 						m_pWii->Render.RenderModelMinimal(HashString::Rock2, Model);  //lowress
 				}
 
-				MaxDisplayCount--;
-				if (MaxDisplayCount <= 0 )
-					break;
+//				MaxDisplayCount--;
+//				if (MaxDisplayCount <= 0 )
+//					break;
+
 			}
 		}
 	}
@@ -404,48 +460,115 @@ void GameDisplay::DisplayMoon()
 }
 
 
+////////
+////////void GameDisplay::DisplayInformationPanels()
+////////{
+////////	std::stringstream ss;
+////////	ss << "score " << std::setw( 6 ) << std::setfill( '0' ) << m_pGameLogic->GetScore();
+////////	Display3DInfoBar( 228.0f , -190.0f,  ss.str()  );  // origin is centre
+////////
+////////	ss.str("");
+////////	int Total = m_pGameLogic->GetPlrVessel()->GetPickUpTotal();
+////////	if (Total > 0)
+////////	{
+////////		static float b1(0);
+////////		static int count(0);
+////////		static int LastTotal(0);
+////////		static float ScrapTilt= - M_PI/2.0;
+////////
+////////		ss << "scrap " << std::setw( 6 ) << std::setfill( '0' ) << Total;
+////////		Display3DInfoBar( 228 , -150, ss.str(),ScrapTilt  );  // origin is centre
+////////
+////////		if (LastTotal == Total)
+////////		{
+////////			count++;
+////////			if ((ScrapTilt > -0.1f) && (count > 4*60) )
+////////			{
+////////				b1 = -(M_PI/2.0);
+////////			}
+////////		}
+////////		else
+////////		{
+////////			count = 0;
+////////			b1 = 0;
+////////		}
+////////		ScrapTilt += ( b1 - ScrapTilt) * 0.045f;
+////////		LastTotal = Total;
+////////	}
+////////
+////////
+////////	// summary of baddies left
+////////	float fCamX( m_pWii->GetCamera()->GetCamX() );
+////////	float fCamY( m_pWii->GetCamera()->GetCamY() );
+////////	float BoxWidth = 46;
+////////	float BoxHeight = 26;
+////////	float x = (  -m_pWii->GetScreenWidth()*0.065f )  + ( m_pWii->GetScreenWidth() / 2) - BoxWidth;
+////////	float y = ( -m_pWii->GetScreenHeight()*0.075f) + ( m_pWii->GetScreenHeight() / 2) - BoxHeight;
+////////
+////////	int size = m_pGameLogic->GetSporesContainerSize();
+////////	if (size>0)
+////////	{
+////////		m_pWii->TextBoxWithIcon( fCamX + x, fCamY + y, BoxWidth, BoxHeight,
+////////			WiiManager::eRight, HashString::SpinningSpore16x16x9,"%02d",size, m_pWii->GetMissionManager()->GetCurrentMission() );
+////////	}
+////////	size = m_pGameLogic->GetTotalEnemiesContainerSize();
+////////	if (size>0)
+////////	{
+////////		m_pWii->TextBoxWithIcon( fCamX + x - BoxWidth -2, fCamY + y, BoxWidth, BoxHeight,
+////////			WiiManager::eRight, HashString::SmallWhiteEnemyShip16x16x2, "%02d", size );
+////////	}
+////////
+////////	//// score	
+////////	//BoxWidth = 106;
+////////	//BoxHeight = 26;
+////////	//x = ( m_pWii->GetScreenWidth()* 0.065f);
+////////	//y = ( m_pWii->GetScreenHeight()* (1.0f - 0.075f) ) - BoxHeight;
+////////	//
+////////	//m_pWii->TextBox( x, y, BoxWidth, BoxHeight, WiiManager::eCentre, "score %d", m_pGameLogic->GetScore() );
+////////
+////////
+////////
+//////////	// message at game startup
+//////////	if (m_pGameLogic->IsGamePausedByPopUp() && 
+//////////		(m_pWii->GetMissionManager()->GetCurrentMission()==1) )
+//////////	{
+//////////		m_pWii->GetFontManager()->DisplayText(m_pWii->GetText("Your_Score"),100,0,200,HashString::SmallFont);  // relative coords to last trans
+//////////		m_pWii->GetFontManager()->DisplayText(m_pWii->GetText("Press_PLUS_To_Pause_Game"),100,-100,200,HashString::SmallFont);  // relative coords to last trans
+//////////	}
+//////////
+////////	////////// Scrap parts
+////////	////////int Total = m_pGameLogic->GetPlrVessel()->GetPickUpTotal();
+////////	////////if (Total > 0)
+////////	////////{
+////////	////////	BoxWidth = 96;
+////////	////////	x = (m_pWii->GetScreenWidth() * 0.975f) - BoxWidth;
+////////	////////	y = (m_pWii->GetScreenHeight() * 0.075f) - BoxHeight;
+////////	////////	m_pWii->TextBox( x, y ,BoxWidth,BoxHeight,WiiManager::eRight, "scrap %3d", Total );
+////////	////////}
+////////
+////////////	if (m_pGameLogic->IsGamePausedByPopUp() && (m_pWii->GetMissionManager()->GetCurrentMission()==1) )
+////////////		m_pWii->GetFontManager()->DisplayText(m_pWii->GetText("ScrapPartsCollected"),100,0,200,HashString::SmallFont);
+//////////
+////////
+////////}
 
-void GameDisplay::DisplayInformationPanels()
+void GameDisplay::Display3DInfoBar(float x , float y, std::string Message, float Tilt)
 {
-	// summary of baddies left
-	float fCamX( m_pWii->GetCamera()->GetCamX() );
-	float fCamY( m_pWii->GetCamera()->GetCamY() );
-	float BoxWidth = 46;
-	float BoxHeight = 26;
-	float x = (  -m_pWii->GetScreenWidth()*0.065f )  + ( m_pWii->GetScreenWidth() / 2) - BoxWidth;
-	float y = ( -m_pWii->GetScreenHeight()*0.075f) + ( m_pWii->GetScreenHeight() / 2) - BoxHeight;
+		GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
+		m_pWii->GetCamera()->DoDefaultLight(150, 75, -200);
+		//--------------------------
+		Mtx Model,mat;
+		Util3D::MatrixRotateX( Model, Tilt);
+		float fCamX( m_pWii->GetCamera()->GetCamX() );
+		float fCamY( m_pWii->GetCamera()->GetCamY() );
+		guMtxTransApply(Model,Model,fCamX + x - (Tilt*112) ,fCamY + y, 0);
+		guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
+		m_pWii->Render.RenderModelHardNorms(HashString::BarRightSmall, Model);
+		//--------------------------
+		m_pWii->GetCamera()->SetLightOff();
+		GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
+		m_pWii->GetFontManager()->DisplayText( Message , -48,-11,144,HashString::SmallFont);
 
-	m_pWii->TextBoxWithIcon( fCamX + x, fCamY + y, BoxWidth, BoxHeight,
-		WiiManager::eRight, HashString::SpinningSpore16x16x9,
-		"%02d",m_pGameLogic->GetSporesContainerSize(), 
-		m_pWii->GetMissionManager()->GetCurrentMission() );
-
-	m_pWii->TextBoxWithIcon( fCamX + x - BoxWidth -2, fCamY + y, BoxWidth, BoxHeight,
-		WiiManager::eRight, HashString::SmallWhiteEnemyShip16x16x2,
-		"%02d", m_pGameLogic->GetTotalEnemiesContainerSize() );
-
-	// score	
-	BoxWidth = 86;
-	BoxHeight = 26;
-	x = ( m_pWii->GetScreenWidth()* 0.065f);
-	y = ( m_pWii->GetScreenHeight()* (1.0f - 0.075f) ) - BoxHeight;
-	m_pWii->TextBox( x, y, BoxWidth, BoxHeight, WiiManager::eCentre, "%08d", m_pGameLogic->GetScore() );
-
-	// message at game startup
-	if (m_pGameLogic->IsGamePausedByPopUp() && 
-		(m_pWii->GetMissionManager()->GetCurrentMission()==1) )
-	{
-		m_pWii->GetFontManager()->DisplayText(m_pWii->GetText("Your_Score"),100,0,200,HashString::SmallFont);  // relative coords to last trans
-		m_pWii->GetFontManager()->DisplayText(m_pWii->GetText("Press_PLUS_To_Pause_Game"),100,-100,200,HashString::SmallFont);  // relative coords to last trans
-	}
-
-	// Scrap parts
-	x = ( m_pWii->GetScreenWidth()* 0.065f);
-	y = ( m_pWii->GetScreenHeight()* (1.0f - 0.075f) ) - (BoxHeight*2.10f);
-	m_pWii->TextBox( x, y ,BoxWidth,BoxHeight,WiiManager::eCentre, "%06d", m_pGameLogic->GetPlrVessel()->GetPickUpTotal() );
-
-	if (m_pGameLogic->IsGamePausedByPopUp() && (m_pWii->GetMissionManager()->GetCurrentMission()==1) )
-		m_pWii->GetFontManager()->DisplayText(m_pWii->GetText("ScrapPartsCollected"),100,0,200,HashString::SmallFont);
 }
 
 
@@ -491,11 +614,15 @@ void GameDisplay::DisplaySkull()
 	guMtxConcat(mat,Model,Model);
 	Util3D::MatrixRotateY(mat, sin(bbb)*0.95);
 	guMtxConcat(mat,Model,Model);
-	guMtxTransApply(Model,Model, 
-		m_pGameLogic->GetPlrVessel()->GetX(), 
-		m_pGameLogic->GetPlrVessel()->GetY(),dist);
+//	guMtxTransApply(Model,Model, 
+//		m_pGameLogic->GetPlrVessel()->GetX(), 
+//		m_pGameLogic->GetPlrVessel()->GetY(),dist);
+
+
+	guMtxTransApply(Model,Model,m_pWii->GetCamera()->GetCamX(),m_pWii->GetCamera()->GetCamY(),dist);
 
 	guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
+
 	m_pWii->Render.RenderModelHardNorms(HashString::Skull, Model);
 }
 
@@ -970,13 +1097,12 @@ void GameDisplay::DisplayGunTurrets()
 		Util3D::MatrixRotateY(mat,  iter->GetRotateY() );
 		Util3D::MatrixRotateZ(mat2, iter->GetRotateZ() );
 
-
 		guMtxConcat(mat,mat2,Model);
 		guMtxScaleApply(Model,Model,iter->GetScaleX(),iter->GetScaleY(),iter->GetScaleZ());
 		guMtxTransApply(Model, Model, iter->GetX(), iter->GetY(), iter->GetZ());
 
-		guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
-		m_pWii->Render.RenderModelMinimalHardNorms(HashString::SmallGunTurret, Model);
+		guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,mat2);
+		m_pWii->Render.RenderModelMinimalHardNorms(HashString::SmallGunTurret, mat2);
 	}
 }
 
@@ -986,10 +1112,10 @@ void GameDisplay::DisplayShotForGunTurret()
 	for (std::vector<Item3D>::iterator iter(m_pGameLogic->GetShotForGunTurretContainerBegin()); 
 		iter!= m_pGameLogic->GetShotForGunTurretContainerEnd(); ++iter )
 	{
-		Mtx Model;
+		Mtx Model,FinalResult;
 		guMtxTrans(Model, iter->GetX(), iter->GetY(), iter->GetZ());
-		guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
-		m_pWii->Render.RenderModelMinimalHardNorms(HashString::Shot, Model);
+		guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,FinalResult); // note: by not using Model for the output we can avoid an extra internal copy	
+		m_pWii->Render.RenderModelMinimalHardNorms(HashString::Shot, FinalResult);
 	}
 } 
 
@@ -1069,8 +1195,7 @@ void GameDisplay::DebugInformation()
 	if (FPS<60) ++DroppedFrames;
 
 	m_pWii->Printf(x,y+=32,"%02dfps %ddropped",FPS,DroppedFrames/60);
-	return;
-
+	
 	if (m_pGameLogic->GetAsteroidContainerSize()!=0)
 		m_pWii->Printf(x,y+=22,"%03d %s",m_pGameLogic->GetAsteroidContainerSize(), m_pWii->profiler_output(&profile_Asteroid).c_str());
 	if (m_pGameLogic->GetMoonRocksContainerSize()!=0)

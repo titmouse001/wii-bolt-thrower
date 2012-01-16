@@ -137,7 +137,7 @@ void WiiManager::UnInitWii()
 
 	GRRMOD_End();
 
-//	m_SoundManager->UnInit();  //call this last
+	m_SoundManager->UnInit();  //call this last
 
 }
 
@@ -149,7 +149,7 @@ void WiiManager::InitWii()
 	m_MessageBox->Init();
 	m_SetUpGame->Init();
 	m_UpdateManager->Init();
-//	m_SoundManager->Init();
+	m_SoundManager->Init();
 
 
 	Util::SetUpPowerButtonTrigger();
@@ -399,7 +399,7 @@ void	WiiManager::SetUp3DProjection()
 	GX_SetVtxAttrFmt (GX_VTXFMT3, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
 	GX_SetVtxAttrFmt (GX_VTXFMT3, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
 
-	//GX_VTXFMT4 used for tex with normals
+	//GX_VTXFMT4 used for colour with normals + tex
 	GX_SetVtxAttrFmt (GX_VTXFMT4, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);   // Each call to a vertex attribute must match the order: Position, normal, color, texcoord. 
 	GX_SetVtxAttrFmt (GX_VTXFMT4, GX_VA_NRM, GX_NRM_XYZ, GX_F32, 0);
 	GX_SetVtxAttrFmt (GX_VTXFMT4, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
@@ -915,6 +915,12 @@ void WiiManager::InitGameResources()
 
 	ScanMusicFolder();
 	PlayMusic();
+
+	
+	m_PannelManager.Add( "score ", -190 , new Panels3DScore);
+	m_PannelManager.Add( "scrap ", -150 , new Panels3DScrap);
+
+
 }
 
 void WiiManager::ScanMusicFolder()
@@ -1319,3 +1325,45 @@ string WiiManager::GetText(string Name)
 
 //int WiiManager::GetSizeOfDownloadInfoContainer() { return m_DownloadinfoContainer.size(); }
 //NOTE: things like LWO VAR "index" are seen HERE!!!!
+
+
+//
+//void DrawCircle(int x, int y, int radius, u32 rgba, bool filled)
+//{
+//	int i;
+//    u32 a;
+//    f32 ra, G_DTOR = M_DTOR * 10, x1[36], y1[36];
+//
+//    for(a = 0; a < 36; a++)
+//    {
+//        ra = a * G_DTOR;
+//
+//        x1[a] = cos(ra) * radius + x;
+//        y1[a] = sin(ra) * radius + y;
+//    }
+//	
+//	if(filled) GX_Begin(GX_TRIANGLEFAN, GX_VTXFMT0, 36);
+//	else GX_Begin(GX_LINESTRIP, GX_VTXFMT0, 36);
+//	for(i = 0; i < 36; i++) 
+//	{
+//		GX_Position3f32(x1[i], y1[i], 0.0f);
+//		GX_Color1u32(rgba);
+//	}
+//	GX_End();
+//}
+//
+//void Brightness(u8 alpha)
+//{ 
+//	GXRModeObj* pScreenMode( GetBestVideoMode() );
+//    guVector v[] = { {0,0,0.0f}, {pScreenMode->fbWidth,0,0.0f}, 
+//					 {pScreenMode->fbWidth,pScreenMode->xfbHeight,0.0f}, 
+//					 {0,pScreenMode->xfbHeight,0.0f}, {0,0,0.0f} };    
+//    GX_Begin(GX_TRIANGLEFAN, GX_VTXFMT0, 4);
+//    for (int i = 0; i < 4; i++) 
+//    {
+//        GX_Position3f32(v[i].x, v[i].y,  v[i].z);
+//        GX_Color4u8(0x00, 0x00, 0x00, alpha);
+//    }
+//    GX_End();
+//}
+

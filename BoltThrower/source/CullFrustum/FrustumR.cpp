@@ -1,3 +1,5 @@
+// View Frustum Culling - Lighthouse3D (for more info see http://www.lighthouse3d.com)
+
 #include "Plane.h"
 #include "FrustumR.h"
 #include <math.h>
@@ -5,7 +7,7 @@
 
 //#include <GL/glut.h>
 
-#define ANG2RAD 3.14159265358979323846/360.0 
+#define HALF_ANG2RAD 3.14159265358979323846/360.0 
 
 
 #define m(col,row)  m[row*4+col]
@@ -46,7 +48,7 @@ void FrustumR::setCamInternals(float angle, float ratio, float nearD, float farD
 
 	// store the information
 	this->ratio = ratio;
-	this->angle = angle * ANG2RAD;
+	this->angle = angle * HALF_ANG2RAD;
 	this->nearD = nearD;
 	this->farD = farD;
 

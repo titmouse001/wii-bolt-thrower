@@ -76,35 +76,26 @@
 		<AddLWO Name="Skull"		FileName="lwo/Skull_medress.lwo" 					UseModelsNormalData="0"/>
 		<AddLWO Name="MoonShield"	FileName="lwo/MoonShield.lwo" 						UseModelsNormalData="1"/>
 		<!-- by the looks of things LW saves in reverse order, so zero will be the last layer-->
-		<AddLWO Name="SmallGunTurret"	FileName="lwo/SmallGunTurret[+BONE].lwo" 				UseModelsNormalData="1"
-			IndexLayerForBones="0"
-		/>
+		<AddLWO Name="SmallGunTurret"	FileName="lwo/SmallGunTurret[+BONE].lwo" UseModelsNormalData="1" IndexLayerForBones="0" />
+    <AddLWO Name="Shot"	FileName="lwo/Shot.lwo"/>
 		<AddLWO Name="Material_PickUp"	FileName="lwo/Material_PickUP.lwo" 				UseModelsNormalData="1"/>
-		<AddLWO Name="Shot"	FileName="lwo/Shot.lwo" 									UseModelsNormalData="1"/>
-	</LightWaveObjects>
+		<AddLWO Name="BarRightSmall"	  FileName="lwo/BAR_Right_Small002.lwo" 		UseModelsNormalData="1"/>
+   </LightWaveObjects>
 
   <Sounds>
-    
     <AddSound Name="Explode1"	FileName="Sounds/Explode1.ogg" />
     <AddSound Name="Explode2"	FileName="Sounds/Explode2.ogg" />
     <AddSound Name="Explode3"	FileName="Sounds/Explode3.ogg" />
-    
     <AddSound Name="ExplodeBig1"	FileName="Sounds/ExplodeBig1.ogg" />
     <AddSound Name="ExplodeBig2"	FileName="Sounds/ExplodeBig2.ogg" />
-    
     <AddSound Name="Hull_bang1"	FileName="Sounds/Hull_bang1.ogg" />
     <AddSound Name="Hull_bang2"	FileName="Sounds/Hull_bang2.ogg" />
     <AddSound Name="Hull_bang3"	FileName="Sounds/Hull_bang3.ogg" />
     <AddSound Name="Hull_bang4"	FileName="Sounds/Hull_bang4.ogg" />
-    
     <AddSound Name="FireMissle"	FileName="Sounds/FireMissile.ogg" />
-   
     <AddSound Name="AfterBurn"	FileName="Sounds/MainThrust.ogg" Loop="true"/>
-    
     <AddSound Name="DropMine"	FileName="Sounds/DropMine.ogg" />
-
     <AddSound Name="Alarm2"	FileName="Sounds/Alarm2.ogg" />
-    
   </Sounds>
 
 	<RawTga>
@@ -173,7 +164,10 @@
 		<AddImage Name="SpinningSpaceDebre02"  StartX="304" StartY="208" ItemWidth="16" ItemHeight="16" NumberItems="8" Direction="Down"/>
 
     <AddImage Name="RadarCircle"  StartX="256" StartY="80" ItemWidth="64" ItemHeight="64" NumberItems="1"/>
-    
+
+    <!-- Health -->
+    <AddImage Name="HealthPickUp32x32"  StartX="128" StartY="352" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+
   </Graphics>
 
 

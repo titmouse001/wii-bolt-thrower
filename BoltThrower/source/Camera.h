@@ -37,17 +37,23 @@ public:
 	void AddCamZ(float Value) {  m_camera.z += Value; }
 
 	void CameraMovementLogic(float MoveToX,float MoveToY,float MoveToZ,float fFactor = 0.065f);
-	//void CameraMovementLogic(float MoveToX,float MoveToY,float fFactor = 0.065f);
 		
 	Mtx&  GetcameraMatrix() { return m_cameraMatrix; }
 
 	float GetFOV() const { return m_FieldOfView; }
 	void SetFOV(float fValue) { m_FieldOfView = fValue; }
 
-	void SetLightOn3(float x = 25000.0f, float y = 45000.0f, float z = -100000.0f);
-	void SetLightOn(float x = 250000.0f, float y = 250000.0f, float z = -1000000.0f);
+	void SetLightOn(int LightNumber=1, float x = 250000.0f, float y = 250000.0f, float z = -1000000.0f);
 	void SetLightOn2();
 	void SetLightOff();
+
+	//void SetSpotLight( guVector pos, guVector lookat, 
+	//							 f32 angAttn0, f32 angAttn1, f32 angAttn2, 
+	//							 f32 distAttn0, f32 distAttn1, f32 distAttn2) ;
+
+	//void SetLightSpec(u8 num, guVector dir, f32 shy) ;
+
+	void  SetLightDiff(u8 num, guVector pos, f32 distattn, f32 brightness);
 
 	void SetVesselLightOn(float x, float y, float z);
 
@@ -55,6 +61,22 @@ public:
 	void RecallCameraView()	{ m_camera = m_StoredCamera; SetCameraView(); }
 	
 	float GetCameraHeightFor2DViewPort() { return m_CameraHeightFor3DViewPort; } 
+
+	//---------------------------------
+	// lights
+	
+	void	DoDefaultLight(float x = 25000.0f, float y = 45000.0f, float z = -100000.0f);
+	void	DoLight(float x = 25000.0f, float y = 45000.0f, float z = -100000.0f);
+
+	void		SetAmbientLight(float Colour);
+	void		SetLightColour(float Colour);
+	void		SetMaterialColour(float Colour);
+	GXColor		m_LightColour;
+	GXColor		m_MaterialColour;
+	GXColor		m_AmbientColour;
+
+	
+	u32			m_UsedLightMask;
 
 private:
 

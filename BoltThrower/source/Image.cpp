@@ -48,7 +48,7 @@ Image::Image(u32 Width, u32 Height) : m_FileNameAsHash("")
 	WiiManager& Wii( Singleton<WiiManager>::GetInstanceByRef() ); 
 	ImageManager* pImageManager( Wii.GetImageManager() );
 
-	Tga::PIXEL Col = {255,0,255,128};  // Should never see this, so purple to make it stand out
+	Tga::PIXEL Col = {255,0,255,255};  // Should never see this, so purple to make it stand out
 	Tga::PIXEL* TgaData ( new Tga::PIXEL [Width*Height] ); 
 	for (u32 i(0); i<Width*Height; ++i)
 	{

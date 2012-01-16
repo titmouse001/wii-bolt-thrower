@@ -13,7 +13,7 @@ void Vessel::SetVel(f32 x, f32 y, f32 z)
 
 void Vessel::AddPos(f32 x, f32 y, f32 z)
 {
-	m_Pos.x += ( x * m_SpeedFactor );
+	m_Pos.x += ( x * m_SpeedFactor );  // factor will be kept at ONE for things like your ship
 	m_Pos.y += ( y * m_SpeedFactor );
 	m_Pos.z += ( z * m_SpeedFactor );
 }
@@ -42,7 +42,6 @@ void Vessel::AddVel(guVector& rVector)
 
 void Vessel::VelReduce()
 {
-	//static const float Gravity(0.99f);
 	m_Vel.x *= GetGravity();
 	m_Vel.y *= GetGravity();
 	m_Vel.z *= GetGravity();
@@ -166,6 +165,12 @@ f32 Vessel::GetTurnDirectionForTurret(guVector* Vec)
 	else if (diff < -M_PI)
 		diff += 2*M_PI; // get shorter turn direction
 	return diff;
+}
+
+void Vessel::AddShieldLevel(int Value) 
+{ 
+	int ShieldLevelMaxLimit = Singleton<WiiManager>::GetInstanceByPtr()->GetXmlVariable(HashString::PlayerMaxShieldLevel);
+	m_iShieldLevel = std::min(m_iShieldLevel + Value,ShieldLevelMaxLimit); 
 }
 
 void Item3D::InitTimer() 	{ m_pTimer = new Timer;  }

@@ -57,6 +57,8 @@ public:
 	void MissileLogic();
 
 	void ProbeMineLogic( std::vector<Vessel>*  pVesselContainer = NULL, float ThrustPower = 0.05f, float ActiveRange = 155.0f, float ScanRange = 22.0f, float CraftSize = (12.0f*12.0f) );
+	void RetrieveProbeMineLogic(std::vector<Vessel>*  pVesselContainer, float ThrustPower, float ActiveRange, float ScanRange, float CraftSize);
+	void ProbeMineCollisionLogic(std::vector<Vessel>*  pVesselContainer, float CraftSize);
 	void BadShipsLogic();
 	void ExhaustLogic();
 	void ProjectileLogic();
@@ -76,10 +78,6 @@ public:
 	u32 GetScore() { return m_Score; }
 	void SetScore(u32 Value) { m_Score = Value; }
 	void AddScore(u32 Value);
-
-	std::vector<Item3D>* m_pMoonRocksContainer;
-	std::vector<TurretItem3D>* m_pGunTurretContainer;
-	std::vector<Item3D>* m_pMaterialPickUpContainer;
 
 	void InitialiseMoonRocks(int Amount,float RadiusFactor = 0.0018f);
 	void InitialiseSmallGunTurret(int Amount, float Dist ,float x1,float y1, float z1, float StartingAngleOffset = 0);
@@ -108,10 +106,15 @@ public:
 	bool	IsGunShipContainerEmpty() { return m_GunShipContainer->empty(); }
 	int GetGunShipContainerSize();
 
-	// PickUp
+	// PickUp Material
 	vector<Item3D>::iterator GetMaterialPickUpContainerBegin()	{ return m_pMaterialPickUpContainer->begin();}
 	vector<Item3D>::iterator GetMaterialPickUpContainerEnd()	{ return m_pMaterialPickUpContainer->end();}
 	int GetMaterialPickUpContainerSize();
+
+	// PickUp Health
+	vector<Vessel>::iterator GetHealthPickUpContainerBegin()	{ return m_pHealthPickUpContainer->begin();}
+	vector<Vessel>::iterator GetHealthPickUpContainerEnd()		{ return m_pHealthPickUpContainer->end();}
+	int GetHealthPickUpContainerSize();
 
 	// Small Enemies
 	vector<Vessel>::iterator GetSmallEnemiesContainerBegin()	{ return m_SmallEnemiesContainer->begin();}
@@ -201,6 +204,8 @@ public:
 
 	Vessel* GetGunTurretTarget(TurretItem3D* pTurret);
 
+	bool	m_bEnableRetrieveProbeMineMode;
+
 private:
 
 	void DyingShipsLogic();
@@ -217,6 +222,10 @@ private:
 
 	void AddPickUps(Vessel* Position, int Amount);
 	void PickUpsLogic();
+
+	void AddHealthPickUps(Vessel* Position);
+	void HealthPickUpsLogic();
+
 	//void MoonRocksLogic();
 	void GunTurretLogic();
 	//void GunTurretShotsLogic();
@@ -242,11 +251,13 @@ private:
 	std::vector<Vessel>* m_ProjectileContainer;
 	std::vector<guVector>* m_AimPointerContainer;
 	std::vector<Item3D>* m_ShotForGunTurretContainer;
-
 	std::vector<Vessel>* m_DyingEnemiesContainer;
-
 	std::vector<MoonItem3D>* m_CelestialBodyContainer;
+	std::vector<Item3D>* m_pMoonRocksContainer;
+	std::vector<TurretItem3D>* m_pGunTurretContainer;
+	std::vector<Item3D>* m_pMaterialPickUpContainer;
 
+	std::vector<Vessel>* m_pHealthPickUpContainer;
 
 
 	//bool			m_bAddMoreShipsFlag;
