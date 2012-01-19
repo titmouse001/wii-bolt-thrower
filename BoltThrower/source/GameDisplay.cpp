@@ -422,16 +422,20 @@ void GameDisplay::DisplayMoon()
 				//////	WorkingStep=Step; 
 				//////else
 				//////	continue;
+
 				Mtx Model,mat,m2;
 				Util3D::MatrixRotateZ(Model, iter->GetRotateZ());
 				Util3D::MatrixRotateY(mat, iter->GetRotateY());
-				guMtxConcat(mat,Model, m2);
-				guMtxScale(Model, iter->GetScaleX(),iter->GetScaleY(),iter->GetScaleZ());
+				guMtxConcat(Model,mat, m2);
+				guMtxScaleApply(m2, Model, iter->GetScaleX(),iter->GetScaleY(),iter->GetScaleZ());
 				guMtxTransApply(Model, Model, iter->GetX(), iter->GetY(), iter->GetZ());
+
 				Util3D::MatrixRotateY(mat, MoonIter->GetRotateY());  // spin around moon axis
+
 				guMtxConcat(mat,Model,m2);
 				guMtxTransApply(m2,m2, MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ());
 				guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),m2,Model);
+
 				if (MoonIter->GetDetailLevel() == Low)
 				{
 					m_pWii->Render.RenderModelMinimal(HashString::Rock2, Model);  //lowress

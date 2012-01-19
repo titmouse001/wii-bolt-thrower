@@ -261,7 +261,6 @@ void SetUpGame::Play()
 
 	WPAD_ScanPads();   // Do a read now, this will flush out anything old ready for a fresh start.
 	
-
 	while (m_pWii->IsGameStateGame()) 
 	{
 		m_pWii->GetGameLogic()->InGameLogic();

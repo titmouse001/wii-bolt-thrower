@@ -61,6 +61,7 @@ void Util3D::MatrixRotateX(Mtx mt,f32 rad)
 {
 	f32 SinValue( sinf(rad) );
 	f32 CosValue( cosf(rad) );
+	//sincosf(rad,&SinValue,&CosValue);
 	// X
 	mt[0][0] =  1.0f;		mt[0][1] =  0.0f;			mt[0][2] =  0.0f;		mt[0][3] = 0.0f;
 	mt[1][0] =  0.0f;		mt[1][1] =  CosValue;		mt[1][2] = -SinValue;	mt[1][3] = 0.0f;
@@ -71,6 +72,7 @@ void Util3D::MatrixRotateZ(Mtx mt,f32 rad)
 {
 	f32 SinValue( sinf(rad) );
 	f32 CosValue( cosf(rad) ); 
+	//sincosf(rad,&SinValue,&CosValue);
 	// Z
 	mt[0][0] =  CosValue;	mt[0][1] = -SinValue;		mt[0][2] =  0.0f;		mt[0][3] = 0.0f;
 	mt[1][0] =  SinValue;	mt[1][1] =  CosValue;		mt[1][2] =  0.0f;		mt[1][3] = 0.0f;
@@ -81,27 +83,36 @@ void Util3D::MatrixRotateY(Mtx mt,f32 rad)
 {
 	f32 SinValue( sinf(rad) );
 	f32 CosValue( cosf(rad) );
+	//sincosf(rad,&SinValue,&CosValue);
 	// Y
 	mt[0][0] =  CosValue;	mt[0][1] =  0.0f;			mt[0][2] =  SinValue;	mt[0][3] = 0.0f;
 	mt[1][0] =  0.0f;		mt[1][1] =  1.0f;			mt[1][2] =  0.0f;		mt[1][3] = 0.0f;
 	mt[2][0] = -SinValue;	mt[2][1] =  0.0f;			mt[2][2] =  CosValue;	mt[2][3] = 0.0f;
 };
 
+//  -ffast-math
 
-float Util3D::sine(float x) 
-{ 
-    static const float B = 4.0f/M_PI; 
-    static const float C = -4.0f/(M_PI*M_PI); 
-    float y = B * x + C * x * abs(x); 
-    #ifdef EXTRA_PRECISION 
-    //  const float Q = 0.775; 
-	const float P = 0.225f; 
-	y = P * (y * abs(y) - y) + y;   // Q * y + P * y * abs(y) 
-    #endif 
-	return y;
-}
 
-float Util3D::cosine(float x) 
-{     
-	return sine(x + (M_PI / 2.0f)); 
-} 
+
+////
+//float Util3D::sine(float x) 
+//{ 
+//	return sin(x);
+//
+//    static const float B = 4.0f/M_PI; 
+//    static const float C = -4.0f/(M_PI*M_PI); 
+//    float y = B * x + C * x * abs(x); 
+////    #ifdef EXTRA_PRECISION 
+//    //  const float Q = 0.775; 
+//	const float P = 0.225f; 
+//	y = P * (y * abs(y) - y) + y;   // Q * y + P * y * abs(y) 
+////    #endif 
+//	return y;
+//}
+////
+////float Util3D::cosine(float x) 
+////{     
+////	return cos(x);
+////
+////	//return sine(x + (M_PI / 2.0f)); 
+////} 
