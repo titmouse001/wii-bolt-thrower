@@ -1,0 +1,34 @@
+<?xml version="1.0" standalone="yes"?>
+
+<!-- This file looks after updates for Wii Bolt Thrower -->
+<Data>
+	<LatestReleaseAvailable>0.61</LatestReleaseAvailable>
+	
+	<ReleaseNotes>
+    visit http://wiibrew.org/wiki/BoltThrower for release notes\n\n
+    Press (A) to install\n
+    Press (B) to cancel\n\n
+    Install Release 0.61 ?\n
+  </ReleaseNotes>
+	
+	<Updates>
+    <!-- 'FullDownloadPath' is relative to the executables path -->
+    <!-- Carefull currently only one deep dirs will be created if missing, (do things in order parent order, or create folders with dummy files) -->
+    <!-- so FullDownloadPath="newdir1/boot.dol" is ok, FullDownloadPath="newdir1/newdir2/boot.dol" will fail without using care -->
+    
+		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/boot.dol"
+					    FullDownloadPath="/" 
+              OverwriteExistingFile="YES"/>
+
+    <AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/meta.xml"
+          FullDownloadPath="/"
+          OverwriteExistingFile="YES"/>
+
+    <AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/icon.png"
+          FullDownloadPath="/"
+          OverwriteExistingFile="YES"/>
+					
+	</Updates>
+	
+</Data>
+	  
