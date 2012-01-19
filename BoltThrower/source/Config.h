@@ -9,11 +9,11 @@ static const std::string s_ReleaseVersion("0.60");
 static const std::string s_DateOfRelease("Oct 2011");
 static const float s_fVersion( atof( s_ReleaseVersion.c_str() ) );
 
-#define OPTION (1)  
+#define OPTION (3)  
 
 // (1) WII SEND
 // (2) WII EMULATOR ... dolphin emu has been improved, opt 2 is not really needed now
-// (3) WII NATIVE
+// (3) WII NATIVE ... *** MAKE SURE YOU USE OPTION 3 FOR THE FINAL RELEASE ***
 
 //--------------------------------------------------------------------------------------------------------------
 // This config changes the game path dir so its no longer relative to the executable.

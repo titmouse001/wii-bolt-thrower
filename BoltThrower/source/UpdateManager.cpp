@@ -28,6 +28,10 @@ string CreateString()
 	// This was worked out using a network packet analyzer - I used WireShark 
 	// Corners have been cut in places, and the code just says each  visit is a new one. i.e. fudged the same DataTime x3 
 
+	string MasterUpdateFile = "LatestVersion_TESTING";
+//	string MasterUpdateFile = "LatestVersion";
+
+
 	string DateTime = Util_GA::GetUnixTimeNow();
 	vector<string> GA_Parameters; 
 	GA_Parameters.push_back("utmwv=5.1.9");
@@ -40,10 +44,12 @@ string CreateString()
 	GA_Parameters.push_back("&utmul=en-gb");
 	GA_Parameters.push_back("&utmje=1");
 	GA_Parameters.push_back("&utmfl=10.3%20r183");
-	GA_Parameters.push_back("&utmdt=LatestVersion.xml%20-%20wii-bolt-thrower%20-%20Wii%20Bolt%20Thrower%20-%20developed%20under%20the%20Wii%20homebrew%20platform%20-%20Google%20Project%20Hosting");
+	
+	GA_Parameters.push_back("&utmdt=" + MasterUpdateFile + ".xml%20-%20wii-bolt-thrower%20-%20Wii%20Bolt%20Thrower%20-%20developed%20under%20the%20Wii%20homebrew%20platform%20-%20Google%20Project%20Hosting");
+
 	GA_Parameters.push_back("&utmhid=" + Util_GA::GetRandom9DigitDecimalAsString() );
 	GA_Parameters.push_back("&utmr=0");
-	GA_Parameters.push_back("&utmp=%2Fp%2Fwii-bolt-thrower%2Fsource%2Fbrowse%2FLatestVersion.xml");
+	GA_Parameters.push_back("&utmp=%2Fp%2Fwii-bolt-thrower%2Fsource%2Fbrowse%2F" + MasterUpdateFile + ".xml");
 	GA_Parameters.push_back("&utmac=UA-25374250-1");
 	GA_Parameters.push_back("&utmcc=__utma%3D" +
 							 Util_GA::CreateHashString("code.google.com") +		// Domain hash ... i.e. 247248150 for "code.google.com"

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<app version="1">
+<name>Bolt Thrower</name>
+<coder>Paul Overy</coder>
+<version>v0.60</version>
+<release_date>201110290000</release_date>
+<short_description>Bolt Thrower Game</short_description>
+<long_description>Bolt Thrower space shoot em up
+(Arrow Down) Drop Probe Mine
+(A) Fire missle
+(B) Thrust forward
+(+) Pause Game
+(home) Back to Homebrew Channel</long_description>
+</app>
