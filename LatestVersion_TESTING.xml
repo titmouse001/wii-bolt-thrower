@@ -22,7 +22,10 @@
 
 		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/icon.png"
 					FullDownloadPath="/" OverwriteExistingFile="YES"/>
-					
+				
+		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/GameConfiguration.xml"
+					FullDownloadPath="/" OverwriteExistingFile="YES"/>
+
 		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/Sounds/Explode1.ogg"
 					FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
 		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/Sounds/Explode2.ogg"
@@ -50,12 +53,12 @@
 		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/Sounds/Alarm2.ogg"
 					FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
 						
-		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/lwo/BAR_Right_Small002.lwo"
+		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/Lwo/BAR_Right_Small002.lwo"
 					FullDownloadPath="lwo/" OverwriteExistingFile="YES"/>
-		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/lwo/Textures/OneEndedBarTexture.png"
+		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/Lwo/Textures/OneEndedBarTexture.png"
 					FullDownloadPath="lwo/textures/" OverwriteExistingFile="YES"/>
 					
-		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/Graphics/Sprites.png"
+		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/Graphics/Sprites.png"
 					FullDownloadPath="Graphics/" OverwriteExistingFile="YES"/>
 						
 	</Updates>
