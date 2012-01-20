@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static const std::string s_ReleaseVersion("0.60");
-static const std::string s_DateOfRelease("Oct 2011");
+static const std::string s_ReleaseVersion("0.61");
+static const std::string s_DateOfRelease("Jan 2012");
 static const float s_fVersion( atof( s_ReleaseVersion.c_str() ) );
 
 #define OPTION (3)  

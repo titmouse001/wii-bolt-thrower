@@ -1103,6 +1103,8 @@ bool TiXmlDocument::LoadMem( char* pFreshData, long length, TiXmlEncoding encodi
 	//length = ftell( file );
 	//fseek( file, 0, SEEK_SET );
 
+	
+
 	// Strange case, but good to handle up front.
 	if ( length <= 0 )
 	{
@@ -1110,9 +1112,9 @@ bool TiXmlDocument::LoadMem( char* pFreshData, long length, TiXmlEncoding encodi
 		return false;
 	}
 
-	char* buf = new char[ length+1 ];
-	//buf[0] = 0;
+	char* buf = pFreshData ; //new char[ length+1 ];
 
+	//buf[0] = 0;
 	//if ( fread( buf, length, 1, file ) != 1 ) {
 	//	delete [] buf;
 	//	SetError( TIXML_ERROR_OPENING_FILE, 0, 0, TIXML_ENCODING_UNKNOWN );

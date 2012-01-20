@@ -18,9 +18,9 @@ public:
 
 	void Init();
 
-	void DoUpdate();
+	void DoUpdate(string MasterUpdateFile);
 	bool DisplayUpdateMessage();
-	bool CheckForUpdate();
+	bool CheckForUpdate(string MasterUpdateFile);
 	void  UpdateApplicationFiles();
 
 	void SetMessageVersionReport(string Value) { m_MessageVersionReport = Value; }

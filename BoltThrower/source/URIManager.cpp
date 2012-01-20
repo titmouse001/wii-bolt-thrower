@@ -160,7 +160,7 @@ MemoryInfo* URLManager::GetFromURI(string URI)
 //#endif 
 
 	do{
-		int BytesSent = net_send(sockfd, RequestPacket.c_str(), BytesRemaining, 0); // My tests under windows found that just one packet is needed - even when I made the packet really big!
+		int BytesSent = net_send(sockfd, RequestPacket.c_str(), BytesRemaining, 0); // My tests under windows found that just one packet is needed - even when I made the packet really big (just 1 call to net_send)
 		if (BytesSent < 0) // hopefully zero is never a problem
 			return NULL;
 
@@ -184,6 +184,9 @@ MemoryInfo* URLManager::GetFromURI(string URI)
 	{
 		if (BytesRead<0)
 			break;  // write out what we have (adds ".BAD" to filename) - useful for debugging
+
+//		ptrWorking[BytesRead]=0;
+//		printf( (char*)ptrWorking );
 
 		if (WorkingString.empty())
 		{

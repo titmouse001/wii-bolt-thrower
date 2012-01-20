@@ -47,7 +47,10 @@ int main(int /* argc */, char**  argv )
 
 #if (1)
 	//-------------------------------------------------
-	rWiiManager.GetUpdateManager()->DoUpdate();
+	string MasterFile = "LatestVersion_TESTING";
+	//	string MasterFile = "LatestVersion";
+
+	rWiiManager.GetUpdateManager()->DoUpdate(MasterFile);
 	//-------------------------------------------------
 #endif
 

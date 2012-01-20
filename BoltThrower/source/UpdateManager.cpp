@@ -23,14 +23,12 @@
 #include "Util_google_analytics.h"
 
 
-string CreateString()
+
+
+string CreateString(string MasterUpdateFile)
 {
 	// This was worked out using a network packet analyzer - I used WireShark 
 	// Corners have been cut in places, and the code just says each  visit is a new one. i.e. fudged the same DataTime x3 
-
-	string MasterUpdateFile = "LatestVersion_TESTING";
-//	string MasterUpdateFile = "LatestVersion";
-
 
 	string DateTime = Util_GA::GetUnixTimeNow();
 	vector<string> GA_Parameters; 
@@ -90,9 +88,9 @@ void UpdateManager::Init()
 
 }
 
-void UpdateManager::DoUpdate()
+void UpdateManager::DoUpdate(string MasterUpdateFile)
 {
-	if ( CheckForUpdate() )
+	if ( CheckForUpdate(MasterUpdateFile) )
 	{
 		if (DisplayUpdateMessage())
 		{
@@ -146,7 +144,7 @@ void  UpdateManager::UpdateApplicationFiles( )
 	delete pURLManager;
 }
 
-bool UpdateManager::CheckForUpdate()
+bool UpdateManager::CheckForUpdate(string MasterUpdateFile)
 {
 	bool Report( false );
 
@@ -171,10 +169,12 @@ bool UpdateManager::CheckForUpdate()
 		u8* ptestdata = (u8*) malloc (sizeof(char) * FileSize);
 		size_t TestSize = fread (ptestdata,1,FileSize,pFile);
 #else
-		pURLManager->GetFromURI( CreateString() ); // google analytics
+
+		pURLManager->GetFromURI( CreateString(MasterUpdateFile) ); // google analytics
 		// pURLManager->SaveURI("http://wii-bolt-thrower.googlecode.com/hg/LatestVersion.xml",WiiFile::GetGamePath() );
-		MemoryInfo* pData(pURLManager->GetFromURI("http://wii-bolt-thrower.googlecode.com/hg/LatestVersion.xml"));
+		MemoryInfo* pData(pURLManager->GetFromURI("http://wii-bolt-thrower.googlecode.com/hg/" + MasterUpdateFile + ".xml"));
 #endif
+
 		TiXmlDocument doc;
 #if (TEST_FROM_FILE==1)
 		if ( doc.LoadMem( (char*) ptestdata, TestSize ) )
@@ -232,7 +232,10 @@ bool UpdateManager::CheckForUpdate()
 				//-----------------------------------------------------------------------------------------
 			}
 		}
+//	else
+//	ExitPrintf(doc.ErrorDesc());
 	}
+
 	delete pURLManager;
 
 	return Report;

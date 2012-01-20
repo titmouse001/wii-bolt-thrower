@@ -20,11 +20,10 @@
 */
 void Debug::_ExitPrintf(const char* pFormat, ...)
 {
-	static const u32 BufferSize(128);
-
 	va_list tArgs;
 	va_start(tArgs, pFormat);
-	char cBuffer[BufferSize+1];
+	static const u32 BufferSize(1024);
+	char* cBuffer (new char[BufferSize]);
 	vsnprintf(cBuffer, BufferSize, pFormat, tArgs);	
 	va_end(tArgs);
 
@@ -35,7 +34,7 @@ void Debug::_ExitPrintf(const char* pFormat, ...)
 			Singleton<WiiManager>::GetInstanceByRef().SwapScreen();
 		}
 	}
-	printf("\n\n\t%s\n*** Press 'Home' *** \n\n",cBuffer);
+	printf("\n\n\t%s...\n*** Press 'Home' *** \n\n",cBuffer);
 
 	do 
 	{
@@ -45,6 +44,7 @@ void Debug::_ExitPrintf(const char* pFormat, ...)
 
 	printf("\nExiting\n\n");
 
+	delete [] cBuffer;
 	exit(1);
 
 }
