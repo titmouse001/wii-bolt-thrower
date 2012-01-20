@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 <Data>
-	<LatestReleaseAvailable>0.60</LatestReleaseAvailable>
+	<LatestReleaseAvailable>0.61</LatestReleaseAvailable>
 	
 	<ReleaseNotes>
     visit http://wiibrew.org/wiki/BoltThrower for release notes\n\n
@@ -53,9 +53,9 @@
 		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/Sounds/Alarm2.ogg"
 					FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
 						
-		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/lwo/BAR_Right_Small002.lwo"
+		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/Lwo/BAR_Right_Small002.lwo"
 					FullDownloadPath="lwo/" OverwriteExistingFile="YES"/>
-		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/lwo/Textures/OneEndedBarTexture.png"
+		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/Lwo/Textures/OneEndedBarTexture.png"
 					FullDownloadPath="lwo/textures/" OverwriteExistingFile="YES"/>
 					
 		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/Graphics/Sprites.png"
