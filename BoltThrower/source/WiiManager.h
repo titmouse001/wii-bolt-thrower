@@ -249,7 +249,7 @@ public:
 	void SetLanguage(string Language) { m_Language = Language; }
 	string GetLanguage() { return m_Language; }
 	string GetText(string Name);
-	void ScanMusicFolder();
+	void ScanMusicFolder( bool ResetPlayQue = false );
 	void NextMusic();
 	void PlayMusic();
 	void SetMusicVolume(int Volume);

@@ -913,7 +913,7 @@ void WiiManager::InitGameResources()
 	
 	BuildMenus();
 
-	ScanMusicFolder();
+	ScanMusicFolder( true );
 	PlayMusic();
 
 	
@@ -923,17 +923,19 @@ void WiiManager::InitGameResources()
 
 }
 
-void WiiManager::ScanMusicFolder()
+void WiiManager::ScanMusicFolder( bool ResetPlayQue )
 {
 	m_MusicFilesContainer.clear();
 	WiiFile::GetFolderFileNames( WiiFile::GetGameMusicPath(), &m_MusicFilesContainer );
 
-	if ( m_MusicFilesContainer.empty() )
-		return;
-
-	m_MusicFilesContainer.begin()->b_ThisSlotIsBeingUsed = true; // tag one tune to start with
-
-	LoadMusic();
+	if ( ! m_MusicFilesContainer.empty() )
+	{
+		m_MusicFilesContainer.begin()->b_ThisSlotIsBeingUsed = true; // tag one tune to start with
+		if (ResetPlayQue)
+		{
+			LoadMusic();
+		}
+	}
 }
 
 void WiiManager::LoadMusic()
@@ -943,6 +945,8 @@ void WiiManager::LoadMusic()
 	{
 		if (m_pMusicData->pData != NULL)  // stop anything that's currently playing
 		{
+			SetMusicVolume( 0 );
+
 			char* pTemp = new char[5];
 			memset (pTemp,0,5);
 			memcpy (pTemp,m_pMusicData->pData,4);

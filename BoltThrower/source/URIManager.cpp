@@ -15,24 +15,35 @@
 
 URLManager::URLManager()
 {
+	Init();  // might move this since it takes a will and it's done at startup before any screen updates - long black screen!!!
+}
 
-	char IP[16]; // i.e. room for 255.255.255.255 + NULL
-	// this calls net_init() in a nice way (must provide first param)
-	if ( if_config(IP, NULL, NULL, true) < 0 ) // throw away the IP result - don't need it
+URLManager::~URLManager()
+{
+	UnInit();
+}
+
+void URLManager::Init()
+{
+	char* pIP = new char[16]; // i.e. room for 255.255.255.255 + NULL
+	// this calls net_init() for us in a nice way (must provide first param)
+	if ( if_config(pIP, NULL, NULL, true) < 0 ) // throw away the IP result - don't need it
 	{
-		m_Initialised = false;
-		//printf("if_config failed");
+		m_Initialised = false;  // failed
 	}
 	else
 	{
 		m_Initialised = true;
 	}
+	delete []pIP;
 }
 
-URLManager::~URLManager()
+void URLManager::UnInit()
 {
-	if (m_Initialised)
+	if ( m_Initialised )
+	{
 		net_deinit();
+	}
 }
 
 // URLManager section

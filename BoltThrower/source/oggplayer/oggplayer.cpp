@@ -175,6 +175,10 @@ void* OggPlayer::ogg_player_thread2(OggDataInfo* ptr)
 	ptr->DoubleBufferToggle = 0;
 	LWP_InitQueue(&oggplayer_queue);
 
+	memset (&ptr->pcmout[0],0,BUFFER_SIZE);  
+	memset (&ptr->pcmout[1],0,BUFFER_SIZE);  // this one too just incase (callback might flip this one)
+
+
 	OggData.ogg_thread_running = true;
 	while (OggData.ogg_thread_running)
 	{

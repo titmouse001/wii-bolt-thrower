@@ -45,9 +45,10 @@ int main(int /* argc */, char**  argv )
 	rWiiManager.InitGameResources();
 	rWiiManager.GetCamera()->SetUpView(); // 3D View
 
+
 #if (1)
 	//-------------------------------------------------
-	string MasterFile = "LatestVersion_TESTING";
+	string MasterFile = "LatestVersion_FAKE";
 	//	string MasterFile = "LatestVersion";
 
 	rWiiManager.GetUpdateManager()->DoUpdate(MasterFile);
@@ -70,6 +71,7 @@ int main(int /* argc */, char**  argv )
 bool DownloadFilesListedInConfiguration(bool MisssingCheckOnly)
 {
 	URLManager* pURLManager( new URLManager );
+
 	if (pURLManager->m_Initialised)
 	{
 		WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
@@ -105,7 +107,7 @@ bool DownloadFilesListedInConfiguration(bool MisssingCheckOnly)
 			}
 		}
 		
-		//Refresh music list - my have just download something
+		//Refresh music list - may have just download something
 		rWiiManager.ScanMusicFolder();
 
 	}

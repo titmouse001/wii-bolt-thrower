@@ -18,6 +18,9 @@ public:
 	URLManager();
 	~URLManager();
 
+	void Init();
+	void UnInit();
+
 	MemoryInfo* GetFromURI(string URI);
 	bool	SaveURI(string URI, string DestinationPath = "sd://" );  //""c:\\" );
 	bool	m_Initialised;
