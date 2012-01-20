@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 <Data>
-	<LatestReleaseAvailable>0.60</LatestReleaseAvailable>
+	<LatestReleaseAvailable>0.61</LatestReleaseAvailable>
 	
 	<ReleaseNotes>
     visit http://wiibrew.org/wiki/BoltThrower for release notes\n\n
@@ -22,7 +22,10 @@
 
 		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/icon.png"
 					FullDownloadPath="/" OverwriteExistingFile="YES"/>
-					
+				
+		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/GameConfiguration.xml"
+					FullDownloadPath="/" OverwriteExistingFile="YES"/>
+
 		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/Sounds/Explode1.ogg"
 					FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
 		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/Sounds/Explode2.ogg"
