@@ -1185,7 +1185,7 @@ void WiiManager::BuildMenus(bool KeepSettings)
 
 	// From now on text loaded and available - call to CreateSettingsFromXmlConfiguration is needed first
 	// default message - may get overwritten later
-	GetUpdateManager()->SetMessageVersionReport( GetText("RunningLatestVersion")  + s_ReleaseVersion + " - " + s_DateOfRelease );
+	//GetUpdateManager()->SetMessageVersionReport( GetText("RunningLatestVersion")  + s_ReleaseVersion + " - " + s_DateOfRelease );
 }
 
 void WiiManager::SetFrustumView(int w, int h) 

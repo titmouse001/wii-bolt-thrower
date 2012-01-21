@@ -25,7 +25,7 @@
 
 
 
-string CreateString(string MasterUpdateFile)
+string CreateGoogleAnalyticsRequest(string MasterUpdateFile)
 {
 	// This was worked out using a network packet analyzer - I used WireShark 
 	// Corners have been cut in places, and the code just says each  visit is a new one. i.e. fudged the same DataTime x3 
@@ -107,8 +107,9 @@ void UpdateManager::DoUpdate(string MasterUpdateFile)
 
 void  UpdateManager::UpdateApplicationFiles( )
 {
-	URLManager* pURLManager( new URLManager );
+	//URLManager* pURLManager( new URLManager );
 	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
+	URLManager* pURLManager = rWiiManager.GetURLManager();
 
 	for ( vector<FileInfo>::iterator Iter( m_ApplicationSpecificUpdatesForDownloadFileInfoContainer.begin()); 
 		Iter !=  m_ApplicationSpecificUpdatesForDownloadFileInfoContainer.end() ; ++Iter )
@@ -141,14 +142,16 @@ void  UpdateManager::UpdateApplicationFiles( )
 				rWiiManager.GetGameDisplay()->DisplaySmallSimpleMessage("Not Found "+ URI_FilePath);
 		}
 	}
-	delete pURLManager;
+	//delete pURLManager;
 }
 
 bool UpdateManager::CheckForUpdate(string MasterUpdateFile)
 {
 	bool Report( false );
 
-	URLManager* pURLManager( new URLManager );
+	//URLManager* pURLManager( new URLManager );
+	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
+	URLManager* pURLManager = rWiiManager.GetURLManager();
 
 	if (pURLManager->m_Initialised)
 	{
@@ -170,7 +173,17 @@ bool UpdateManager::CheckForUpdate(string MasterUpdateFile)
 		size_t TestSize = fread (ptestdata,1,FileSize,pFile);
 #else
 
-		pURLManager->GetFromURI( CreateString(MasterUpdateFile) ); // google analytics
+		if ( MasterUpdateFile != "LatestVersion_FAKE")
+		{
+			m_ReleaseNotes = "";
+			m_MessageVersionReport = ""; // setup later in this section
+			pURLManager->GetFromURI( CreateGoogleAnalyticsRequest(MasterUpdateFile) ); // google analytics
+		}
+		else
+		{	m_ReleaseNotes = "FAKE";  // fake test running
+			m_MessageVersionReport = "FAKE"; // fake test running
+		}
+
 		// pURLManager->SaveURI("http://wii-bolt-thrower.googlecode.com/hg/LatestVersion.xml",WiiFile::GetGamePath() );
 		MemoryInfo* pData(pURLManager->GetFromURI("http://wii-bolt-thrower.googlecode.com/hg/" + MasterUpdateFile + ".xml"));
 #endif
@@ -213,7 +226,7 @@ bool UpdateManager::CheckForUpdate(string MasterUpdateFile)
 				TiXmlElement* Notes =  Data.FirstChild( "ReleaseNotes" ).ToElement();
 				if (Notes != NULL)
 				{
-					m_ReleaseNotes = Notes->GetText();
+					m_ReleaseNotes += Notes->GetText();
 				}
 				//-----------------------------------------------------------------------------------------
 				TiXmlElement* pElem=Data.FirstChild("LatestReleaseAvailable").Element();
@@ -226,7 +239,11 @@ bool UpdateManager::CheckForUpdate(string MasterUpdateFile)
 						Report = true;
 						//	DisplayUpdateMessage(m_ReleaseNotes, m_LatestReleaseAvailable + " Available");
 
-						m_MessageVersionReport = "ver " + m_LatestReleaseAvailable + " now available, visit http://wiibrew.org/wiki/BoltThrower";
+						m_MessageVersionReport += "ver " + m_LatestReleaseAvailable + " now available, visit http://wiibrew.org/wiki/BoltThrower";
+					}
+					else
+					{
+						SetMessageVersionReport( rWiiManager.GetText("RunningLatestVersion")  + s_ReleaseVersion + " - " + s_DateOfRelease );
 					}
 				}
 				//-----------------------------------------------------------------------------------------
@@ -236,7 +253,7 @@ bool UpdateManager::CheckForUpdate(string MasterUpdateFile)
 //	ExitPrintf(doc.ErrorDesc());
 	}
 
-	delete pURLManager;
+//	delete pURLManager;
 
 	return Report;
 }
@@ -246,6 +263,7 @@ bool UpdateManager::DisplayUpdateMessage()
 {
 	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
 	rWiiManager.GetCamera()->SetCameraView(0,0) ;
+
 	rWiiManager.GetMessageBox()->SetUpMessageBox( m_LatestReleaseAvailable + " Available", m_ReleaseNotes );			
 
 	do

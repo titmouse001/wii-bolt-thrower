@@ -48,10 +48,7 @@ int main(int /* argc */, char**  argv )
 
 #if (1)
 	//-------------------------------------------------
-	string MasterFile = "LatestVersion_FAKE";
-	//	string MasterFile = "LatestVersion";
-
-	rWiiManager.GetUpdateManager()->DoUpdate(MasterFile);
+	rWiiManager.GetUpdateManager()->DoUpdate(s_MasterFileLatestVersion);
 	//-------------------------------------------------
 #endif
 
@@ -70,7 +67,9 @@ int main(int /* argc */, char**  argv )
 // DownloadFiles from configuration ... AddURI
 bool DownloadFilesListedInConfiguration(bool MisssingCheckOnly)
 {
-	URLManager* pURLManager( new URLManager );
+	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
+	URLManager* pURLManager = rWiiManager.GetURLManager();
+//	URLManager* pURLManager( new URLManager );
 
 	if (pURLManager->m_Initialised)
 	{
@@ -111,7 +110,7 @@ bool DownloadFilesListedInConfiguration(bool MisssingCheckOnly)
 		rWiiManager.ScanMusicFolder();
 
 	}
-	delete pURLManager;
+//	delete pURLManager;
 	return false;
 }
 
