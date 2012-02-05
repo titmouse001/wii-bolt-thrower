@@ -40,7 +40,7 @@ bool MenuScreens::HasMenuTimedOut()
 
 void MenuScreens::DoMenuScreen()
 {
-	Util3D::Identity();
+	Util3D::CameraIdentity();
 
 	WPAD_ScanPads();
 	m_pWii->GetInputDeviceManager()->Store();
@@ -98,7 +98,7 @@ void MenuScreens::DoMenuScreen()
 
 	m_pWii->GetCamera()->SetLightOff();
 	GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
-	Util3D::Identity();
+	Util3D::CameraIdentity();
 	m_pWii->DrawRectangle( -320, -200-4,  640,  4,	 112, 0,0,0 );
 	m_pWii->DrawRectangle( -320, -200,	  640, 42,	  88, 0,0,0 );
 	m_pWii->DrawRectangle( -320, -200+42, 640,  4,	 112, 0,0,0 );
@@ -221,7 +221,7 @@ void MenuScreens::DoControlsScreen()
 	m_pWii->GetCamera()->SetLightOff();
 	GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
 	//=====================
-	Util3D::Identity();
+	Util3D::CameraIdentity();
 	m_pWii->DrawRectangle( -320, -200-4,  640,  4,	 112, 0,0,0 );
 	m_pWii->DrawRectangle( -320, -200,	  640, 42,	  88, 0,0,0 );
 	m_pWii->DrawRectangle( -320, -200+42, 640,  4,	 112, 0,0,0 );
@@ -232,7 +232,7 @@ void MenuScreens::DoControlsScreen()
 
 	ImageManager* pImageManager = m_pWii->GetImageManager();
 
-	Util3D::Identity();
+	Util3D::CameraIdentity();
 	m_pWii->DrawRectangle(  0, -120,  42, 272,	 128, 255,255,255 );
 	m_pWii->DrawRectangle( 42, -120, 250, 272,	 64, 0,0,0 );
 	
@@ -255,7 +255,7 @@ void MenuScreens::DoControlsScreen()
 	pImageManager->GetImage(HashString::WiiMoteButtonHome)->DrawImage(x,y+=step);
 	m_pWii->GetFontManager()->DisplayTextVertCentre(m_pWii->GetText("WiiMoteButtonHome"),32,0,200,HashString::SmallFont);  //"Quit"
 
-	Util3D::Identity();
+	Util3D::CameraIdentity();
 	{
 		static float wobble	(0);
 		wobble+=0.015;
@@ -303,7 +303,7 @@ void MenuScreens::DoCreditsScreen()
 	GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
 	//=====================
 
-	Util3D::Identity();
+	Util3D::CameraIdentity();
 	m_pWii->DrawRectangle( -320, -200-4,  640,  4,	 112, 0,0,0 );
 	m_pWii->DrawRectangle( -320, -200,	  640, 42,	  88, 0,0,0 );
 	m_pWii->DrawRectangle( -320, -200+42, 640,  4,	 112, 0,0,0 );
@@ -373,7 +373,7 @@ void MenuScreens::DoOptionsScreen()
 	GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
 
 	//=========================
-	Util3D::Identity();
+	Util3D::CameraIdentity();
 	m_pWii->DrawRectangle( -320, -200-4,  640,  4,	 112, 0,0,0 );
 	m_pWii->DrawRectangle( -320, -200,	  640, 42,	  88, 0,0,0 );
 	m_pWii->DrawRectangle( -320, -200+42, 640,  4,	 112, 0,0,0 );
@@ -404,5 +404,5 @@ void MenuScreens::DoOptionsScreen()
 
 
 	////////////// ... check the view is correct - should fit snug inside the view port
-	////////////Util3D::Identity();
+	////////////Util3D::CameraIdentity();
 	////////////Wii.DrawRectangle(-310, -230,640-20, 480-20, 100,255,255,255);

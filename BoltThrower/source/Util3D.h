@@ -13,7 +13,7 @@ namespace Util3D
 	void TransRot(f32 xpos, f32 ypos, f32 z , f32 rad);
 	void TransRot(f32 xpos, f32 ypos, f32 rad);
 	void TransScale(f32 xpos, f32 ypos, f32 zpos , f32 scale);
-	void Identity();  // as camera
+	void CameraIdentity();  // as camera
 
 	void MatrixRotateZ(Mtx mt,f32 rad);
 	void MatrixRotateY(Mtx mt,f32 rad);

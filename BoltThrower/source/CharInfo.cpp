@@ -3,7 +3,7 @@
 #include "WiiManager.h"
 #include "FontManager.h"
 
-void CharInfo::Draw(int uXpos, int uYpos, u32 uAlpha) const
+void CharInfo::Draw(int uXpos, int uYpos, GXColor& Colour) const
 { 
-	m_pImage->DrawImageTL(uXpos,uYpos,uAlpha); 
+	m_pImage->DrawImageTL(uXpos, uYpos, Colour); 
 }

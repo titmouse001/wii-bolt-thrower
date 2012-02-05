@@ -52,7 +52,7 @@ void Util3D::TransScale(f32 xpos, f32 ypos, f32 zpos , f32 scale)
 }
 
 
-void Util3D::Identity()
+void Util3D::CameraIdentity()
 {
 	GX_LoadPosMtxImm (Singleton<WiiManager>::GetInstanceByRef().GetCamera()->GetcameraMatrix(), GX_PNMTX0); 
 }

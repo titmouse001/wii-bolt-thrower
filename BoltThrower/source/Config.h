@@ -9,7 +9,7 @@ static const std::string s_ReleaseVersion("0.62");
 static const std::string s_DateOfRelease("Jan 2012");
 static const float s_fVersion( atof( s_ReleaseVersion.c_str() ) );
 
-#define OPTION (3)  
+#define OPTION (1)  
 
 // (1) WII SEND
 // (2) WII EMULATOR ... dolphin emu has been improved, opt 2 is not really needed now

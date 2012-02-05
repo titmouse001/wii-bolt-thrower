@@ -24,6 +24,24 @@ Image::Image() : m_Width(0) , m_Height(0), m_OriginX(0), m_OriginY(0), m_ImageDa
 {
 }
 
+void Image::Initialise(int Width, int Height)
+{
+	m_Width = Width;
+	m_Height = Height;
+	m_OriginX = m_Width/2;
+	m_OriginY = m_Height/2;
+//	m_Red = 0xff;
+//	m_Green = 0xff;
+//	m_Blue = 0xff;;
+}
+
+//void Image::SetColour(u8 r, u8 g, u8, b)
+//{
+//	m_Red = r;
+//	m_Green = g;
+//	m_Blue = b;;
+//}
+
 Image::Image(string pFileName) : m_FileNameAsHash("")
 {
 	ImageLoad(pFileName.c_str());
@@ -34,13 +52,10 @@ Image::Image(u8* pTgaData, int Width, int Height) : m_FileNameAsHash("")
 	WiiManager& Wii( Singleton<WiiManager>::GetInstanceByRef() ); 
 	ImageManager* pImageManager( Wii.GetImageManager() );
 
-	m_Width = Width;
-	m_Height = Height;
-	m_OriginX = m_Width/2;
-	m_OriginY = m_Height/2;
+	Initialise(Width,Height);
 	m_ImageData = pImageManager->AllocateMemConvertToRGBA8(pTgaData,m_Width,m_Height);
 	
-	GX_InitTexObj(&m_HardwareTextureInfo, m_ImageData, m_Width,m_Height, GX_TF_RGBA8,GX_CLAMP, GX_CLAMP,GX_FALSE);  
+	GX_InitTexObj(&m_HardwareTextureInfo, m_ImageData, m_Width,m_Height, GX_TF_RGBA8,GX_CLAMP, GX_CLAMP,GX_FALSE);
 }
 
 Image::Image(u32 Width, u32 Height) : m_FileNameAsHash("")
@@ -55,10 +70,7 @@ Image::Image(u32 Width, u32 Height) : m_FileNameAsHash("")
 		TgaData[i] = Col;
 	}
 
-	m_Width = Width;
-	m_Height = Height;
-	m_OriginX = m_Width/2;
-	m_OriginY = m_Height/2;
+	Initialise(Width,Height);
 	m_ImageData = pImageManager->AllocateMemConvertToRGBA8((u8*)TgaData,m_Width,m_Height);
 
 	delete [] TgaData;
@@ -72,9 +84,10 @@ Image::Image(CharInfo* pChar, u8* pAlphaData) : m_FileNameAsHash("")
 	WiiManager& Wii( Singleton<WiiManager>::GetInstanceByRef() ); 
 	ImageManager* pImageManager( Wii.GetImageManager() );
 
-	m_Width = pChar->m_uWidth;
-	m_Height = pChar->m_uHeight;
-	
+	//m_Width = pChar->m_uWidth;
+	//m_Height = pChar->m_uHeight;
+	Initialise(pChar->m_uWidth,pChar->m_uHeight);
+
 	Tga::PIXEL* TgaData(NULL);
 	if (m_Width==1) // can't have a 1 pixel width - size will be increased.
 	{
@@ -105,8 +118,8 @@ Image::Image(CharInfo* pChar, u8* pAlphaData) : m_FileNameAsHash("")
 		}
 	}
 
-	m_OriginX = m_Width/2;
-	m_OriginY = m_Height/2;
+//	m_OriginX = m_Width/2;
+//	m_OriginY = m_Height/2;
 	m_ImageData = pImageManager->AllocateMemConvertToRGBA8((u8*)TgaData,m_Width,m_Height);
 	delete [] TgaData;
 
@@ -118,10 +131,12 @@ void Image::ImageLoad(const char* pFileName)
 	WiiManager& Wii( Singleton<WiiManager>::GetInstanceByRef() ); 
 	ImageManager* pImageManager( Wii.GetImageManager() );
 	pImageManager->BeginGraphicsFile(pFileName);
-	m_Width = pImageManager->GetTgaHeader().width;
-	m_Height = pImageManager->GetTgaHeader().height;
-	m_OriginX = m_Width/2;
-	m_OriginY = m_Height/2;
+//	m_Width = pImageManager->GetTgaHeader().width;
+//	m_Height = pImageManager->GetTgaHeader().height;
+//	m_OriginX = m_Width/2;
+//	m_OriginY = m_Height/2;
+	Initialise(pImageManager->GetTgaHeader().width,pImageManager->GetTgaHeader().height);
+
 	m_ImageData = pImageManager->AllocateMemConvertToRGBA8(pImageManager->GetTgaData(),m_Width,m_Height);
 	GX_InitTexObj(&m_HardwareTextureInfo, m_ImageData, m_Width,m_Height, GX_TF_RGBA8,GX_CLAMP, GX_CLAMP,GX_FALSE);
 	pImageManager->EndGraphicsFile();
@@ -156,6 +171,35 @@ void Image::DrawImageTL(f32 xpos, f32 ypos ,u8 Alpha )
 	GX_TexCoord2f32(0, 1);         
 	GX_End();
 } 
+
+
+void Image::DrawImageTL(f32 xpos, f32 ypos , GXColor& Colour) //u8 r, u8 g, u8 b, u8 Alpha )
+{	
+	GX_LoadTexObj(&m_HardwareTextureInfo, GX_TEXMAP0);   
+
+	GX_SetTevOp (GX_TEVSTAGE0, GX_MODULATE); 
+
+	GX_ClearVtxDesc();
+	GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GX_SetVtxDesc (GX_VA_TEX0,GX_DIRECT);
+	GX_SetVtxDesc(GX_VA_CLR0, GX_DIRECT);
+
+	GX_Begin(GX_QUADS, GX_VTXFMT1,4);
+	GX_Position3s16(xpos, ypos,0);	
+	GX_Color4u8(Colour.r,Colour.g,Colour.b,Colour.a);        
+	GX_TexCoord2f32(0, 0);		
+	GX_Position3s16(xpos+(m_Width), ypos,0);
+	GX_Color4u8(Colour.r,Colour.g,Colour.b,Colour.a);             
+	GX_TexCoord2f32(1, 0);           
+	GX_Position3s16(xpos+(m_Width), ypos+(m_Height),0);         
+	GX_Color4u8(Colour.r,Colour.g,Colour.b,Colour.a);          
+	GX_TexCoord2f32(1, 1);           
+	GX_Position3s16(xpos, ypos+(m_Height),0);
+	GX_Color4u8(Colour.r,Colour.g,Colour.b,Colour.a);                
+	GX_TexCoord2f32(0, 1);         
+	GX_End();
+} 
+
 
 void Image::DrawImage(Vessel& item)
 {	

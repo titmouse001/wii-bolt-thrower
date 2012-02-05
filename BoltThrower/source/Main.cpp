@@ -46,13 +46,13 @@ int main(int /* argc */, char**  argv )
 	rWiiManager.GetCamera()->SetUpView(); // 3D View
 
 
-#if (1)
+#if (0)
 	//-------------------------------------------------
 	rWiiManager.GetUpdateManager()->DoUpdate(s_MasterFileLatestVersion);
 	//-------------------------------------------------
 #endif
 
-#if (1)
+#if (0)
 	// Check for any missing downloads like extra music - from DownloadFiles section in the "configurtion.xml" file
 	rWiiManager.m_MusicStillLeftToDownLoad = DownloadFilesListedInConfiguration(true); // true so SCAN ONLY
 	//-------------------------------------------------

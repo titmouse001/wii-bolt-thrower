@@ -8,10 +8,11 @@
 #include <math.h>
 
 #include "hashlabel.h"
+#include "timer.h"
 
 //class  HashLabel;
 class  WiiManager;
-class  Timer;
+//class  Timer;
 
 class  Item3D
 {
@@ -263,6 +264,7 @@ public:
 
 	u8 GetAlpha() { return m_Alpha; }
 	void SetAlpha(u8 Value) { m_Alpha = Value;}
+	void AddAlpha(u8 Value) { m_Alpha += Value;}
 
 	float GetCurrentScaleFactor()					{ return m_fCurrentScaleFactor;   }
 	void  SetCurrentScaleFactor(float fValue)		{ m_fCurrentScaleFactor = fValue; }
@@ -366,9 +368,31 @@ class  Item3DChronometry : public Item3D
 public:
 	void SetCountdownSeconds(u32 Value)	{ m_Timer = Util::timer_gettime() + secs_to_ticks(Value) ;}
 	bool IsCountdownFinished()	{return Util::timer_gettime() > m_Timer;}
-
 private:
 	u64 m_Timer;
+};
+
+
+class ScorePingVessel : public Vessel
+{
+public:
+//	ScorePingVessel() : m_Text("") { InitTimer(); }
+//	ScorePingVessel(string Text) : m_Text(Text) { InitTimer(); }
+//	void InitTimer() { m_LocalTimer = new Timer; m_LocalTimer->SetTimerMillisecs(2000); } 
+
+	ScorePingVessel(string Text) : m_Text(Text) { ; }
+
+	void	SetText(string Text)		{ m_Text = Text; }
+	string& GetText()					{ return m_Text; }
+
+//	void	SetTimerMillisecs(u32 t)	{ m_LocalTimer->SetTimerMillisecs(t); }
+//	bool	IsTimerDone()				{ return m_LocalTimer->IsTimerDone(); }
+//	u32		GetTimer()					{ return m_LocalTimer->GetTimerSeconds(); }
+
+	int		m_ReduceAlphaPerFrame;
+private:
+	string	m_Text;
+//	Timer*	m_LocalTimer;
 };
 
 #endif

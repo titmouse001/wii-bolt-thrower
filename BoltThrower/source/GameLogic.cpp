@@ -79,6 +79,8 @@ m_bEnableRetrieveProbeMineMode(false)
 
 	m_pHealthPickUpContainer = new std::vector<Vessel>;
 
+	m_pScorePingContainer = new std::vector<ScorePingVessel>;
+
 	m_ExhaustContainer->reserve(700); // best guess for the top end - it will grow if needed 
 	m_SmallEnemiesContainer->reserve(50);
 	m_ProbeMineContainer->reserve(329);
@@ -132,37 +134,64 @@ void GameLogic::DoControls()
 		}
 
 
-		if (WPAD_ButtonsHeld(0) & WPAD_BUTTON_B)  // use thrusters
+		DeviceNunChuck* pNunChuck( m_pWii->GetInputDeviceManager()->GetNunChuck() );
+		if ( (pNunChuck != NULL) && (pNunChuck->GetEnable()) )
 		{
-			if (m_LastChanUsedForSoundAfterBurn == NULL)
+			if (fabs(pNunChuck->GetJoyX()) > 0 || fabs(pNunChuck->GetJoyY()) > 0)
 			{
-				//m_LastChanUsedForSoundAfterBurn = m_pSoundManager->PlaySound( HashString::AfterBurn,255,255,true);
-				//	m_LastChanUsedForSoundAfterBurn = m_pSoundManager->PlaySound( HashString::AfterBurn,40,40,true);
+				GetPlrVessel()->AddVel(	pNunChuck->GetJoyX()*0.075, pNunChuck->GetJoyY()*(-0.075), 0);
+				//float ang = atan2(pNunChuck->GetJoyX(), pNunChuck->GetJoyY() );
+				//GetPlrVessel()->SetFacingDirection( ang );
 
-				m_pSoundManager->PlaySoundFromVoice( HashString::AfterBurn,40,40,true, m_pSoundManager->m_FixSoundVoice );
-				m_LastChanUsedForSoundAfterBurn = m_pSoundManager->m_FixSoundVoice;
+
+			f32 HalfScreenWidthIncludingOverrun  = m_pWii->GetScreenWidth() / 2;
+			f32 HalfScreenHeightIncludingOverrun = m_pWii->GetScreenHeight() / 2;
+			guVector PlrVessel;
+			PlrVessel.x = GetPlrVessel()->GetX() + (pNunChuck->GetJoyX()*100);
+			PlrVessel.y = GetPlrVessel()->GetY() - (pNunChuck->GetJoyY()*100);
+			f32 Turn = GetPlrVessel()->GetTurnDirection( &PlrVessel );
+			GetPlrVessel()->AddFacingDirection( Turn * 0.085f );
+
 
 			}
-
-			GetPlrVessel()->AddVel( sin(GetPlrVessel()->GetFacingDirection() )*0.075,-cos( GetPlrVessel()->GetFacingDirection() )*0.075,0);
-
-			// Thrust from back of ship  - todo need to make this far more simple to use, need more functionality
-			Vessel Tail = *GetPlrVessel();
-			Tail.SetFrameGroup( HashString::ExplosionThrust1Type16x16x10, 0.35f);
-			Tail.SetGravity(1.0f);
-			Tail.SetPos( Tail.GetX() + sin( Tail.GetFacingDirection() )* -8.45, 
-				Tail.GetY() - cos( Tail.GetFacingDirection() )* -8.45, Tail.GetZ());
-			Tail.AddVel(sin( Tail.GetFacingDirection() )* -1.75,-cos( Tail.GetFacingDirection() )* -1.75,0);
-			Tail.SetSpin( (1000 - (rand()%2000 )) * 0.00005f );
-			m_ExhaustContainer->push_back(Tail);	
 		}
 		else
 		{
-			if (m_LastChanUsedForSoundAfterBurn != NULL)		
+			if (WPAD_ButtonsHeld(0) & WPAD_BUTTON_B)  // use thrusters
 			{
-				//AESND_SetVoiceLoop(m_LastChanUsedForSoundAfterBurn, false);
-				m_pSoundManager->StopSound(m_LastChanUsedForSoundAfterBurn);
-				m_LastChanUsedForSoundAfterBurn = NULL;	
+				if (m_LastChanUsedForSoundAfterBurn == NULL)
+				{
+					//m_LastChanUsedForSoundAfterBurn = m_pSoundManager->PlaySound( HashString::AfterBurn,255,255,true);
+					//	m_LastChanUsedForSoundAfterBurn = m_pSoundManager->PlaySound( HashString::AfterBurn,40,40,true);
+
+					m_pSoundManager->PlaySoundFromVoice( HashString::AfterBurn,40,40,true, m_pSoundManager->m_FixSoundVoice );
+					m_LastChanUsedForSoundAfterBurn = m_pSoundManager->m_FixSoundVoice;
+
+				}
+
+				//---------------
+				GetPlrVessel()->AddVel(	 sin(GetPlrVessel()->GetFacingDirection() )*0.075,
+										-cos( GetPlrVessel()->GetFacingDirection() )*0.075,0);
+				//---------------
+
+				// Thrust from back of ship  - todo need to make this far more simple to use, need more functionality
+				Vessel Tail = *GetPlrVessel();
+				Tail.SetFrameGroup( HashString::ExplosionThrust1Type16x16x10, 0.35f);
+				Tail.SetGravity(1.0f);
+				Tail.SetPos( Tail.GetX() + sin( Tail.GetFacingDirection() )* -8.45, 
+					Tail.GetY() - cos( Tail.GetFacingDirection() )* -8.45, Tail.GetZ());
+				Tail.AddVel(sin( Tail.GetFacingDirection() )* -1.75,-cos( Tail.GetFacingDirection() )* -1.75,0);
+				Tail.SetSpin( (1000 - (rand()%2000 )) * 0.00005f );
+				m_ExhaustContainer->push_back(Tail);	
+			}
+			else
+			{
+				if (m_LastChanUsedForSoundAfterBurn != NULL)		
+				{
+					//AESND_SetVoiceLoop(m_LastChanUsedForSoundAfterBurn, false);
+					m_pSoundManager->StopSound(m_LastChanUsedForSoundAfterBurn);
+					m_LastChanUsedForSoundAfterBurn = NULL;	
+				}
 			}
 		}
 
@@ -418,6 +447,8 @@ void GameLogic::InGameLogic()
 		DyingShipsLogic();
 
 		CelestialBodyLogic();
+
+		ScorePingLogic();
 	}
 
 	if (GetPlrVessel()->HasShieldFailed())
@@ -673,14 +704,24 @@ void GameLogic::TurnShipLogic()
 	Vtx* WiiMote( m_pWii->GetInputDeviceManager()->GetIRPosition() );
 	if (WiiMote!=NULL)
 	{
-		f32 HalfScreenWidthIncludingOverrun  = m_pWii->GetScreenWidth() / 2;
-		f32 HalfScreenHeightIncludingOverrun = m_pWii->GetScreenHeight() / 2;
-		guVector PlrVessel;
-		PlrVessel.x = m_pWii->GetCamera()->GetCamX() + WiiMote->x - HalfScreenWidthIncludingOverrun;
-		PlrVessel.y = m_pWii->GetCamera()->GetCamY() + WiiMote->y - HalfScreenHeightIncludingOverrun;
 
-		f32 Turn = GetPlrVessel()->GetTurnDirection( &PlrVessel );
-		GetPlrVessel()->AddFacingDirection( Turn * 0.085f );
+		DeviceNunChuck* pNunChuck( m_pWii->GetInputDeviceManager()->GetNunChuck() );
+
+		if ( (pNunChuck != NULL) && (pNunChuck->GetEnable()) )
+		{
+			//GetPlrVessel()->AddFacingDirection( pNunChuck->GetJoyX() * 0.25f );
+		}
+		else
+		{
+			f32 HalfScreenWidthIncludingOverrun  = m_pWii->GetScreenWidth() / 2;
+			f32 HalfScreenHeightIncludingOverrun = m_pWii->GetScreenHeight() / 2;
+			guVector PlrVessel;
+			PlrVessel.x = m_pWii->GetCamera()->GetCamX() + WiiMote->x - HalfScreenWidthIncludingOverrun;
+			PlrVessel.y = m_pWii->GetCamera()->GetCamY() + WiiMote->y - HalfScreenHeightIncludingOverrun;
+
+			f32 Turn = GetPlrVessel()->GetTurnDirection( &PlrVessel );
+			GetPlrVessel()->AddFacingDirection( Turn * 0.085f );
+		}
 	}
 }
 
@@ -693,7 +734,10 @@ void GameLogic::SporesCollisionLogic()
 		{
 			if ( ThingIter->InsideRadius(rMissile.GetX(), rMissile.GetY(), 10*10 ) )
 			{
+
+				AddScorePing( &(*ThingIter), "99" );
 				AddScore(99);
+
 				AddEnemySpawn(*ThingIter);
 				rMissile.SetFuel(0);
 				//ThingIter = m_SporesContainer->erase( ThingIter );
@@ -815,7 +859,10 @@ void GameLogic::FeoShieldLevelLogic()   // explode enemy ships
 		if ( BadIter->HasShieldFailed() )
 		{
 			Vessel Boom(*BadIter);
+
+			AddScorePing( &Boom, "5" );
 			AddScore( 5 );
+
 			AddPickUps(&Boom,1);
 
 			if ( (rand()%10) == 0)
@@ -849,7 +896,9 @@ void GameLogic::FeoShieldLevelLogic()   // explode enemy ships
 
 			AddHealthPickUps(&Boom);
 
+			AddScorePing( &Boom, "45" );
 			AddScore( 45 );
+
 			AddPickUps(&Boom,5);
 
 			Boom.SetFuel(175);
@@ -1554,6 +1603,24 @@ void GameLogic::AddScore(u32 Value)
 		m_Score += Value ; 
 }
 
+void GameLogic::AddScorePing(Vessel* pVessel, string rText)
+{
+	ScorePingVessel item( rText );
+	item.SetPos( pVessel->GetPos() );
+	//item.SetVel( pVessel->GetVel() );
+	item.SetVel( 0,-2.5,0 );
+	item.SetGravity(0.965f);
+	item.m_ReduceAlphaPerFrame = 5;
+	item.SetAlpha(255);
+
+//	float steps = (float) item.GetAlpha() / item.m_ReduceAlphaPerFrame;
+//	item.SetTimerMillisecs( (1000.0f/60.0f) * steps );
+//	item.SetTimerMillisecs( 1000 );
+
+
+	m_pScorePingContainer->push_back( item );
+}
+
 vector<Item3DChronometry>::iterator GameLogic::EraseItemFromShieldGeneratorContainer(vector<Item3DChronometry>::iterator iter)
 {
 	return m_ShieldGeneratorContainer->erase(iter);
@@ -1680,7 +1747,7 @@ void GameLogic::GunTurretLogic()
 
 		if ( iter->IsTimerDone()  )
 		{
-			iter->SetTimerMillisecs( (rand()%1000) + 2000 );
+			iter->SetTimerMillisecs( (rand()%1000) + 500 );
 
 			Mtx Model,mat,mat2;
 			guMtxRotRad(mat,'y', Pitch );
@@ -1716,10 +1783,10 @@ void GameLogic::GunTurretLogic()
 				guVecScale(&ShotVelocity, &ShotVelocity, step * 0.5f );  // no idea why 1/2 makes it work!!!!
 				pShot.SetVel(ShotVelocity);
 
+				pShot.SetRotateAmount(-0.1f,0,-0.075f);
 
 				pShot.InitTimer();
 				pShot.SetTimerMillisecs( 8500 );
-
 				m_ShotForGunTurretContainer->push_back(pShot); // fire shot
 
 				// barrel effect
@@ -1735,7 +1802,7 @@ void GameLogic::GunTurretShotsLogic( std::vector<Vessel>* pEnemy )
 {
 	for (std::vector<Item3D>::iterator iter(m_ShotForGunTurretContainer->begin()); iter!= m_ShotForGunTurretContainer->end(); /*NOP*/  )
 	{
-		iter->GetPos();
+		//iter->GetPos();
 
 		if ( iter->IsTimerDone() )
 		{
@@ -1749,6 +1816,9 @@ void GameLogic::GunTurretShotsLogic( std::vector<Vessel>* pEnemy )
 
 		bool hit=false;
 		iter->AddVelToPos();
+
+		iter->Rotate();
+
 
 		//		for (std::vector<Vessel>::iterator GunShipIter(m_SmallEnemiesContainer->begin()); GunShipIter!=m_SmallEnemiesContainer->end(); ++GunShipIter)
 		for (std::vector<Vessel>::iterator GunShipIter(pEnemy->begin()); GunShipIter!=pEnemy->end(); ++GunShipIter)
@@ -1804,6 +1874,34 @@ void GameLogic::MoonRocksLogic( )
 	}
 
 	//m_pWii->profiler_stop(&profile_MoonRocks);
+}
+
+
+void GameLogic::ScorePingLogic()
+{
+	for (std::vector<ScorePingVessel>::iterator Iter(GetScorePingContainerBegin()); Iter!= GetScorePingContainerEnd(); /*NOP*/)
+	{	
+		//if ( Iter->IsTimerDone() )
+		//{
+		//	*Iter = m_pScorePingContainer->back();  
+		//	m_pScorePingContainer->pop_back();
+		//	continue;
+		//}
+
+		if ( Iter->GetAlpha() < Iter->m_ReduceAlphaPerFrame )
+		{
+			*Iter = m_pScorePingContainer->back();  
+			m_pScorePingContainer->pop_back();
+			continue;
+		}
+
+		Iter->AddVelToPos(); 
+		Iter->AddAlpha( -Iter->m_ReduceAlphaPerFrame );
+
+		Iter->VelReduce(); 
+		++Iter;
+
+	}
 }
 
 
@@ -1927,8 +2025,11 @@ int GameLogic::GetMaterialPickUpContainerSize() { return (int)m_pMaterialPickUpC
 int GameLogic::GetExplosionsContainerSize() { return (int)m_ExplosionsContainer->size(); }
 int GameLogic::GetCelestialBodyContainerSize() { return (int)m_CelestialBodyContainer->size(); }
 int GameLogic::GetDyingEnemiesContainerSize() { return (int)m_DyingEnemiesContainer->size(); }
-
 int GameLogic::GetHealthPickUpContainerSize() { return (int)m_pHealthPickUpContainer->size(); }
+
+int GameLogic::GetScorePingContainerSize() { return (int)m_pScorePingContainer->size(); }
+
+
 
 void GameLogic::InitialiseSmallGunTurret(int Amount, float Dist, float x1, float y1, float z1 , float StartingAngleOffset )
 {
@@ -2228,8 +2329,9 @@ void GameLogic::InitialiseGame()
 	m_pGunTurretContainer->clear();
 	m_DyingEnemiesContainer->clear();
 	m_CelestialBodyContainer->clear();
-
 	m_pHealthPickUpContainer->clear();
+
+	m_pScorePingContainer->clear();
 
 	//----------------------------
 	//initialise bad ships

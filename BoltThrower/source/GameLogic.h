@@ -25,6 +25,7 @@ class SoundManager;
 class HashLabel;
 class TurretItem3D;
 class MoonItem3D;
+class ScorePingVessel;
 
 enum EVesselType { eGunShip, SemallShip};
 
@@ -79,6 +80,9 @@ public:
 	void SetScore(u32 Value) { m_Score = Value; }
 	void AddScore(u32 Value);
 
+	void AddScorePing(Vessel* pVessel, string rText);
+	void ScorePingLogic();
+
 	void InitialiseMoonRocks(int Amount,float RadiusFactor = 0.0018f);
 	void InitialiseSmallGunTurret(int Amount, float Dist ,float x1,float y1, float z1, float StartingAngleOffset = 0);
 
@@ -92,6 +96,7 @@ public:
 	bool IsGamePausedByPopUp()		{ return m_GamePaused; }
 	bool IsGamePausedByPlayer()		{ return m_GamePausedByPlayer; }
 	void SetPaused(bool Status, bool GamePausedByPlayer = false) { m_GamePaused = Status; m_GamePausedByPlayer= GamePausedByPlayer;}
+
 
 	// Shield Generator Section
 	vector<Item3DChronometry>::iterator GetShieldGeneratorContainerBegin()	{ return m_ShieldGeneratorContainer->begin();}
@@ -188,6 +193,11 @@ public:
 	vector<MoonItem3D>::iterator GetCelestialBodyContainerEnd()		{ return m_CelestialBodyContainer->end();}
 	int GetCelestialBodyContainerSize();
 
+	// ScorePing
+	vector<ScorePingVessel>::iterator GetScorePingContainerBegin()	{ return m_pScorePingContainer->begin();}
+	vector<ScorePingVessel>::iterator GetScorePingContainerEnd()	{ return m_pScorePingContainer->end();}
+	int GetScorePingContainerSize();
+
 	// total enemies
 	int GetTotalEnemiesContainerSize();
 
@@ -256,8 +266,8 @@ private:
 	std::vector<Item3D>* m_pMoonRocksContainer;
 	std::vector<TurretItem3D>* m_pGunTurretContainer;
 	std::vector<Item3D>* m_pMaterialPickUpContainer;
-
 	std::vector<Vessel>* m_pHealthPickUpContainer;
+	std::vector<ScorePingVessel>* m_pScorePingContainer;
 
 
 	//bool			m_bAddMoreShipsFlag;

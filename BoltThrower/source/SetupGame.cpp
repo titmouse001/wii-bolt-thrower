@@ -98,7 +98,7 @@ void SetUpGame::Menus()
 	
 					//----------------------------------------------------------------------
 					// The menu screen hs been set above, so now just set the message
-					Util3D::Identity();
+					Util3D::CameraIdentity();
 					Util3D::TransRot(-280,-150,0, M_PI *0.5f );
 					m_pWii->GetFontManager()->DisplayTextCentre("Loading...", 
 						0,0,
@@ -108,7 +108,7 @@ void SetUpGame::Menus()
 					//----------------------------------------------------------------------
 					// next frame - now need to set the menu screen again before the text message
 					m_pWii->GetMenuScreens()->DoMenuScreen();  // draw menu screen again
-					Util3D::Identity();
+					Util3D::CameraIdentity();
 					Util3D::TransRot(-280,-150,0, M_PI *0.5f );
 					m_pWii->GetFontManager()->DisplayTextCentre("Loading...", 
 						0,0,

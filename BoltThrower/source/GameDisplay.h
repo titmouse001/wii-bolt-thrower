@@ -47,6 +47,7 @@ private:
 	void DisplayExplosions();
 	void DisplayGunShips();
 	void DisplayBadShips();
+	void DisplayScorePing();
 
 	WiiManager*			m_pWii;
 	GameLogic*			m_pGameLogic;

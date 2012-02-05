@@ -124,7 +124,7 @@ void GameDisplay::DisplayAllForIntro()
 	Util3D::TransRot(-204,-128,-3.14f/4.0f);
 	m_pWii->GetFontManager()->DisplayTextCentre(m_pWii->GetText("attract_mode"),0,0,fabs(sin(bbb)*80),HashString::LargeFont);
 
-	Util3D::Identity();
+	Util3D::CameraIdentity();
 	static float wobble	(0);
 	wobble+=0.05;
 	m_pWii->GetFontManager()->DisplayTextCentre(m_pWii->GetText("PressButtonAToContinueMessage"),0, 145 + exp((sin(wobble)*2.8f)),110,HashString::LargeFont);
@@ -206,7 +206,7 @@ void GameDisplay::DisplayAllForIngame()
 	DisplayExhaust();
 	DisplayExplosions();
 
-
+	DisplayScorePing();
 
 	m_pWii->GetCamera()->StoreCameraView();
 	m_pWii->GetCamera()->SetCameraView(m_pWii->GetScreenWidth()*0.5f, m_pWii->GetScreenHeight()*0.5f) ;
@@ -975,6 +975,36 @@ void GameDisplay::DisplayExplosions()
 	}
 }
 
+
+void GameDisplay::DisplayScorePing()
+{
+	m_pWii->GetFontManager()->SetFontColour(255,127,0,255);
+
+	float fCamX( m_pWii->GetCamera()->GetCamX() );
+	float fCamY( m_pWii->GetCamera()->GetCamY() );
+	float Radius(m_pWii->GetXmlVariable(HashString::ViewRadiusForSprites));
+	Radius*=Radius;
+
+	//Util3D::Trans(fCamX,fCamY);
+	Util3D::CameraIdentity();
+
+	for (std::vector<ScorePingVessel>::iterator iter(m_pGameLogic->GetScorePingContainerBegin());
+		iter!= m_pGameLogic->GetScorePingContainerEnd(); ++iter)
+	{	
+		if ( iter->InsideRadius(fCamX, fCamY, Radius ) )
+		{
+
+			//m_pWii->GetFontManager()->DisplayTextCentre( iter->GetText() , 
+			//	iter->GetX(), iter->GetY(), iter->GetAlpha() ,HashString::SmallFont);
+
+			m_pWii->GetFontManager()->DisplayTextCentre( iter->GetText() , 
+				iter->GetX(), iter->GetY(), iter->GetAlpha() , HashString::SmallFont);
+		}
+	}
+
+	m_pWii->GetFontManager()->SetFontColour(255,255,255,255);
+}
+
 void GameDisplay::DisplayBadShips()
 {
 	float fCamX( m_pWii->GetCamera()->GetCamX() );
@@ -1077,11 +1107,11 @@ void GameDisplay::DisplayGunShips()
 	//////	std::vector<Vessel>::iterator TargetIter = m_pGameLogic->GetSmallEnemiesContainerBegin();
 	//////	advance( TargetIter, iter->GetLockOntoVesselIndex() );
 
-	//////	Util3D::Identity();
+	//////	Util3D::CameraIdentity();
 	//////	m_pWii->GetImageManager()->GetImage( m_pWii->m_FrameEndStartConstainer[HashString::AimingPointer32x32].StartFrame )
 	//////	->DrawImage(*TargetIter);
 
-	////	Util3D::Identity();
+	////	Util3D::CameraIdentity();
 	////	m_pWii->GetImageManager()->GetImage( m_pWii->m_FrameEndStartConstainer[HashString::AimingPointer32x32].StartFrame )
 	////	->DrawImageXYZ( iter->WorkingTarget.x,iter->WorkingTarget.y, iter->WorkingTarget.z, 255, 0 );
 	////}
@@ -1116,8 +1146,11 @@ void GameDisplay::DisplayShotForGunTurret()
 	for (std::vector<Item3D>::iterator iter(m_pGameLogic->GetShotForGunTurretContainerBegin()); 
 		iter!= m_pGameLogic->GetShotForGunTurretContainerEnd(); ++iter )
 	{
-		Mtx Model,FinalResult;
-		guMtxTrans(Model, iter->GetX(), iter->GetY(), iter->GetZ());
+		Mtx Model,FinalResult,mat,mat2;
+		Util3D::MatrixRotateX(mat,  iter->GetRotateX() );
+		Util3D::MatrixRotateZ(mat2, iter->GetRotateZ() );
+		guMtxConcat(mat,mat2,Model);
+		guMtxTransApply(Model,Model, iter->GetX(), iter->GetY(), iter->GetZ());
 		guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,FinalResult); // note: by not using Model for the output we can avoid an extra internal copy	
 		m_pWii->Render.RenderModelMinimalHardNorms(HashString::Shot, FinalResult);
 	}
@@ -1199,7 +1232,7 @@ void GameDisplay::DebugInformation()
 	if (FPS<60) ++DroppedFrames;
 
 	m_pWii->Printf(x,y+=32,"%02dfps %ddropped",FPS,DroppedFrames/60);
-	
+return ;	
 	if (m_pGameLogic->GetAsteroidContainerSize()!=0)
 		m_pWii->Printf(x,y+=22,"%03d %s",m_pGameLogic->GetAsteroidContainerSize(), m_pWii->profiler_output(&profile_Asteroid).c_str());
 	if (m_pGameLogic->GetMoonRocksContainerSize()!=0)
@@ -1230,7 +1263,7 @@ void GameDisplay::DebugInformation()
 #endif
 
 	// for checking the view is correct - should fit snug inside the view port
-	//	Util3D::Identity();
+	//	Util3D::CameraIdentity();
 	//	m_pWii->DrawRectangle(-320, -240,640, 480, 100);
 
 }

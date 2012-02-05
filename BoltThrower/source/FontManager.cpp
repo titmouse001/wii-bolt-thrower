@@ -32,33 +32,14 @@ void FontManager::DisplayTextCentre(const string& Text, int uXpos, int uYpos, u8
 	DisplayText(Text, uXpos,uYpos,Alpha,FontSize);
 }
 
-//////hack
-////void FontManager::DisplayLargeTextVertCentre(const string& Text, int uXpos, int uYpos, u8 Alpha)
-////{
-////	uYpos -= GetFont(HashString::LargeFont)->GetHeight()/2;
-////	DisplayText(Text, uXpos,uYpos,Alpha,HashString::LargeFont);
-////}
-////void FontManager::DisplayLargeTextCentre(const string& Text, int uXpos, int uYpos, u8 Alpha)
-////{
-////	uXpos -= GetTextWidth(Text,HashString::LargeFont)/2;
-////	uYpos -= GetFont(HashString::LargeFont)->GetHeight()/2;
-////	DisplayText(Text, uXpos,uYpos,Alpha,HashString::LargeFont);
-////}
-////
-////void FontManager::DisplaySmallTextCentre(const string& Text, int uXpos, int uYpos, u8 Alpha)
-////{
-////	uXpos -= GetTextWidth(Text,HashString::SmallFont)/2;
-////	uYpos -= GetFont(HashString::SmallFont)->GetHeight()/2;
-////	DisplayText(Text, uXpos,uYpos,Alpha,HashString::SmallFont);
-////}
-////
-////void FontManager::DisplaySmallTextVertCentre(const string& Text, int uXpos, int uYpos, u8 Alpha)
-////{
-////	uYpos -= GetFont(HashString::SmallFont)->GetHeight()/2;
-////	DisplayText(Text, uXpos,uYpos,Alpha,HashString::SmallFont);
-////}
+void FontManager::DisplayTextCentre(const string& Text, int uXpos, int uYpos, HashLabel FontSize)
+{
+	uXpos -= GetTextWidth(Text,FontSize)/2;
+	uYpos -= GetFont(FontSize)->GetHeight()/2;
+	DisplayText(Text, uXpos, uYpos, FontSize);
+}
 
-void FontManager::DisplayText(const string& Text, int uXpos, int uYpos, u8 Alpha, HashLabel FontSize)
+void FontManager::DisplayText(const string& Text, int uXpos, int uYpos, HashLabel FontSize)
 {
 	WiiManager& Wii(Singleton<WiiManager>::GetInstanceByRef());
 	Font* pFont(Wii.GetFontManager()->GetFont( FontSize ));
@@ -70,10 +51,16 @@ void FontManager::DisplayText(const string& Text, int uXpos, int uYpos, u8 Alpha
 		uXpos += pChar->m_iWidthA;
 		if (pChar->GetImage() != NULL)
 		{
-			pChar->Draw(uXpos, uYpos + pChar->m_iTopOffset,Alpha);
+			pChar->Draw( uXpos, uYpos + pChar->m_iTopOffset, M_FontColour );
 		}
 		uXpos += pChar->m_uWidthB + pChar->m_iWidthC;
 	}
+}
+
+void FontManager::DisplayText(const string& Text, int uXpos, int uYpos, u8 Alpha, HashLabel FontSize)
+{
+	M_FontColour.a = Alpha;
+	DisplayText(Text, uXpos, uYpos, FontSize);
 }
 
 

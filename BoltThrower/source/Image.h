@@ -24,6 +24,8 @@ public:
 	Image(CharInfo* pChar, u8* pAlphaData);
 	Image(u8* pTgaData, int Width , int Height);
 
+	void Initialise(int Width, int Height);
+
 	void ImageLoad(const char* pFileName);
 	u32* GetImageData() const { return m_ImageData; }
 
@@ -47,6 +49,7 @@ public:
 
 	void DrawImage(f32 xpos, f32 ypos);
 	void DrawImageTL(f32 xpos, f32 ypos, u8 Alpha = 0xff);
+	void DrawImageTL(f32 xpos, f32 ypos, GXColor& Colour);// u8 r, u8 g, u8 b, u8 Alpha );
 
 	void SetFileName(std::string Name) { m_FileNameAsHash = (HashLabel)Name; }
 	HashLabel GetFileName() const { return m_FileNameAsHash; }
@@ -61,6 +64,8 @@ private:
 	u32*		m_ImageData;
 	HashLabel	m_FileNameAsHash;
 	GXTexObj	m_HardwareTextureInfo;
+
+//	u8			m_Red,m_Green,m_Blue;
 };
 
 
