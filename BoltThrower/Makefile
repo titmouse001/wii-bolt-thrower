@@ -23,7 +23,6 @@ MODULES     :=	source \
 				source/libpng/pngu \
 				source/TinyXML \
 				source/CullFrustum \
-				source/HTTP \
 				source/oggplayer 
 
 SOURCES		:=	$(MODULES)

@@ -7,10 +7,11 @@ Coder : frontier
 More info : http://frontier-dev.net
 
 ********************************************************************************************/
+
 #include <stdio.h>
 #include <malloc.h>
+#include <png.h>
 #include "pngu.h"
-#include "../png.h"
 
 
 // Constants

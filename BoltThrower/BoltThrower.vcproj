@@ -519,14 +519,6 @@
 			<Filter
 				Name="libpng"
 				>
-				<File
-					RelativePath=".\source\libpng\png.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\libpng\pngconf.h"
-					>
-				</File>
 				<Filter
 					Name="pngu"
 					>
