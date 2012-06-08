@@ -373,7 +373,7 @@ void GameDisplay::DisplayMoon()
 		if (m_pWii->m_Frustum.sphereInFrustum(v,r) != FrustumR::OUTSIDE)
 		{
 			// moon
-			Mtx Model,mat;
+			Mtx Model; //,mat;
 			Util3D::MatrixRotateY(Model, MoonIter->GetRotateY());
 			guMtxTransApply( Model, Model , MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ() );  // distance back
 			guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
@@ -400,7 +400,7 @@ void GameDisplay::DisplayMoon()
 		if (m_pWii->m_Frustum.sphereInFrustum(v,m_pGameLogic->GetClippingRadiusNeededForMoonRocks()) != FrustumR::OUTSIDE)
 		{
 
-			float AmountOfRocksToDisplay( MoonIter->GetAmountOfRocks() );
+			//float AmountOfRocksToDisplay( MoonIter->GetAmountOfRocks() );
 
 		//	float Total( m_pGameLogic->GetMoonRocksContainerSize() );
 		//	u32 Step(Total/AmountOfRocksToDisplay);
@@ -561,7 +561,7 @@ void GameDisplay::Display3DInfoBar(float x , float y, std::string Message, float
 		GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
 		m_pWii->GetCamera()->DoDefaultLight(150, 75, -200);
 		//--------------------------
-		Mtx Model,mat;
+		Mtx Model;//,mat;
 		Util3D::MatrixRotateX( Model, Tilt);
 		float fCamX( m_pWii->GetCamera()->GetCamX() );
 		float fCamY( m_pWii->GetCamera()->GetCamY() );
@@ -978,7 +978,7 @@ void GameDisplay::DisplayExplosions()
 
 void GameDisplay::DisplayScorePing()
 {
-	m_pWii->GetFontManager()->SetFontColour(255,127,0,255);
+	m_pWii->GetFontManager()->SetFontColour(255,255,255,255);
 
 	float fCamX( m_pWii->GetCamera()->GetCamX() );
 	float fCamY( m_pWii->GetCamera()->GetCamY() );
@@ -1223,7 +1223,7 @@ void GameDisplay::DebugInformation()
 	extern profiler_t profile_ShotAndGunTurret;
 	extern profiler_t profile_DyingEnemies;
 
-	static u8 LastFPS(0);
+	//static u8 LastFPS(0);
 	static int DroppedFrames(0);
 	int y=-200;
 	int x=-290;

@@ -12,37 +12,17 @@
 #include <tremor/ivorbisfile.h>
 #include <grrmod.h>  // for sound init - since it likes to take over the whole shop
 
-//static void VoiceCallBack(AESNDPB *pb, u32 state) 
-//{
-//   switch (state) 
-//   {
-//        case VOICE_STATE_STOPPED:
-//	//		printf("VoiceCallBack %p %d",pb,state);  // OK!?!  this AESNDPB is pointing to the main sound call back... not for each voice as I was expecting
-//            break;
-//        case VOICE_STATE_RUNNING:
-//            break;
-//        case VOICE_STATE_STREAM:
-//            break;
-//    }
-//}
 
 AESNDPB* RawSample::Play(u8 VolumeLeft, u8 VolumeRight, bool bLoop)
 {
-	// change library ... AESNDPB* AESND_AllocateVoice(AESNDVoiceCallback cb) to use VOICE_STOPPED not VOICE_USED to pick free slot
-
-	AESNDPB* Chan = AESND_AllocateNextFreeVoice(NULL); 
-	//AESNDPB* Chan = AESND_AllocateVoice(NULL); 
+	AESNDPB* Chan = AESND_AllocateNextFreeVoice(NULL);  // I've updated the main libogc sound library 
 
 	if (Chan!=NULL)
 	{		
-
-		//DCFlushRange(m_RawData, m_RawDataLength);
-
 		AESND_SetVoiceFormat(Chan, m_VoiceFormat);
 		AESND_SetVoiceFrequency(Chan, m_SampleRate);
 		AESND_SetVoiceVolume(Chan,VolumeLeft,VolumeRight);
-    AESND_SetVoiceStream(Chan, false);
-		//AESND_SetVoiceBuffer(Chan, (void*)m_RawData, m_RawDataLength);
+		AESND_SetVoiceStream(Chan, false);
 
 
 		AESND_PlayVoice(Chan,
@@ -59,9 +39,6 @@ void RawSample::PlayFromVoice(u8 VolumeLeft, u8 VolumeRight, bool bLoop, AESNDPB
 {
 	if (VoiceData!=NULL)
 	{
-		//DCFlushRange(m_RawData, m_RawDataLength);
-
-
 		AESND_SetVoiceVolume(VoiceData,VolumeLeft,VolumeRight);
 		AESND_PlayVoice(VoiceData,
 			m_VoiceFormat,
@@ -78,14 +55,14 @@ void SoundManager::PlayRandomExplodeSound()
 	int VolumeFactor = 200 - (rand()%60);
 	switch (rand()%3)
 	{
-		case 0:
-			PlaySound( HashString::Explode1, VolumeFactor, VolumeFactor );
+	case 0:
+		PlaySound( HashString::Explode1, VolumeFactor, VolumeFactor );
 		break;
-		case 1:
-			PlaySound( HashString::Explode2, VolumeFactor, VolumeFactor );
+	case 1:
+		PlaySound( HashString::Explode2, VolumeFactor, VolumeFactor );
 		break;
-		case 2:
-			PlaySound( HashString::Explode3, VolumeFactor, VolumeFactor );
+	case 2:
+		PlaySound( HashString::Explode3, VolumeFactor, VolumeFactor );
 		break;
 	}
 }
@@ -95,11 +72,11 @@ void SoundManager::PlayRandomBigExplodeSound()
 	int VolumeFactor = 255 - (rand()%30);
 	switch (rand()%2)
 	{
-		case 0:
-			PlaySound( HashString::ExplodeBig1, VolumeFactor, VolumeFactor );
+	case 0:
+		PlaySound( HashString::ExplodeBig1, VolumeFactor, VolumeFactor );
 		break;
-		case 1:
-			PlaySound( HashString::ExplodeBig2, VolumeFactor, VolumeFactor );
+	case 1:
+		PlaySound( HashString::ExplodeBig2, VolumeFactor, VolumeFactor );
 		break;
 	}
 }
@@ -109,17 +86,17 @@ void SoundManager::PlayRandomHullBang()
 	int VolumeFactor = 255 - (((rand()%128)/2)*2);
 	switch (rand()%4)
 	{
-		case 0:
-			PlaySound( HashString::Hull_bang1, VolumeFactor, VolumeFactor );
+	case 0:
+		PlaySound( HashString::Hull_bang1, VolumeFactor, VolumeFactor );
 		break;
-		case 1:
-			PlaySound( HashString::Hull_bang2, VolumeFactor, VolumeFactor );
+	case 1:
+		PlaySound( HashString::Hull_bang2, VolumeFactor, VolumeFactor );
 		break;
-		case 2:
-			PlaySound( HashString::Hull_bang3, VolumeFactor, VolumeFactor );
+	case 2:
+		PlaySound( HashString::Hull_bang3, VolumeFactor, VolumeFactor );
 		break;
-		case 3:
-			PlaySound( HashString::Hull_bang4, VolumeFactor, VolumeFactor );
+	case 3:
+		PlaySound( HashString::Hull_bang4, VolumeFactor, VolumeFactor );
 		break;
 	}
 }
@@ -177,21 +154,15 @@ SoundManager::~SoundManager()
 
 void SoundManager::Init( )
 { 
-	GRRMOD_Init(true);  // this will to things like AESND_Init();  for you
-
-//AESND_Init();
-
+	GRRMOD_Init(true);  // this will to things like "AESND_Init"  for you
+	// ... AESND_Init();
 	m_FixSoundVoice = AESND_AllocateFixedVoice(NULL); // used for players looping thrusters
-//	m_FixSoundVoice = AESND_AllocateVoice(NULL); // used for players looping thrusters
-
-
 	m_OggPlayer.Init();
-
 }
 
 void SoundManager::UnInit( )
 { 
-    GRRMOD_End();
+	GRRMOD_End();
 }
 
 void SoundManager::LoadSound( std::string FullFileNameWithPath,std::string LookUpName )
@@ -249,11 +220,11 @@ void SoundManager::StoreSoundFromWav( std::string FullFileNameWithPath,std::stri
 
 	if (fmtChunkData.BitResolution == 16 )
 	{
-	
+
 		if (fmtChunkData.Channels == 1)
 		{
 			pRawSample->SetVoiceFormat(VOICE_MONO16);
-				printf("VOICE_MONO16");
+			printf("VOICE_MONO16");
 		}
 		else
 		{
@@ -298,16 +269,16 @@ u32 SoundManager::GetOggTotal(OggVorbis_File* vf)
 	long ret(0);
 	do
 	{
-//
-//#ifdef
-//		static const int BIGENDIAN (1);
-//		ret = ov_read(vf,PCM_Out,sizeof(PCM_Out),BIGENDIAN,2,1,&current_section);
-//		Total += ret;
-//#else
+		//
+		//#ifdef
+		//		static const int BIGENDIAN (1);
+		//		ret = ov_read(vf,PCM_Out,sizeof(PCM_Out),BIGENDIAN,2,1,&current_section);
+		//		Total += ret;
+		//#else
 		ret = ov_read(vf,PCM_Out,sizeof(PCM_Out),&current_section);
-//		printf("===%d",ret);
+		//		printf("===%d",ret);
 		Total += ret;
-//#endif
+		//#endif
 	}while (ret!=0);
 
 	return Total;
@@ -346,11 +317,11 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 	s32 pcm_total = ov_pcm_total(&vf,-1);  // should be 64bits , but I'm not using anything that big!
 	if (pcm_total == OV_EINVAL)	
 	{
-	//	printf( "%ld", ov_time_total(&vf,-1) );
+		//	printf( "%ld", ov_time_total(&vf,-1) );
 
 		pcm_total = GetOggTotal(&vf);
 
-	//	printf("slow VERSION: pcm_total %d",pcm_total);
+		//	printf("slow VERSION: pcm_total %d",pcm_total);
 
 		// Fudge - not possible to use ov_pcm_total, need to close file to zero seek (not nice, but can't find any other way)
 		ov_clear(&vf); // this will close the open file
@@ -361,14 +332,14 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 		pcm_total *= vi->channels;
 		pcm_total *= sizeof(u16);
 
-	//	printf("FAST VERSION: pcm_total %d",pcm_total);
+		//	printf("FAST VERSION: pcm_total %d",pcm_total);
 	}
 
-//	printf("\nBitstream is %d channel, %ldHz\n",vi->channels,vi->rate);	
-//	printf("\nDecoded length: %d samples\n",pcm_total);
-//	printf("Encoded by: %s\n\n",ov_comment(&vf,-1)->vendor);
-//	printf("channels: %d\n\n",vi->channels);
-//	printf("pcm_total: %d\n\n", pcm_total );
+	//	printf("\nBitstream is %d channel, %ldHz\n",vi->channels,vi->rate);	
+	//	printf("\nDecoded length: %d samples\n",pcm_total);
+	//	printf("Encoded by: %s\n\n",ov_comment(&vf,-1)->vendor);
+	//	printf("channels: %d\n\n",vi->channels);
+	//	printf("pcm_total: %d\n\n", pcm_total );
 
 	// Raw sound data
 	RawSample* pRawSample( new RawSample );
@@ -376,17 +347,17 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 	int NumberOfChannels = VOICE_STEREO16;
 	if (vi->channels==1)
 	{
-//		printf("VOICE_MONO16");
+		//		printf("VOICE_MONO16");
 		NumberOfChannels = VOICE_MONO16;
 	}
-//	else
-//	{
-//		printf("VOICE_STEREO16");
-//	}
+	//	else
+	//	{
+	//		printf("VOICE_STEREO16");
+	//	}
 
 	int SampleRate = vi->rate;
 	int BitsPerSample = 16;
-	
+
 	//printf("rate %d", vi->rate);
 
 
@@ -404,12 +375,12 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 	while(!eof)
 	{
 
-//#ifdef 
-//		static const int BIGENDIAN (1);
-//		long ret= ov_read(vf,PCM_Out,sizeof(PCM_Out),BIGENDIAN,2,1,&current_section);
-//#else
+		//#ifdef 
+		//		static const int BIGENDIAN (1);
+		//		long ret= ov_read(vf,PCM_Out,sizeof(PCM_Out),BIGENDIAN,2,1,&current_section);
+		//#else
 		long ret= ov_read(&vf,PCM_Out,sizeof(PCM_Out),&current_section);
-//#endif
+		//#endif
 
 		if (ret == 0) 
 		{
@@ -426,27 +397,27 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 
 		}
 	}
-//	printf("CheckTotal  %d",pcm_total);
+	//	printf("CheckTotal  %d",pcm_total);
 
-//	if (!ov_seekable(&vf))
-//		ExitPrintf("not seekable");
-//	double length=ov_time_total(&vf,-1);
+	//	if (!ov_seekable(&vf))
+	//		ExitPrintf("not seekable");
+	//	double length=ov_time_total(&vf,-1);
 
 	// **********************************************************************************************
 	// Once a FILE * handle is passed to ov_open() successfully, the application 
 	// MUST NOT fclose() or in any other way manipulate that file handle. 
 	// Vorbisfile will close the file in ov_clear(). If the application must be able to 
 	// close the FILE * handle itself, see ov_open_callbacks() with the use of OV_CALLBACKS_NOCLOSE. 
-    // **********************************************************************************************
-	
+	// **********************************************************************************************
+
 	ov_clear(&vf); // this will close the open file
 
 
 
-//	printf("SampleRate  %d",SampleRate);
-//	printf("SampleRate  %d",BitsPerSample);
-//	printf("SampleRate  %d",NumberOfChannels);
-//	printf("SampleRate  %d",pcm_total);
+	//	printf("SampleRate  %d",SampleRate);
+	//	printf("SampleRate  %d",BitsPerSample);
+	//	printf("SampleRate  %d",NumberOfChannels);
+	//	printf("SampleRate  %d",pcm_total);
 
 	//-------------------------------------------------------------
 	pRawSample->SetRawData(pRawData);

@@ -75,9 +75,6 @@ public:
 	GXColor		m_MaterialColour;
 	GXColor		m_AmbientColour;
 
-	
-	u32			m_UsedLightMask;
-
 private:
 
 	float	CalculateCameraHeightFor2DViewPort();
@@ -92,7 +89,7 @@ private:
 
 	float	m_CameraHeightFor3DViewPort;
 	float	m_FieldOfView;
-
+	u32		m_UsedLightMask;
 };
 
 

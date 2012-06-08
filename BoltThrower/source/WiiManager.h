@@ -3,26 +3,24 @@
 
 #include "Singleton.h"
 #include "config.h"
-#include "font.h"
-#include "Camera.h"
-#include "MapManager.h"
 #include <stdlib.h>
 #include <string>
 #include <vector>
 #include <map>
 #include <stdio.h>
 #include <gcmodplay.h>
+//#include "font.h"
+#include "Camera.h"
 #include "HashLabel.h"
 #include "Render3D.h"
 #include "tga.h"
 #include "GameLogic.h"
 #include "ImageManager.h"
 #include "HashString.h"
-
 #include "CullFrustum\Vec3.h"
 #include "CullFrustum\FrustumR.h"
-
 #include "Panels3D.h"
+#include "WiiFile.h"
 
 using namespace std;
 
@@ -119,7 +117,7 @@ public:
 	ImageManager*		GetImageManager()		{ return m_ImageManager; }
 	FontManager*		GetFontManager()		{ return m_FontManager; }
 	InputDeviceManager*	GetInputDeviceManager()	{ return m_InputDeviceManager; }
-	MapManager*			GetMapManager()			{ return m_MapManager; }
+	//MapManager*			GetMapManager()			{ return m_MapManager; }
 	SoundManager*		GetSoundManager()		{ return m_SoundManager; }
 	Camera*				GetCamera()	const		{ return m_Camera; }
 	GameLogic*			GetGameLogic()	const	{ return m_pGameLogic; }
@@ -262,6 +260,8 @@ public:
 	vector<FileInfo> m_MusicFilesContainer;
 
 	string			m_ExePath;
+	bool			m_MusicStillLeftToDownLoad;
+
 	FileMemInfo*	m_pMusicData;  // holds things like mods & oggs
 
 	PannelManager	m_PannelManager;
@@ -280,11 +280,12 @@ private:
 	ImageManager*			m_ImageManager;
 	FontManager*			m_FontManager;
 	InputDeviceManager*		m_InputDeviceManager;
-	MapManager*				m_MapManager;
+	//MapManager*				m_MapManager;
 	SoundManager*			m_SoundManager;
 	Camera*					m_Camera;
 	URLManager*				m_URLManager;
 	UpdateManager*			m_UpdateManager;
+	u8						m_IngameMusicVolume;
 	SetUpGame*				m_SetUpGame;
 	MenuManager*			m_pMenuManager;
 	MissionManager*			m_MissionManager;
@@ -298,9 +299,7 @@ private:
 	string					m_Language;
 	bool					m_bMusicEnabled;
 	string					m_Difficulty;
-public:
-	bool					m_MusicStillLeftToDownLoad;
-	u8						m_IngameMusicVolume;
+
 private:
 
 	map<HashLabel,FrameInfo> m_FrameinfoContainer;

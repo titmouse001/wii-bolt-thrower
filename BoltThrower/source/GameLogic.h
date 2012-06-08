@@ -57,8 +57,12 @@ public:
 	void ExplosionLogic();
 	void MissileLogic();
 
-	void ProbeMineLogic( std::vector<Vessel>*  pVesselContainer = NULL, float ThrustPower = 0.05f, float ActiveRange = 155.0f, float ScanRange = 22.0f, float CraftSize = (12.0f*12.0f) );
-	void RetrieveProbeMineLogic(std::vector<Vessel>*  pVesselContainer, float ThrustPower, float ActiveRange, float ScanRange, float CraftSize);
+	void ProbeMineLogic( std::vector<Vessel>*  pVesselContainer = NULL, 
+		float ThrustPower = 0.05f, 
+		//float ActiveRange = 155.0f,
+		float ScanRange = 22.0f) ; //, float CraftSize = (12.0f*12.0f) );
+	void RetrieveProbeMineLogic(//std::vector<Vessel>*  pVesselContainer, 
+		float ThrustPower); //, float ActiveRange, float ScanRange, float CraftSize);
 	void ProbeMineCollisionLogic(std::vector<Vessel>*  pVesselContainer, float CraftSize);
 	void BadShipsLogic();
 	void ExhaustLogic();
@@ -214,8 +218,6 @@ public:
 
 	Vessel* GetGunTurretTarget(TurretItem3D* pTurret);
 
-	bool	m_bEnableRetrieveProbeMineMode;
-
 private:
 
 	void DyingShipsLogic();
@@ -285,13 +287,9 @@ private:
 	WiiManager*		m_pWii;
 	SoundManager*	m_pSoundManager;
 
-#ifdef USE_AESNDLIB
 	AESNDPB* m_LastChanUsedForSoundAfterBurn; 
-#else
-	int m_LastChanUsedForSoundAfterBurn; 
-#endif
 
-
+	bool	m_bEnableRetrieveProbeMineMode;
 };
 
 

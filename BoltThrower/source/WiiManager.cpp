@@ -41,27 +41,26 @@
 #define DEBUGCONSOLESTATE	( eDebugConsoleOn )  // it's ignored (off) in final release
 #define COLOUR_FOR_WIPE		( COLOR_BLACK )  // crash at startup colour
 
-WiiManager::WiiManager() :	
+WiiManager::WiiManager() :	m_MusicStillLeftToDownLoad(false),
+							m_pMusicData(NULL),
 							m_pGXRMode(NULL), 
 							m_gp_fifo(NULL), 
 							m_uScreenBufferId(eFrontScreenBuffer), 
 							m_uFrameCounter(0),
 							m_ImageManager(NULL), 
-							m_MapManager(NULL), 
+//							m_MapManager(NULL), 
 							m_SoundManager(NULL),
 							m_Camera(NULL),		
 							m_URLManager(NULL),
 							m_UpdateManager(NULL),
+							m_IngameMusicVolume(3),
 							m_SetUpGame(NULL),
 							m_ViewportX(0),
 							m_ViewportY(0),
 							m_GameState(eIntro),
 							m_Language("English"),
 							m_bMusicEnabled(true),
-							m_Difficulty("medium"),
-							m_MusicStillLeftToDownLoad(false),
-							m_IngameMusicVolume(3),
-							m_pMusicData(NULL)
+							m_Difficulty("medium")
 { 
 	// -----------------------------
 	m_pFrameBuffer[0] = NULL;
@@ -70,7 +69,7 @@ WiiManager::WiiManager() :
 	m_ImageManager			= new ImageManager;
 	m_FontManager			= new FontManager;
 	m_InputDeviceManager	= new InputDeviceManager;
-	m_MapManager			= new MapManager;
+	//m_MapManager			= new MapManager;
 	m_SoundManager			= new SoundManager;
 	m_Camera				= new Camera;
 	m_pMenuManager			= new MenuManager;
@@ -96,7 +95,7 @@ WiiManager::~WiiManager()
 	delete m_ImageManager;		
 	delete m_FontManager;	
 	delete m_InputDeviceManager;
-	delete m_MapManager;	
+	//delete m_MapManager;	
 	delete m_Camera;
 	delete m_pMenuManager;	
 	delete m_pGameLogic;
@@ -193,7 +192,7 @@ GXRModeObj* WiiManager::GetBestVideoMode()
 	if (vmode == &TVPal528IntDf)
 	{
 		pal = true;
-		vmode = &TVPal574IntDfScale;
+		vmode = &TVPal576IntDfScale; //&TVPal574IntDfScale;
 	}
 
 	if (CONF_GetAspectRatio() == CONF_ASPECT_16_9)

@@ -144,8 +144,8 @@ void GameLogic::DoControls()
 				//GetPlrVessel()->SetFacingDirection( ang );
 
 
-			f32 HalfScreenWidthIncludingOverrun  = m_pWii->GetScreenWidth() / 2;
-			f32 HalfScreenHeightIncludingOverrun = m_pWii->GetScreenHeight() / 2;
+		//	f32 HalfScreenWidthIncludingOverrun  = m_pWii->GetScreenWidth() / 2;
+		//	f32 HalfScreenHeightIncludingOverrun = m_pWii->GetScreenHeight() / 2;
 			guVector PlrVessel;
 			PlrVessel.x = GetPlrVessel()->GetX() + (pNunChuck->GetJoyX()*100);
 			PlrVessel.y = GetPlrVessel()->GetY() - (pNunChuck->GetJoyY()*100);
@@ -405,13 +405,19 @@ void GameLogic::InGameLogic()
 		
 		if (m_bEnableRetrieveProbeMineMode)
 		{
-			RetrieveProbeMineLogic(m_SmallEnemiesContainer, 0.035f, 160.0f,22.0f, (12.0f * 12.0f) );
-			RetrieveProbeMineLogic(m_GunShipContainer, 0.035f, 200.0f,48.0f, (38.0f * 38.0f) );
+			RetrieveProbeMineLogic(//m_SmallEnemiesContainer, 
+				0.035f//, 160.0f,22.0f, (12.0f * 12.0f) 
+				);
+			RetrieveProbeMineLogic(//m_GunShipContainer, 
+				0.035f//, 200.0f,48.0f, (38.0f * 38.0f) 
+				);
 		}
 		else
 		{
-			ProbeMineLogic(m_SmallEnemiesContainer, 0.035f, 160.0f,22.0f, (12.0f * 12.0f) );
-			ProbeMineLogic(m_GunShipContainer, 0.035f, 200.0f, 48.0f, (38.0f * 38.0f));
+			ProbeMineLogic(m_SmallEnemiesContainer, 0.035f, //160.0f,
+				22.0f);//, (12.0f * 12.0f) );
+			ProbeMineLogic(m_GunShipContainer, 0.035f, //200.0f, 
+				48.0f); //, (38.0f * 38.0f));
 		}
 		ProbeMineCollisionLogic(m_SmallEnemiesContainer, 12.0f * 12.0f );
 		ProbeMineCollisionLogic(m_GunShipContainer, 38.0f * 38.0f );
@@ -1054,7 +1060,7 @@ void GameLogic::MissileLogic()
 
 void GameLogic::ProbeMineCollisionLogic(std::vector<Vessel>*  pVesselContainer, float CraftSize)
 {
-	Vessel* AnyTarget( GetPlrVessel() );   
+//	Vessel* AnyTarget( GetPlrVessel() );   
 	for (std::vector<Vessel>::iterator ProbeMineIter(m_ProbeMineContainer->begin()); ProbeMineIter!= m_ProbeMineContainer->end(); /* ++ProbeMineIter*/ )
 	{
 		bool bNothingHit(true);
@@ -1086,8 +1092,11 @@ void GameLogic::ProbeMineCollisionLogic(std::vector<Vessel>*  pVesselContainer, 
 
 
 
-void GameLogic::RetrieveProbeMineLogic(std::vector<Vessel>*  pVesselContainer, 
-									   float ThrustPower, float ActiveRange, float ScanRange, float CraftSize)
+void GameLogic::RetrieveProbeMineLogic(//std::vector<Vessel>*  pVesselContainer, 
+									   float ThrustPower )
+									  // float ActiveRange, 
+									 //  float ScanRange, 
+									 //  float CraftSize)
 {
 	Vessel* AnyTarget( GetPlrVessel() );   
 	for (std::vector<Vessel>::iterator ProbeMineIter(m_ProbeMineContainer->begin()); ProbeMineIter!= m_ProbeMineContainer->end(); /* ++ProbeMineIter*/ )
@@ -1174,12 +1183,16 @@ void GameLogic::RetrieveProbeMineLogic(std::vector<Vessel>*  pVesselContainer,
 }
 
 
-void GameLogic::ProbeMineLogic(std::vector<Vessel>*  pVesselContainer, float ThrustPower, float ActiveRange, float ScanRange, float CraftSize)
+void GameLogic::ProbeMineLogic(std::vector<Vessel>*  pVesselContainer, 
+							   float ThrustPower, 
+							  // float ActiveRange,
+							   float ScanRange )
+							   //float CraftSize)
 {
 	m_pWii->profiler_start(&profile_ProbeMineLogic);
 
 	// Logic for Probe Mines - checks against all bad ships
-	float ActiveRangeSquared( ActiveRange * ActiveRange );
+//	float ActiveRangeSquared( ActiveRange * ActiveRange );
 	for (std::vector<Vessel>::iterator ProbeMineIter(m_ProbeMineContainer->begin()); ProbeMineIter!= m_ProbeMineContainer->end(); /*++ProbeMineIter*/ )
 	{
 		ProbeMineIter->SetFrame( ProbeMineIter->GetFrameStart() );   // reset frame - this frame value may get overwritten depending if thrust is used
@@ -2269,9 +2282,11 @@ void GameLogic::Intro()
 
 
 	if (m_ProbeMineContainer->size() < 329)
-		ProbeMineLogic(m_SmallEnemiesContainer, 0.0450f, 380.0f); // fast mines
+		ProbeMineLogic(m_SmallEnemiesContainer, 0.0450f //380.0f
+		); // fast mines
 	else
-		ProbeMineLogic(m_SmallEnemiesContainer, 0.0035f, 555.0f); // slow mines - keeps logo intact for a while longer at intro start up
+		ProbeMineLogic(m_SmallEnemiesContainer, 0.0035f //555.0f
+		); // slow mines - keeps logo intact for a while longer at intro start up
 
 	ProbeMineCollisionLogic(m_SmallEnemiesContainer, 12.0f * 12.0f );
 

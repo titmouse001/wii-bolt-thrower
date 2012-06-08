@@ -341,7 +341,7 @@ void Camera::SetLightOn(int LightNumber, float x, float y, float z)
 void  Camera::SetLightDiff(u8 num, guVector pos, f32 distattn, f32 brightness) 
 {
     GXLightObj MyLight;
-    guVector lpos = {pos.x, pos.y, pos.z};
+    //guVector lpos = {pos.x, pos.y, pos.z};
     guVecMultiply(GetcameraMatrix(), &pos, &pos);
     GX_InitLightPos(&MyLight, pos.x, pos.y, pos.z);
 	GX_InitLightColor(&MyLight, (GXColor) { 0xff, 0xff, 0xff, 0xff }); //does this do anything???

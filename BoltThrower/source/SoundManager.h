@@ -13,13 +13,8 @@
 
 #define USE_AESNDLIB 
 
-#ifdef USE_AESNDLIB
-// MAKE SURE THE makefile uses "-laesnd"
+
 #include <aesndlib.h>
-#else
-// MAKE SURE THE makefile uses "-lasnd"
-#include <asndlib.h>
-#endif
 
 typedef void (*AESNDVoiceCallback)(AESNDPB *pb,u32 state);
 
@@ -30,14 +25,11 @@ typedef void (*AESNDVoiceCallback)(AESNDPB *pb,u32 state);
 class RawSample
 {
 public:
-#ifdef USE_AESNDLIB
+
 	AESNDPB* Play(u8 VolumeLeft=0xff, u8 VolumeRight=0xff, bool bLoop = false);
-	
 	void PlayFromVoice(u8 VolumeLeft, u8 VolumeRight, bool bLoop, AESNDPB* VoiceData );
 
-#else
-	int Play(u8 VolumeLeft=0xff, u8 VolumeRight=0xff, bool bLoop = false);
-#endif
+
 	void SetRawData(u8* pData) {m_RawData = pData;}
 	void SetRawDataLength(u32 Data) {m_RawDataLength = Data;}
 	void SetVoiceFormat(u8 Data) {m_VoiceFormat = Data;}
@@ -65,15 +57,10 @@ public:
 
 	std::map<HashLabel,RawSample*> m_SoundContainer;
 	RawSample*	GetSound(HashLabel SoundName) { return m_SoundContainer[SoundName]; }
-#ifdef USE_AESNDLIB
+
 	AESNDPB*	PlaySound(HashLabel SoundName,u8 VolumeLeft = 255, u8 VolumeRight = 255, bool bLoop = false);
 	void		PlaySoundFromVoice(HashLabel SoundName, u8 VolumeLeft, u8 VolumeRight, bool bLoop, AESNDPB* VoiceData);
 	void		StopSound(AESNDPB* Chan);
-#else
-	int  PlaySound(HashLabel SoundName,u8 VolumeLeft = 255, u8 VolumeRight = 255, bool bLoop = false);
-	void StopSound(int Chan);
-#endif
-
 
 	void PlayRandomExplodeSound();
 	void PlayRandomBigExplodeSound();
@@ -95,9 +82,6 @@ private:
 	void StoreSoundFromWav( std::string FullFileNameWithPath, std::string LookUpName );
 
 	u32 GetOggTotal(OggVorbis_File* vf);
-
-//	void Init();
-//	void UnInit();
 
 	//A WAV header consits of several chunks:
 	struct RIFFChunk
@@ -139,9 +123,6 @@ private:
 		char data[4];    // "data"  -  big-endian form
 		u32 dataLength;  // sound data length
 	};
-
-
-
 
 };
 
