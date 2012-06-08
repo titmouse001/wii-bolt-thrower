@@ -1,0 +1,18 @@
+The complete ogc lib source is provided, BUT only these two file have been changed... 
+
+\Source\libogc-src-1.8.11\libaesnd\
+aesndlib.c
+
+Source\libogc-src-1.8.11\include\
+aesndlib.h
+
+
+Extra note about module player;
+
+GRRMOD is needed for playing various tracker music modules, since the supplied gcmodplay is pants.
+
+to build and install, do something like this in dos...
+>make clean
+>make 
+>make install
+
