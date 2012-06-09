@@ -7,6 +7,7 @@
 #include "Util3D.h"
 #include "debug.h"
 #include "ogc\lwp_watchdog.h"
+#include "font.h"
 
 
 MessageBox::MessageBox(): m_Message("-"), m_MessageHeading("-"),m_Timer(), m_Enabled(false), m_FadeValue(1.0f), m_FadingOut(false)

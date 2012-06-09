@@ -12,11 +12,10 @@
 #include <malloc.h>
 #include <dirent.h>
 #include "libpng/pngu/pngu.h"
-
 #include "Util3D.h"
 #include "vessel.h"
-
 #include "HashLabel.h"
+#include "CharInfo.h"
 
 // need to look... think this is missing free memory stuff???
 

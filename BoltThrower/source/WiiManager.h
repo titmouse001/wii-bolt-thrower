@@ -22,6 +22,9 @@
 #include "Panels3D.h"
 #include "WiiFile.h"
 
+//#include "GCTypes.h"
+//#include "CharInfo.h"
+
 using namespace std;
 
 class ImageManager;
