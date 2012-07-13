@@ -1,27 +1,27 @@
 <?xml version="1.0" standalone="yes"?>
 <Data>
-	<LatestReleaseAvailable>0.61</LatestReleaseAvailable>
+	<LatestReleaseAvailable>0.70</LatestReleaseAvailable>
 	
 	<ReleaseNotes>
-    visit http://wiibrew.org/wiki/BoltThrower for release notes\n\n
+    Visit http://wiibrew.org/wiki/BoltThrower for release notes\n\n
 	Press (A) to install\n
     Press (B) to cancel\n\n
-    Install Release 0.61 ?\n
-	(new: Recall your mines with Dpad UP, press again to turn off protect mode)
+    Install Release 0.70 ?\n
+	(NOTE: Recall your mines with Dpad UP, press again to turn off protect mode)
   </ReleaseNotes>
 	
 	<Updates>
     <!-- 'FullDownloadPath' is relative to the executables path -->
-    <!-- Carefull currently only one deep dirs will be created if missing, (do things in order parent order, or create folders with dummy files) -->
+    <!-- Carefull currently only one deep dirs will be created if missing, (do things in parent order, or create folders using dummy files) -->
     <!-- so FullDownloadPath="newdir1/" is ok, FullDownloadPath="newdir1/newdir2/" will fail without using care -->
     
-		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/boot.dol"
+		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.62/boot.dol"
 					FullDownloadPath="/" OverwriteExistingFile="YES"/>
 
-		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/meta.xml"
+		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.62/meta.xml"
 					FullDownloadPath="/" OverwriteExistingFile="YES"/>
 
-		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/icon.png"
+		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.62/icon.png"
 					FullDownloadPath="/" OverwriteExistingFile="YES"/>
 				
 		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/GameConfiguration.xml"
@@ -42,8 +42,6 @@
 		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/Sounds/Hull_bang2.ogg"
 					FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
 		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/Sounds/Hull_bang3.ogg"
-					FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
-		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/Sounds/Hull_bang4.ogg"
 					FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
 		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.61/Sounds/FireMissile.ogg"
 					FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
