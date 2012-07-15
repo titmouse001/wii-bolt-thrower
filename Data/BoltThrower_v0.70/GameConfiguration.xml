@@ -96,6 +96,26 @@
     <AddSound Name="AfterBurn"	FileName="Sounds/MainThrust.ogg" Loop="true"/>
     <AddSound Name="DropMine"	FileName="Sounds/DropMine.ogg" />
     <AddSound Name="Alarm2"	FileName="Sounds/Alarm2.ogg" />
+
+  <!-- sounds added in july 2012-->
+    <AddSound Name="ExplodeWithSparks"	FileName="Sounds/ExplodeWithSparks.ogg" />
+    <AddSound Name="GunFire1"	FileName="Sounds/GunFire1.ogg" />
+    <AddSound Name="GunFire2"	FileName="Sounds/GunFire2.ogg" />
+    <AddSound Name="GunFire3"	FileName="Sounds/GunFire3.ogg" />
+    <AddSound Name="GunFire4"	FileName="Sounds/GunFire4.ogg" />
+    <AddSound Name="HitShield"	FileName="Sounds/HitShield.ogg" />
+    <AddSound Name="Hull1"	FileName="Sounds/Hull1.ogg" />
+    <AddSound Name="Hull2"	FileName="Sounds/Hull2.ogg" />
+    <AddSound Name="Hull3"	FileName="Sounds/Hull3.ogg" />
+    <AddSound Name="HullCreak1"	FileName="Sounds/HullCreak1.ogg" />
+    <AddSound Name="HullCreak2"	FileName="Sounds/HullCreak2.ogg" />
+    <AddSound Name="lockedOut"	FileName="Sounds/lockedOut.ogg" />
+    <AddSound Name="Metal_pickup"	FileName="Sounds/Metal_pickup.ogg" />
+    <AddSound Name="MineLockOn"	FileName="Sounds/MineLockOn.ogg" />
+    <AddSound Name="MinePing"	FileName="Sounds/MinePing.ogg" />
+    <AddSound Name="PickUphealth"	FileName="Sounds/PickUphealth.ogg" />
+    <AddSound Name="shrapnel"	FileName="Sounds/shrapnel.ogg" />
+
   </Sounds>
 
 	<RawTga>
@@ -106,7 +126,7 @@
     
 		<AddImage Name="PlayersShip32x32"               StartX="0" StartY="0" ItemWidth="32" ItemHeight="32" NumberItems="4"/>
     
-		<AddImage Name="AimingPointer32x32"             StartX="32" StartY="0" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+		<AddImage Name="AimingPointer32x32"             StartX="240" StartY="240" ItemWidth="48" ItemHeight="48" NumberItems="1"/>
 		<AddImage Name="SmallMissile16x16"              StartX="0"  StartY="32" ItemWidth="16" ItemHeight="16" NumberItems="1"/>
 		<AddImage Name="SmallWhiteEnemyShip16x16x2"     StartX="0" StartY="48" ItemWidth="16" ItemHeight="16" NumberItems="2"/>
 		<AddImage Name="SmallRedEnemyShip16x16x2"       StartX="0" StartY="64" ItemWidth="16" ItemHeight="16" NumberItems="2"/>
@@ -190,8 +210,9 @@
 	<!-- icons -->
 	<AddImage Name="ShieldIcon32x32"        StartX="208" StartY="272" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
 
-   
-    
+  <AddImage Name="GreenLockOn"        StartX="256" StartY="80" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+
+
   </Graphics>
 
 
