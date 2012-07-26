@@ -1,5 +1,5 @@
 <?xml version="1.0" standalone="yes"?>
-<!-- 'Wii Bolt Thrower' - game configurtion file for v0.60 -->
+<!-- 'Wii Bolt Thrower' - game configurtion file for v0.70 -->
 
 <Data>
 
@@ -67,8 +67,8 @@
 
   
    <LightWaveObjects>
-		<AddLWO Name="MoonLowRess"	FileName="lwo/Moon_lowres.LWO" 						UseModelsNormalData="0"/>
-		<AddLWO Name="MoonHiRess"	FileName="lwo/Moon_medress.LWO"						UseModelsNormalData="0"/>
+		<AddLWO Name="MoonLowRes"	FileName="lwo/Moon_lowres.LWO" 						UseModelsNormalData="0"/>
+		<AddLWO Name="MoonHiRes"	FileName="lwo/Moon_medres.LWO"						UseModelsNormalData="0"/>
 		<AddLWO Name="WiiMote"		FileName="lwo/wiimote.lwo" 						 	UseModelsNormalData="1"/>
 		<AddLWO Name="Rock1"		FileName="lwo/Asteroid01_Epimetheus_medress.lwo" 	UseModelsNormalData="0"/>
 		<AddLWO Name="Rock2"		FileName="lwo/Asteroid01_Epimetheus_lowress.lwo"	UseModelsNormalData="0"/>
@@ -78,10 +78,13 @@
 		<AddLWO Name="MoonShield"	FileName="lwo/MoonShield.lwo" 						UseModelsNormalData="1"/>
 		<!-- by the looks of things LW saves in reverse order, so zero will be the last layer-->
 		<AddLWO Name="SmallGunTurret"	FileName="lwo/SmallGunTurret[+BONE].lwo" UseModelsNormalData="1" IndexLayerForBones="0" />
-    <AddLWO Name="Shot"	FileName="lwo/Shot.lwo"/>
+		<AddLWO Name="Shot"	FileName="lwo/Shot.lwo"/>
 		<AddLWO Name="Material_PickUp"	FileName="lwo/Material_PickUP.lwo" 				UseModelsNormalData="1"/>
 		<AddLWO Name="BarRightSmall"	  FileName="lwo/BAR_Right_Small002.lwo" 		UseModelsNormalData="1"/>
-   </LightWaveObjects>
+		
+		<AddLWO Name="Earth_medres"	  FileName="lwo/Earth_medres.lwo" 		UseModelsNormalData="0"/>
+	
+  </LightWaveObjects>
 
   <Sounds>
     <AddSound Name="Explode1"	FileName="Sounds/Explode1.ogg" />
@@ -211,6 +214,8 @@
 	<AddImage Name="ShieldIcon32x32"        StartX="208" StartY="272" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
 
   <AddImage Name="GreenLockOn"        StartX="256" StartY="80" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+
+  <AddImage Name="SmallShot16x16"              StartX="224" StartY="0" ItemWidth="16" ItemHeight="16" NumberItems="4"/>
 
 
   </Graphics>
