@@ -26,19 +26,20 @@
 		<AsteroidHeightCoverage>5500</AsteroidHeightCoverage>
 		
 		<!-- Enemy units -->
-		<AmountBadShips>12</AmountBadShips>   
-		<AmountBadSpores>10</AmountBadSpores>
-		<AmountBadShipsFromSpore>32</AmountBadShipsFromSpore>
+    <AmountBadShips>12</AmountBadShips>   
+		<AmountBadSpores>7</AmountBadSpores>
+    <AmountBadSatellites>6</AmountBadSatellites>
+    <AmountBadShipsFromSpore>16</AmountBadShipsFromSpore>
 		<AmountOfGunShipsAtStartUp>6</AmountOfGunShipsAtStartUp>
-
-		<EnermyAmardaArroundLastShieldGenerator>10</EnermyAmardaArroundLastShieldGenerator>
-	
-		
-		<!-- Shields -->
-		<PlayerMaxShieldLevel>64</PlayerMaxShieldLevel>
+    <AmountSporesNeededForShiled>2</AmountSporesNeededForShiled>
+    <EnermyAmardaArroundLastShieldGenerator>9</EnermyAmardaArroundLastShieldGenerator>
+   
+    <!-- Shields -->
+		<PlayerMaxShieldLevel>100</PlayerMaxShieldLevel>
 		<ReducePlayerShieldLevelByAmountForShipToShipCollision>4</ReducePlayerShieldLevelByAmountForShipToShipCollision>	
 		<BadShipType1MaxShieldLevel>1</BadShipType1MaxShieldLevel>
 		<BadShipType2MaxShieldLevel>3</BadShipType2MaxShieldLevel>
+    
 		<!-- View Clipping radius -->
 		<ViewRadiusForSprites>410</ViewRadiusForSprites>
 		<ViewRadiusForIntroSprites>1024</ViewRadiusForIntroSprites>
@@ -66,8 +67,8 @@
 
   
    <LightWaveObjects>
-		<AddLWO Name="MoonLowRess"	FileName="lwo/Moon_lowres.LWO" 						UseModelsNormalData="0"/>
-		<AddLWO Name="MoonHiRess"	FileName="lwo/Moon_medress.LWO"						UseModelsNormalData="0"/>
+		<AddLWO Name="MoonLowRes"	FileName="lwo/Moon_lowres.LWO" 						UseModelsNormalData="0"/>
+		<AddLWO Name="MoonHiRes"	FileName="lwo/Moon_medres.LWO"						UseModelsNormalData="0"/>
 		<AddLWO Name="WiiMote"		FileName="lwo/wiimote.lwo" 						 	UseModelsNormalData="1"/>
 		<AddLWO Name="Rock1"		FileName="lwo/Asteroid01_Epimetheus_medress.lwo" 	UseModelsNormalData="0"/>
 		<AddLWO Name="Rock2"		FileName="lwo/Asteroid01_Epimetheus_lowress.lwo"	UseModelsNormalData="0"/>
@@ -77,10 +78,13 @@
 		<AddLWO Name="MoonShield"	FileName="lwo/MoonShield.lwo" 						UseModelsNormalData="1"/>
 		<!-- by the looks of things LW saves in reverse order, so zero will be the last layer-->
 		<AddLWO Name="SmallGunTurret"	FileName="lwo/SmallGunTurret[+BONE].lwo" UseModelsNormalData="1" IndexLayerForBones="0" />
-    <AddLWO Name="Shot"	FileName="lwo/Shot.lwo"/>
+		<AddLWO Name="Shot"	FileName="lwo/Shot.lwo"/>
 		<AddLWO Name="Material_PickUp"	FileName="lwo/Material_PickUP.lwo" 				UseModelsNormalData="1"/>
 		<AddLWO Name="BarRightSmall"	  FileName="lwo/BAR_Right_Small002.lwo" 		UseModelsNormalData="1"/>
-   </LightWaveObjects>
+		
+		<AddLWO Name="Earth_medres"	  FileName="lwo/Earth_medres.lwo" 		UseModelsNormalData="0"/>
+	
+  </LightWaveObjects>
 
   <Sounds>
     <AddSound Name="Explode1"	FileName="Sounds/Explode1.ogg" />
@@ -91,11 +95,30 @@
     <AddSound Name="Hull_bang1"	FileName="Sounds/Hull_bang1.ogg" />
     <AddSound Name="Hull_bang2"	FileName="Sounds/Hull_bang2.ogg" />
     <AddSound Name="Hull_bang3"	FileName="Sounds/Hull_bang3.ogg" />
-    <AddSound Name="Hull_bang4"	FileName="Sounds/Hull_bang4.ogg" />
     <AddSound Name="FireMissle"	FileName="Sounds/FireMissile.ogg" />
     <AddSound Name="AfterBurn"	FileName="Sounds/MainThrust.ogg" Loop="true"/>
     <AddSound Name="DropMine"	FileName="Sounds/DropMine.ogg" />
     <AddSound Name="Alarm2"	FileName="Sounds/Alarm2.ogg" />
+
+  <!-- sounds added in july 2012-->
+    <AddSound Name="ExplodeWithSparks"	FileName="Sounds/ExplodeWithSparks.ogg" />
+    <AddSound Name="GunFire1"	FileName="Sounds/GunFire1.ogg" />
+    <AddSound Name="GunFire2"	FileName="Sounds/GunFire2.ogg" />
+    <AddSound Name="GunFire3"	FileName="Sounds/GunFire3.ogg" />
+    <AddSound Name="GunFire4"	FileName="Sounds/GunFire4.ogg" />
+    <AddSound Name="HitShield"	FileName="Sounds/HitShield.ogg" />
+    <AddSound Name="Hull1"	FileName="Sounds/Hull1.ogg" />
+    <AddSound Name="Hull2"	FileName="Sounds/Hull2.ogg" />
+    <AddSound Name="Hull3"	FileName="Sounds/Hull3.ogg" />
+    <AddSound Name="HullCreak1"	FileName="Sounds/HullCreak1.ogg" />
+    <AddSound Name="HullCreak2"	FileName="Sounds/HullCreak2.ogg" />
+    <AddSound Name="lockedOut"	FileName="Sounds/lockedOut.ogg" />
+    <AddSound Name="Metal_pickup"	FileName="Sounds/Metal_pickup.ogg" />
+    <AddSound Name="MineLockOn"	FileName="Sounds/MineLockOn.ogg" />
+    <AddSound Name="MinePing"	FileName="Sounds/MinePing.ogg" />
+    <AddSound Name="PickUphealth"	FileName="Sounds/PickUphealth.ogg" />
+    <AddSound Name="shrapnel"	FileName="Sounds/shrapnel.ogg" />
+
   </Sounds>
 
 	<RawTga>
@@ -104,69 +127,96 @@
 	
   <Graphics FileName="Graphics/Sprites.png">
     
-		<AddImage Name="PlayersShip32x32"  StartX="0" StartY="0" ItemWidth="32" ItemHeight="32" NumberItems="4"/>
+		<AddImage Name="PlayersShip32x32"               StartX="0" StartY="0" ItemWidth="32" ItemHeight="32" NumberItems="4"/>
     
-		<AddImage Name="AimingPointer32x32"  StartX="32" StartY="0" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
-		<AddImage Name="SmallMissile16x16"  StartX="0" StartY="32" ItemWidth="16" ItemHeight="16" NumberItems="1"/>
+		<AddImage Name="AimingPointer32x32"             StartX="240" StartY="240" ItemWidth="48" ItemHeight="48" NumberItems="1"/>
+		<AddImage Name="SmallMissile16x16"              StartX="0"  StartY="32" ItemWidth="16" ItemHeight="16" NumberItems="1"/>
 		<AddImage Name="SmallWhiteEnemyShip16x16x2"     StartX="0" StartY="48" ItemWidth="16" ItemHeight="16" NumberItems="2"/>
-		<AddImage Name="SmallRedEnemyShip16x16x2"     StartX="0" StartY="64" ItemWidth="16" ItemHeight="16" NumberItems="2"/>
+		<AddImage Name="SmallRedEnemyShip16x16x2"       StartX="0" StartY="64" ItemWidth="16" ItemHeight="16" NumberItems="2"/>
 
-    <AddImage Name="MediumEnemyShipType01_32x32x2"     StartX="0" StartY="448" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
-    <AddImage Name="MediumEnemyShipType02_32x32x2"     StartX="32" StartY="448" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
-    <AddImage Name="MediumEnemyShipType03_32x32x2"     StartX="64" StartY="448" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
-    <AddImage Name="MediumEnemyShipType04_32x32x2"     StartX="96" StartY="448" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+    <AddImage Name="MediumEnemyShipType01_32x32x2"  StartX="0" StartY="448" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+    <AddImage Name="MediumEnemyShipType02_32x32x2"  StartX="32" StartY="448" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+    <AddImage Name="MediumEnemyShipType03_32x32x2"  StartX="64" StartY="448" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+    <AddImage Name="MediumEnemyShipType04_32x32x2"  StartX="96" StartY="448" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
 
-    <AddImage Name="MiniMoon16x16"     StartX="32" StartY="32" ItemWidth="16" ItemHeight="16" NumberItems="1"/>
-		<AddImage Name="YellowRadarPing32x32"     StartX="48" StartY="32" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+    <AddImage Name="MiniMoon16x16"                  StartX="32" StartY="32" ItemWidth="16" ItemHeight="16" NumberItems="1"/>
+		<AddImage Name="YellowRadarPing32x32"           StartX="48" StartY="32" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
 
-		<AddImage Name="ExplosionFire1Type16x16x9"     StartX="0" StartY="80" ItemWidth="16" ItemHeight="16" NumberItems="9"/>
-		<AddImage Name="ExplosionFire2Type16x16x9"    StartX="0" StartY="96" ItemWidth="16" ItemHeight="16" NumberItems="9"/>
-		<AddImage Name="ExplosionThrust1Type16x16x10"   StartX="0" StartY="160" ItemWidth="16" ItemHeight="16" NumberItems="10"/>
-		<AddImage Name="ExplosionDull1Type16x16x10"   StartX="0" StartY="272" ItemWidth="16" ItemHeight="16" NumberItems="10"/>				
-		<AddImage Name="ExplosionSmoke1Type16x16x10"   StartX="0" StartY="288" ItemWidth="16" ItemHeight="16" NumberItems="10"/>
-		<AddImage Name="ExplosionSmoke2Type16x16x10"   StartX="0" StartY="304" ItemWidth="16" ItemHeight="16" NumberItems="10"/>
-		<AddImage Name="SmokeTrail16x16x10"   StartX="160" StartY="160" ItemWidth="16" ItemHeight="16" NumberItems="10"/>
-		<AddImage Name="RedEdgeExplosion64x64" 		StartX="0" 		StartY="560" ItemWidth="64" ItemHeight="64" NumberItems="1"/>
-		<AddImage Name="YellowEdgeExplosion64x64" 	StartX="64" 	StartY="560" ItemWidth="64" ItemHeight="64" NumberItems="1"/>			
-		<AddImage Name="FireBallExplosion64x64" 		StartX="128" 	StartY="560" ItemWidth="64" ItemHeight="64" NumberItems="1"/>	
+		<AddImage Name="ExplosionFire1Type16x16x9"      StartX="0" StartY="80" ItemWidth="16" ItemHeight="16" NumberItems="9"/>
+		<AddImage Name="ExplosionFire2Type16x16x9"      StartX="0" StartY="96" ItemWidth="16" ItemHeight="16" NumberItems="9"/>
+	
+    <AddImage Name="ExplosionThrust1Type16x16x10"   StartX="0" StartY="160" ItemWidth="16" ItemHeight="16" NumberItems="10"/>
+    <AddImage Name="SmokeTrail16x16x10"             StartX="160" StartY="160" ItemWidth="16" ItemHeight="16" NumberItems="10"/>
+  
+    <AddImage Name="ExplosionSolidType32x32x10"     StartX="0" StartY="176" ItemWidth="32" ItemHeight="32" NumberItems="10"/>
+
+    <AddImage Name="ExplosionDull1Type16x16x10"     StartX="0" StartY="272" ItemWidth="16" ItemHeight="16" NumberItems="10"/>				
+		<AddImage Name="ExplosionSmoke1Type16x16x10"    StartX="0" StartY="288" ItemWidth="16" ItemHeight="16" NumberItems="10"/>
+		<AddImage Name="ExplosionSmoke2Type16x16x10"    StartX="0" StartY="304" ItemWidth="16" ItemHeight="16" NumberItems="10"/>
+
+    <AddImage Name="ExplosionRingType32x32x7"       StartX="0" StartY="320" ItemWidth="32" ItemHeight="32" NumberItems="7"/>
+
+
+    <AddImage Name="ExplosionStarType32x32x4"       StartX="0" StartY="352" ItemWidth="32" ItemHeight="32" NumberItems="4"/>
+
+    
+    
+    <AddImage Name="RedEdgeExplosion64x64" 		      StartX="0" 		StartY="560" ItemWidth="64" ItemHeight="64" NumberItems="1"/>
+		<AddImage Name="YellowEdgeExplosion64x64" 	    StartX="64" 	StartY="560" ItemWidth="64" ItemHeight="64" NumberItems="1"/>			
+		<AddImage Name="FireBallExplosion64x64" 		    StartX="128" 	StartY="560" ItemWidth="64" ItemHeight="64" NumberItems="1"/>	
 		<AddImage Name="HotYellowOrangeExplosion80x80" 	StartX="192" 	StartY="544" ItemWidth="80" ItemHeight="80" NumberItems="1"/>
-    <AddImage Name="ExplosionSolidType32x32x10"   StartX="0" StartY="176" ItemWidth="32" ItemHeight="32" NumberItems="10"/>
-    <AddImage Name="ExplosionRingType32x32x7"   StartX="0" StartY="336" ItemWidth="32" ItemHeight="32" NumberItems="7"/>
-
+  
     <!-- Emeny spore-->
-    <AddImage Name="SpinningSpore16x16x9"    StartX="0" StartY="112" ItemWidth="16" ItemHeight="16" NumberItems="9"/>
+    <AddImage Name="SpinningSpore16x16x9"           StartX="0" StartY="112" ItemWidth="16" ItemHeight="16" NumberItems="9"/>
     
     <!-- Prob Mine and suppoting thruster frames-->
-		<AddImage Name="ProbeMine16x16x5"    StartX="0" StartY="128" ItemWidth="16" ItemHeight="16" NumberItems="5"/>
+		<AddImage Name="ProbeMine16x16x2"              StartX="32" StartY="64" ItemWidth="16" ItemHeight="16" NumberItems="2"/>
+    <AddImage Name="ProbeMineUp16x16"      StartX="64"  StartY="64" ItemWidth="16" ItemHeight="16" NumberItems="1"/>
+    <AddImage Name="ProbeMineRight16x16"   StartX="80"  StartY="64" ItemWidth="16" ItemHeight="16" NumberItems="1"/>
+    <AddImage Name="ProbeMineDown16x16"    StartX="96"  StartY="64" ItemWidth="16" ItemHeight="16" NumberItems="1"/>
+    <AddImage Name="ProbeMineLeft16x16"    StartX="112" StartY="64" ItemWidth="16" ItemHeight="16" NumberItems="1"/>
+    
 		<AddImage Name="ProbeMineUpThrust16x16x5"      StartX="0" StartY="144" ItemWidth="16" ItemHeight="16" NumberItems="5"/>
 		<AddImage Name="ProbeMineRightThrust16x16x5"   StartX="80" StartY="144" ItemWidth="16" ItemHeight="16" NumberItems="5"/>
 		<AddImage Name="ProbeMineDownThrust16x16x5"    StartX="160" StartY="144" ItemWidth="16" ItemHeight="16" NumberItems="5"/>
 		<AddImage Name="ProbeMineLeftThrust16x16x5"    StartX="240" StartY="144" ItemWidth="16" ItemHeight="16" NumberItems="5"/>
 
     <!-- Shiled sphere-->
-		<AddImage Name="ShieldRed"   StartX="0" StartY="208" ItemWidth="64" ItemHeight="64" NumberItems="1"/>
-		<AddImage Name="ShieldBlue"   StartX="64" StartY="208" ItemWidth="64" ItemHeight="64" NumberItems="1"/>
+		<AddImage Name="ShieldRed"                    StartX="0" StartY="208" ItemWidth="64" ItemHeight="64" NumberItems="1"/>
+		<AddImage Name="ShieldBlue"                   StartX="64" StartY="208" ItemWidth="64" ItemHeight="64" NumberItems="1"/>
 
     <!-- Wii Mote Icons-->
-		<AddImage Name="WiiMoteButtonA"  StartX="128" StartY="208" ItemWidth="32" ItemHeight="32" NumberItems="1"/>	
-		<AddImage Name="WiiMoteButtonB"  StartX="160" StartY="208" ItemWidth="32" ItemHeight="48" NumberItems="1"/>	
-		<AddImage Name="WiiMoteDirectionDownMarkedRed"  StartX="192" StartY="208" ItemWidth="32" ItemHeight="32" NumberItems="1"/>	
-		<AddImage Name="WiiMoteInfraRedPointer"  StartX="224" StartY="208" ItemWidth="32" ItemHeight="32" NumberItems="1"/>	
-		<AddImage Name="WiiMoteButtonHome"  StartX="256" StartY="208" ItemWidth="32" ItemHeight="32" NumberItems="1"/>	
+		<AddImage Name="WiiMoteButtonA"               StartX="128" StartY="208" ItemWidth="32" ItemHeight="32" NumberItems="1"/>	
+		<AddImage Name="WiiMoteButtonB"               StartX="160" StartY="208" ItemWidth="32" ItemHeight="48" NumberItems="1"/>	
+		<AddImage Name="WiiMoteDirectionDownMarkedRed"  StartX="192" StartY="208" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+    <AddImage Name="WiiMoteDirectionUpMarkedRed"  StartX="208" StartY="240" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+    <AddImage Name="WiiMoteInfraRedPointer"       StartX="224" StartY="208" ItemWidth="32" ItemHeight="32" NumberItems="1"/>	
+		<AddImage Name="WiiMoteButtonHome"             StartX="256" StartY="208" ItemWidth="32" ItemHeight="32" NumberItems="1"/>	
 	
     <!-- Enemy Vessels -->
-		<AddImage Name="GunShip"  StartX="224" StartY="864" ItemWidth="48" ItemHeight="80" NumberItems="2"/>	
-	 	<AddImage Name="TurretForGunShip"  StartX="208" StartY="880" ItemWidth="16" ItemHeight="32" NumberItems="1"/>	
-		<AddImage Name="BrokenTurretForGunShip"  StartX="208" StartY="912" ItemWidth="16" ItemHeight="32" NumberItems="1"/>	
-		<AddImage Name="GunShipProjectileFrames"  StartX="192" StartY="0" ItemWidth="16" ItemHeight="16" NumberItems="1"/>	
+		<AddImage Name="GunShip"                      StartX="224" StartY="864" ItemWidth="48" ItemHeight="80" NumberItems="2"/>	
+	 	<AddImage Name="TurretForGunShip"             StartX="208" StartY="880" ItemWidth="16" ItemHeight="32" NumberItems="1"/>	
+		<AddImage Name="BrokenTurretForGunShip"       StartX="208" StartY="912" ItemWidth="16" ItemHeight="32" NumberItems="1"/>	
+		<AddImage Name="GunShipProjectileFrames"      StartX="192" StartY="0" ItemWidth="16" ItemHeight="16" NumberItems="1"/>	
 	
-		<AddImage Name="SpinningSpaceDebre01"  StartX="288" StartY="208" ItemWidth="16" ItemHeight="16" NumberItems="8" Direction="Down"/>	
-		<AddImage Name="SpinningSpaceDebre02"  StartX="304" StartY="208" ItemWidth="16" ItemHeight="16" NumberItems="8" Direction="Down"/>
+		<AddImage Name="SpinningSpaceDebre01"         StartX="288" StartY="208" ItemWidth="16" ItemHeight="16" NumberItems="8" Direction="Down"/>	
+		<AddImage Name="SpinningSpaceDebre02"         StartX="304" StartY="208" ItemWidth="16" ItemHeight="16" NumberItems="8" Direction="Down"/>
 
-    <AddImage Name="RadarCircle"  StartX="256" StartY="80" ItemWidth="64" ItemHeight="64" NumberItems="1"/>
+    <AddImage Name="RadarCircle"                  StartX="256" StartY="16" ItemWidth="64" ItemHeight="64" NumberItems="1"/>
 
     <!-- Health -->
-    <AddImage Name="HealthPickUp32x32"  StartX="128" StartY="352" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+    <AddImage Name="HealthPickUp32x32"            StartX="128" StartY="352" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+
+    <!-- enemy satellite -->
+    <AddImage Name="EnemySatellite80x64x2"        StartX="0" StartY="384" ItemWidth="64" ItemHeight="64" NumberItems="2"/>
+  
+	<!-- icons -->
+	<AddImage Name="ShieldIcon32x32"        StartX="208" StartY="272" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+
+  <AddImage Name="GreenLockOn"        StartX="256" StartY="80" ItemWidth="32" ItemHeight="32" NumberItems="1"/>
+
+  <AddImage Name="SmallShot16x16"              StartX="224" StartY="0" ItemWidth="16" ItemHeight="16" NumberItems="4"/>
+
 
   </Graphics>
 
@@ -176,7 +226,7 @@
 	</Graphics>	
 	
 	<Fonts>
-    <AddFont Name="SmallFont" FileName="fonts/Arial-latin"/>
+    <AddFont Name="SmallFont" FileName="fonts/Arial-latin" Priority="YES" />
     <AddFont Name="LargeFont" FileName="fonts/Bauhaus93-latin"/>	
 	</Fonts>
 
@@ -193,6 +243,7 @@
       <AddText WiiMoteButtonA = "Fire Missile" />
       <AddText WiiMoteButtonB = "Thrusters" />
       <AddText WiiMoteDirectionDown = "Drop Mine" />
+      <AddText WiiMoteDirectionUp = "Defence Mines on/off" />
       <AddText WiiMoteInfraRedPointer = "Aim" />
       <AddText WiiMoteButtonHome = "Quit" />
       <AddText PressButtonAToContinueMessage = "PRESS A TO CONTINUE" />
@@ -223,22 +274,63 @@
       <AddText ScrapPartsCollected = "&lt;-- Amount of scrap parts collected" />
 
       <!-- Code looks for CreditsNN and displays each line until we hit the end teg (limit of 99) -->
-      <!-- TODO code needs to support scroll when count exceeds the screen area-->
-      <AddText Credits01 = "-=Music=- 'Space Debris' from the Amiga by Captain/Image" />
-      <AddText Credits02 = "Visit http://modarchive.org/ for a distinctive collection of modules" />
+      <AddText Credits01 = "" />
+      <AddText Credits02 = "" />
       <AddText Credits03 = "" />
-      <AddText Credits04 = "-=3D Models=  WiiMote by Patrick Grubb" />
-      <AddText Credits05 =  "Viper(MK2) by Karl Stocker (UV textures by Titmouse)" />
+      <AddText Credits04 = "" />
+      <AddText Credits05 = "" />
       <AddText Credits06 = "" />
-      <AddText Credits07 = "-=2D Art=- Most by Lee Marks / few by Danc - www.lostgarden.com" />
+      <AddText Credits07 = "" />
       <AddText Credits08 = "" />
-      <AddText Credits09 = "-=Programmer=- Paul Overy, alias TitMouse" />
-      <AddText Credits10 = ""  />
-      <AddText Credits11 = "-=Testers=- Tom, Harry, Mr C" />
-      <AddText Credits12 = "" />
-      <AddText Credits13 = "Release v%%RELEASE_VERSION%% %%DATE_OF_BUILT%%" />
-      <AddText Credits14 = "Built using libs: -lfat -lpng -lz -lmodplay -lwiiuse -lbte -lasnd -logc -lm " />
-      <AddText Credits15 = "TAG-END" />
+      <AddText Credits09 = "" />
+      <AddText Credits10 = "" />
+      <AddText Credits11 = "" />
+      <AddText Credits12 = "BOLT THROWER - July 2012" />
+      <AddText Credits13 = "" />
+      <AddText Credits14 = "" />
+      <AddText Credits15 = "" />
+      <AddText Credits16 = "-=Music=-" />
+      <AddText Credits17 = "'Space Debris' by Captain/Image" />
+      <AddText Credits18 = "Visit http://modarchive.org/ for a distinctive collection of modules" />
+      <AddText Credits19 = "" />
+      <AddText Credits20 = "-=3D Models=-" />
+      <AddText Credits21 = "WiiMote by Patrick Grubb, tweaked by Titmouse" />
+      <AddText Credits22 = "Viper(MK2) by Karl Stocker (UV textures by Titmouse)" />
+      <AddText Credits23 = "" />
+      <AddText Credits24 = "-=2D Art=-" />
+      <AddText Credits25 = "Lee Marks" />
+      <AddText Credits26 = "Danc - www.lostgarden.com" />
+      <AddText Credits27 = "" />
+      <AddText Credits28 = "-=Programmer=-" />
+      <AddText Credits29 = "Paul Overy, alias TitMouse" />
+      <AddText Credits30 = ""  />
+      <AddText Credits31 = "-=Testers=-" />
+      <AddText Credits32 = "Tom, Harry, Mr C" />
+      <AddText Credits33 = "" />
+      <AddText Credits34 = "" />
+      <AddText Credits35 = "-=Build Information=-" />
+      <AddText Credits36 = "Release v%%RELEASE_VERSION%% %%DATE_OF_BUILT%%" />
+      <AddText Credits37 = "libs: -lfat -lvorbisidec -lpng -lz -lgrrmod -lwiiuse -lbte -laesnd -logc -lm" />
+      <AddText Credits38 = "" />
+      <AddText Credits39 = "Distributed using http://wiibrew.org" />
+      <AddText Credits40 = "" />
+      <AddText Credits41 = "Created using tools from http://devkitpro.org/" />
+      <AddText Credits42 = "" />
+      <AddText Credits43 = "For source code http://code.google.com/p/wii-bolt-thrower/" />
+      <AddText Credits44 = "" />
+      <AddText Credits45 = "" />
+      <AddText Credits46 = "" />
+      <AddText Credits47 = "" />
+      <AddText Credits48 = "" />
+      <AddText Credits49 = "" />
+      <AddText Credits50 = "" />
+      <AddText Credits51 = "" />
+      <AddText Credits52 = "" />
+      <AddText Credits53 = "" />
+      <AddText Credits54 = "" />
+      <AddText Credits55 = "" />
+      <AddText Credits54 = "TAG-END" />
+
       
       <AddText OptionsPopUpMessage = "Change various settings like the Difficulty" />
       <AddText Start_GamePopUpMessage = "Play game" />
@@ -266,6 +358,7 @@
       <AddText WiiMoteButtonA = "qul puv DuQwI'" />
       <AddText WiiMoteButtonB = "jaH" />
       <AddText WiiMoteDirectionDown = "mej Doch" />
+      <AddText WiiMoteDirectionUp = "ftang v tsko n" />
       <AddText WiiMoteInfraRedPointer = "Qeq" />
       <AddText WiiMoteButtonHome = "mej" />
       <AddText PressButtonAToContinueMessage = "BING A DAQ VIH" />
