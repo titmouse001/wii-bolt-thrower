@@ -5,14 +5,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static const std::string s_ReleaseVersion("0.62");
-static const std::string s_DateOfRelease("Jan 2012");
+static const std::string s_ReleaseVersion("0.69");
+static const std::string s_DateOfRelease("July 2012");
 static const float s_fVersion( atof( s_ReleaseVersion.c_str() ) );
 
-#define OPTION (2)  
+#define OPTION (1)  
 
 // (1) WII SEND
-// (2) WII EMULATOR ... dolphin emu has been improved, opt 2 is not really needed now
+// (2) WII EMULATOR ... for the dolphin emu
 // (3) WII NATIVE ... *** MAKE SURE YOU USE OPTION 3 FOR THE FINAL RELEASE ***
 
 //--------------------------------------------------------------------------------------------------------------
@@ -37,6 +37,7 @@ static const std::string  s_MasterFileLatestVersion ( "LatestVersion_FAKE" ); //
 #define BUILD_FINAL_RELEASE
 
 static const std::string  s_MasterFileLatestVersion ( "LatestVersion" ); // <<< release
+
 
 // NOTE ABOUT LatestVersion_TESTING
 // static const std::string  s_MasterFileLatestVersion ( "LatestVersion_TESTING.xml" );  // release 0.61 used this - so it needs to say on web site!!!

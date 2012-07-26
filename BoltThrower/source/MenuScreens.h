@@ -17,10 +17,12 @@ public:
 	void SetTimeOutInSeconds(int Value = 121);
 	bool HasMenuTimedOut();
 
+
 private:
 	float		m_ZoomAmountForSpaceBackground;
 	Timer*		m_pTimer;
 	WiiManager*	m_pWii;
+	GameLogic*	m_pGameLogic;
 };
 
 #endif

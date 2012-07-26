@@ -25,6 +25,8 @@ namespace Util
 	bool IsPowerOff();
 
 	std::string NumberToString(int Number);
+	std::string NumberToString(int Number, int DigitWidth);
+
 
 	u16 ENDIAN16(u16 Value);
 	u32 ENDIAN32(u32 Value);

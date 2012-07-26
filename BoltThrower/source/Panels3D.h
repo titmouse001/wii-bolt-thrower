@@ -9,22 +9,24 @@
 #include <string>
 
 #include "Singleton.h"
-//#include "WiiManager.h"
-//#include "GameLogic.h"
 
 using namespace std;
 
 class Panels3D;
+class WiiManager;
 
-class PannelManager
+
+class PanelManager
 {
 public:	
-	PannelManager() {;}
-	//~PannelManager() {;}
+	//PanelManager() {;}
+	void Init();
 
 	void Show();
-	void Add(std::string Message, float yPos, Panels3D* pPanels3D);
+	void Add(std::string Message, Panels3D* pPanels3D);
 	std::vector<Panels3D*> m_Panels3DContainer;
+
+	WiiManager* m_pWii;
 };
 
 
@@ -33,17 +35,20 @@ class Panels3D
 {
 public:	
 	Panels3D();
-	void DisplayInformationPanels();
+	void DisplayInformationPanel(int yPos);
 	float	m_TiltAction;
 	int		m_Count;
-	int		LastTotal;
-	float	ScrapTilt;
-	float	m_yPos;
+	int		m_LastTotal;
+	float	m_Tilt;
+//	float	m_yPos;
 	string m_Message;
+
+	float		m_DisplayTotal;
+
+	static WiiManager* m_pWii;
 
 	virtual int  GetValue() { return 0; }
 
-	//virtual ~Panels3D() {}
 private:
 
 };

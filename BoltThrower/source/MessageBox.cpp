@@ -8,7 +8,8 @@
 #include "debug.h"
 #include "ogc\lwp_watchdog.h"
 #include "font.h"
-
+#include "camera.h"
+#include "Draw_Util.h"
 
 MessageBox::MessageBox(): m_Message("-"), m_MessageHeading("-"),m_Timer(), m_Enabled(false), m_FadeValue(1.0f), m_FadingOut(false)
 {
@@ -88,7 +89,7 @@ void MessageBox::DisplayMessageBox(float BoxWidth , float BoxHeight )
 	std::vector<std::string> MessageContainer = FitTextToBox(m_Message,(BoxWidth*RoomAroundEdge),(BoxHeight*RoomAroundEdge));
 
 	Util3D::Trans(-BoxWidth/2, (-BoxHeight/2) + moveoff);
-	m_pWii->DrawRectangle(0, 0,BoxWidth,BoxHeight,128*GetFadeValue() ,0,0,0);
+	Draw_Util::DrawRectangle(0, 0,BoxWidth,BoxHeight,128*GetFadeValue() ,0,0,0);
 	
 	Util3D::Trans(0, 0 + moveoff);
 	float h = m_pWii->GetFontManager()->GetFont(HashString::LargeFont)->GetHeight();

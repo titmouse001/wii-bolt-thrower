@@ -2,9 +2,14 @@
 #define GameDisplay_H
 
 #include <string>
+
+#include "HashLabel.h"
+
 class ImageManager;
 class WiiManager;
 class GameLogic;
+class FontManager;
+struct ThreadData;
 
 class GameDisplay
 {
@@ -14,44 +19,47 @@ public:
 	GameDisplay();
 	void Init();
 
-	void DisplayAllForIngame();
-	void DisplayAllForIntro();
-
-	void DisplaySimpleMessage(std::string Text, float fAngle = (-3.14f/12.0f));
-	void DisplaySmallSimpleMessage(std::string Text);
-
-	void DisplayMoon();
 	void DebugInformation();
 
+	void DisplayAllForIngame();
+
+//	void DisplaySimpleMessage(std::string Text, float fAngle = (-3.14f/12.0f));
+	
+	void DisplaySmallSimpleMessageForThread(ThreadData* pData);
+
+	void DisplayMoon(HashLabel ModelName);
 	void Display3DInfoBar(float x , float y, std::string Message, float Tilt = 0.0f);
-
-private:
-
-	void DisplayPlayer();
-
-	void DisplayPickUps();
-	void DisplayHealthPickUps();
-	void DisplayShieldGenerators();
-	void DisplayGunTurrets();
 	void DisplayShotForGunTurret();
-	//void DisplayMoon();
-	//void DisplayInformationPanels();
-	void DisplaySkull();
-	void DisplayRadar();
-	void DisplaySporeThings();
-	void DisplayAsteroids();
 	void DisplayProbMines();
-	void DisplayProjectile();
 	void DisplayMissile();
 	void DisplayExhaust();
 	void DisplayExplosions();
-	void DisplayGunShips();
 	void DisplayBadShips();
-	void DisplayScorePing();
+	void DisplayProjectile();
+	void DisplayGunTurrets();
+
 
 	WiiManager*			m_pWii;
 	GameLogic*			m_pGameLogic;
 	ImageManager*		m_pImageManager;
+	FontManager*		m_pFontManager;
+
+private:
+	void DisplayPlayer();
+	void DisplayPickUps();
+	void DisplayHealthPickUps();
+	void DisplayShieldGenerators();
+	void DisplaySkull();
+	void DisplayRadar();
+	void DisplaySporeThings(bool bDrawInBackground);
+	void DisplayEnemySatellite();
+	void DisplayAsteroids();
+	void DisplayGunShips();
+	void DisplayScorePing();
+
+	
+	void Printf(int x, int y, const char* pFormat, ...);
+
 };
 
 

@@ -1,0 +1,10 @@
+1>------ Build started: Project: BoltThrower, Configuration: Release Win32 ------
+1>Performing Makefile project actions
+1>GameDisplay.cpp
+1>c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/BoltThrower/source/GameDisplay.cpp: In member function 'void GameDisplay::DisplaySmallSimpleMessageForThread(std::string)':
+1>c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/BoltThrower/source/GameDisplay.cpp(1234):13: warning: unused variable 'w' [-Wunused-variable]
+1>linking ... BoltThrower.elf
+1>output ... BoltThrower.dol
+1>Build log was saved at "file://c:\Projects\BoltThrowerProject.wii\wii-bolt-thrower\BoltThrower\Release\BuildLog.htm"
+1>BoltThrower - 0 error(s), 1 warning(s)
+========== Build: 1 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========

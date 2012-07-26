@@ -32,35 +32,57 @@ const HashLabel HashString::Explode2("Explode2");
 const HashLabel HashString::Explode3("Explode3");
 const HashLabel HashString::ExplodeBig1("ExplodeBig1");
 const HashLabel HashString::ExplodeBig2("ExplodeBig2");
+
 const HashLabel HashString::Hull_bang1("Hull_bang1");
 const HashLabel HashString::Hull_bang2("Hull_bang2");
 const HashLabel HashString::Hull_bang3("Hull_bang3");
-const HashLabel HashString::Hull_bang4("Hull_bang4");
+const HashLabel HashString::Hull1("Hull1");
+const HashLabel HashString::Hull2("Hull2");
+const HashLabel HashString::Hull3("Hull3");
+
+const HashLabel HashString::HullCreak1("HullCreak1");
+const HashLabel HashString::HullCreak2("HullCreak2");
+
+const HashLabel HashString::GunFire1("GunFire1");
+const HashLabel HashString::GunFire2("GunFire2");
+const HashLabel HashString::GunFire3("GunFire3");
+const HashLabel HashString::GunFire4("GunFire4");
+
+const HashLabel HashString::Metal_pickup("Metal_pickup");
+const HashLabel HashString::PickUphealth("PickUphealth");
+
+const HashLabel HashString::ExplodeWithSparks("ExplodeWithSparks");
+const HashLabel HashString::HitShield("HitShield");
+
+const HashLabel HashString::Alarm2("Alarm2");
+
 //graphics
 const HashLabel HashString::PlayersShip32x32("PlayersShip32x32");
 const HashLabel HashString::AimingPointer32x32("AimingPointer32x32");
-
-
 const HashLabel HashString::HealthPickUp32x32("HealthPickUp32x32");
-
-
-
 const HashLabel HashString::MediumEnemyShipType01_32x32("MediumEnemyShipType01_32x32" );
 const HashLabel HashString::MediumEnemyShipType02_32x32("MediumEnemyShipType02_32x32" );
 const HashLabel HashString::MediumEnemyShipType03_32x32("MediumEnemyShipType03_32x32" );
 const HashLabel HashString::MediumEnemyShipType04_32x32("MediumEnemyShipType04_32x32" );
-
+const HashLabel HashString::ShieldIcon32x32("ShieldIcon32x32" );
 const HashLabel HashString::SmallMissile16x16("SmallMissile16x16" );
 const HashLabel HashString::SmallWhiteEnemyShip16x16x2("SmallWhiteEnemyShip16x16x2");
 const HashLabel HashString::SmallRedEnemyShip16x16x2("SmallRedEnemyShip16x16x2");
 const HashLabel HashString::ExplosionFire1Type16x16x9("ExplosionFire1Type16x16x9");
 const HashLabel HashString::ExplosionFire2Type16x16x9("ExplosionFire2Type16x16x9");
 const HashLabel HashString::SpinningSpore16x16x9("SpinningSpore16x16x9");
-const HashLabel HashString::ProbeMine16x16x5("ProbeMine16x16x5");
+const HashLabel HashString::ProbeMine16x16x2("ProbeMine16x16x2");
+
+const HashLabel HashString::ProbeMineUp16x16("ProbeMineUp16x16");
+const HashLabel HashString::ProbeMineRight16x16("ProbeMineRight16x16");
+const HashLabel HashString::ProbeMineDown16x16("ProbeMineDown16x16");
+const HashLabel HashString::ProbeMineLeft16x16("ProbeMineLeft16x16");
+
 const HashLabel HashString::ProbeMineUpThrust16x16x5("ProbeMineUpThrust16x16x5");
 const HashLabel HashString::ProbeMineRightThrust16x16x5("ProbeMineRightThrust16x16x5");
 const HashLabel HashString::ProbeMineDownThrust16x16x5("ProbeMineDownThrust16x16x5");
 const HashLabel HashString::ProbeMineLeftThrust16x16x5("ProbeMineLeftThrust16x16x5");
+
 const HashLabel HashString::ExplosionThrust1Type16x16x10("ExplosionThrust1Type16x16x10");
 const HashLabel HashString::ExplosionSolidType32x32x10("ExplosionSolidType32x32x10");
 const HashLabel HashString::ShieldRed("ShieldRed");
@@ -68,6 +90,8 @@ const HashLabel HashString::ShieldBlue("ShieldBlue");
 const HashLabel HashString::ExplosionDull1Type16x16x10("ExplosionDull1Type16x16x10");
 const HashLabel HashString::ExplosionSmoke1Type16x16x10("ExplosionSmoke1Type16x16x10");
 const HashLabel HashString::ExplosionSmoke2Type16x16x10("ExplosionSmoke2Type16x16x10");
+const HashLabel HashString::ExplosionRingType32x32x7("ExplosionRingType32x32x7");
+const HashLabel HashString::ExplosionStarType32x32x4("ExplosionStarType32x32x4");
 
 const HashLabel HashString::Shot("Shot");
 
@@ -81,6 +105,13 @@ const HashLabel HashString::SmallGunTurret("SmallGunTurret");
 const HashLabel HashString::RedEdgeExplosion64x64("RedEdgeExplosion64x64");
 const HashLabel HashString::YellowEdgeExplosion64x64("YellowEdgeExplosion64x64");
 
+const HashLabel HashString::AmountBadSatellites("AmountBadSatellites");
+const HashLabel HashString::EnemySatellite80x64x2("EnemySatellite80x64x2");
+
+const HashLabel HashString::GreenLockOn("GreenLockOn");
+
+const HashLabel HashString::SmallShot16x16("SmallShot16x16");
+
 const HashLabel HashString::WiiMoteIdleTimeoutInSeconds ("WiiMoteIdleTimeoutInSeconds" );
 //const HashLabel HashString::WaitTimeForGameCompletedMessage ("WaitTimeForGameCompletedMessage" );
 const HashLabel HashString::AsteroidTotal ("AsteroidTotal" );
@@ -88,6 +119,7 @@ const HashLabel HashString::AmountBadShips ("AmountBadShips" );
 const HashLabel HashString::AmountBadShipsFromSpore ("AmountBadShipsFromSpore" );
 const HashLabel HashString::AmountBadSpores ("AmountBadSpores" );
 const HashLabel HashString::PlayerMaxShieldLevel ("PlayerMaxShieldLevel" );
+const HashLabel HashString::AmountSporesNeededForShiled ("AmountSporesNeededForShiled" );
 const HashLabel HashString::ReducePlayerShieldLevelByAmountForShipToShipCollision ("ReducePlayerShieldLevelByAmountForShipToShipCollision" );
 const HashLabel HashString::BadShipType1MaxShieldLevel ("BadShipType1MaxShieldLevel" );
 const HashLabel HashString::BadShipType2MaxShieldLevel ("BadShipType2MaxShieldLevel" );
@@ -114,6 +146,7 @@ const HashLabel HashString::EnermyAmardaArroundLastShieldGenerator ("EnermyAmard
 const HashLabel HashString::WiiMoteButtonA ("WiiMoteButtonA" );
 const HashLabel HashString::WiiMoteButtonB ("WiiMoteButtonB" );
 const HashLabel HashString::WiiMoteDirectionDownMarkedRed ("WiiMoteDirectionDownMarkedRed" );
+const HashLabel HashString::WiiMoteDirectionUpMarkedRed ("WiiMoteDirectionUpMarkedRed" );
 const HashLabel HashString::WiiMoteInfraRedPointer ("WiiMoteInfraRedPointer" );
 const HashLabel HashString::WiiMoteButtonHome ("WiiMoteButtonHome" );
 
@@ -136,10 +169,13 @@ const HashLabel HashString::HotYellowOrangeExplosion80x80("HotYellowOrangeExplos
 
 const HashLabel HashString::NebulaGass01("NebulaGass01");
 
+const HashLabel HashString::Earth_lowres("Earth_lowres");
+const HashLabel HashString::Earth_medres("Earth_medres");
+
 const HashLabel HashString::Rock1("Rock1");
 const HashLabel HashString::Rock2("Rock2");
-const HashLabel HashString::MoonLowRess("MoonLowRess");
-const HashLabel HashString::MoonHiRess("MoonHiRess");
+const HashLabel HashString::MoonLowRes("MoonLowRes");
+const HashLabel HashString::MoonHiRes("MoonHiRes");
 const HashLabel HashString::Viper("Viper");
 const HashLabel HashString::WiiMote("WiiMote");
 const HashLabel HashString::Satellite("Satellite");

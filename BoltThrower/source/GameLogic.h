@@ -8,7 +8,7 @@
 
 #include "SoundManager.h"
 
-struct FrameStartEnd
+struct StartAndEndFrameInfo
 {
 	int StartFrame;
 	int EndFrame;
@@ -43,12 +43,15 @@ public:
 	void InitialiseGame();
 	void InitialiseIntro();
 	
-	void InGameLogic();
+	void DoGameLogic();
 	void Intro();
 
 	void AsteroidsLogic();
 	void GunShipLogic();
-	void SporesCollisionLogic();
+	void SporesMovementLogic();
+
+	void EnemySatelliteCollisionLogic();
+
 	void MissileCollisionLogic();
 	void FeoShieldLevelLogic();
 	void PlayerCollisionLogic();
@@ -57,14 +60,11 @@ public:
 	void ExplosionLogic();
 	void MissileLogic();
 
-	void ProbeMineLogic( std::vector<Vessel>*  pVesselContainer = NULL, 
-		float ThrustPower = 0.05f, 
-		//float ActiveRange = 155.0f,
-		float ScanRange = 22.0f) ; //, float CraftSize = (12.0f*12.0f) );
-	void RetrieveProbeMineLogic(//std::vector<Vessel>*  pVesselContainer, 
-		float ThrustPower); //, float ActiveRange, float ScanRange, float CraftSize);
+	void ProbeMineLogic( std::vector<Vessel>*  pVesselContainer = NULL, float ThrustPower = 0.05f, 	float ScanRange = 22.0f,float FrameSpeed = 0.05f) ;
+	void RetrieveProbeMineLogic(float ThrustPower);
 	void ProbeMineCollisionLogic(std::vector<Vessel>*  pVesselContainer, float CraftSize);
 	void BadShipsLogic();
+	void BadShipsLogicForIntro();
 	void ExhaustLogic();
 	void ProjectileLogic();
 	void CelestialBodyLogic();
@@ -79,12 +79,13 @@ public:
 	void ClearBadContainer();
 
 	guVector	m_CPUTarget;
+	guVector	m_CPUTarget_Miss;
 
 	u32 GetScore() { return m_Score; }
 	void SetScore(u32 Value) { m_Score = Value; }
-	void AddScore(u32 Value);
+	void AddScore(Vessel* pVessel);
 
-	void AddScorePing(Vessel* pVessel, string rText);
+	void AddScorePing(Vessel* pVessel);
 	void ScorePingLogic();
 
 	void InitialiseMoonRocks(int Amount,float RadiusFactor = 0.0018f);
@@ -152,6 +153,11 @@ public:
 	vector<Vessel>::iterator GetSporesContainerEnd()		{ return m_SporesContainer->end();}
 	int GetSporesContainerSize() const;
 
+	// Enemy Satellite
+	vector<Vessel>::iterator GetEnemySatelliteContainerBegin()		{ return m_EnemySatelliteContainer->begin();}
+	vector<Vessel>::iterator GetEnemySatelliteContainerEnd()		{ return m_EnemySatelliteContainer->end();}
+	int GetEnemySatelliteContainerSize() const;
+
 	// Probe Mine
 	vector<Vessel>::iterator GetProbeMineContainerBegin()	{ return m_ProbeMineContainer->begin();}
 	vector<Vessel>::iterator GetProbeMineContainerEnd()		{ return m_ProbeMineContainer->end();}
@@ -218,7 +224,16 @@ public:
 
 	Vessel* GetGunTurretTarget(TurretItem3D* pTurret);
 
+	void NukeArea(guVector& Pos, float fRadius );
+
+
+	float FakLockOn_AngInc;
+
+	float	m_TerraformingCounter;	
+
 private:
+
+
 
 	void DyingShipsLogic();
 
@@ -254,6 +269,9 @@ private:
 	std::vector<Item3DChronometry>* m_ShieldGeneratorContainer;
 	std::vector<Item3D>* m_AsteroidContainer;
 	std::vector<Vessel>* m_SporesContainer;
+
+	std::vector<Vessel>* m_EnemySatelliteContainer;
+
 	std::vector<Vessel>* m_MissileContainer;
 	std::vector<Vessel>* m_ExplosionsContainer;
 	std::vector<Vessel>* m_ProbeMineContainer;

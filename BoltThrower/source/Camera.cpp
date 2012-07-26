@@ -2,6 +2,7 @@
 
 #include "Camera.h"
 #include "WiiManager.h"
+#include "Vessel.h"
 #include "debug.h"
 #include "CullFrustum\FrustumR.h"
 #include "CullFrustum\Vec3.h"
@@ -17,11 +18,14 @@ Camera::Camera() : m_FieldOfView( 45.0f ) , m_UsedLightMask(0)
 
 void Camera::Init()
 {
-	m_CameraHeightFor3DViewPort = CalculateCameraHeightFor2DViewPort();
+	//m_CameraHeightFor3DViewPort = CalculateCameraHeightFor2DViewPort();
+	SetUpView();
 }
 
 void Camera::SetUpView()
 {
+	m_CameraHeightFor3DViewPort = CalculateCameraHeightFor2DViewPort();  // data member, reused 
+
 	WiiManager& Wii( Singleton<WiiManager>::GetInstanceByRef() );  // backbone stuff
 	static const guVector UP = {0.0F, -1.0F, 0.0F}; 
 	m_up = UP; 
@@ -29,12 +33,18 @@ void Camera::SetUpView()
 	SetCameraView( (Wii.GetScreenWidth()/2), (Wii.GetScreenHeight()/2), -(CameraHeight));
 }
 
-void Camera::CameraMovementLogic(float MoveToX, float MoveToY, float MoveToZ, float fFactor)
+void Camera::CameraMovementLogic(Vessel* pPlayerVessel, float fFactor)
 {
+	float MoveToX = pPlayerVessel->GetX();
+	float MoveToY = pPlayerVessel->GetY();
+
+//	MoveToX += pPlayerVessel->GetVelX()*28.0f;
+//	MoveToY += pPlayerVessel->GetVelY()*28.0f;
+
 	AddCamX( ( MoveToX - GetCamX() ) * fFactor );
 	AddCamY( ( MoveToY - GetCamY() ) * fFactor );
-	AddCamZ( ( MoveToZ - GetCamZ() ) * fFactor );
-
+	SetCamZ(  m_CameraHeightFor3DViewPort );
+	
 	SetCameraView();
 }
 
@@ -48,7 +58,7 @@ void Camera::SetCameraView()
 	Vec3 v3(m_up.x,m_up.y,m_up.z);
 
 	// *** This will update the frustum view ***
-	Singleton<WiiManager>::GetInstanceByRef().m_Frustum.setCamDef(v1,v2,v3);
+	Singleton<WiiManager>::GetInstanceByRef().GetFrustum()->setCamDef(v1,v2,v3);
 }
 
 void Camera::SetCameraView(float x, float y)  
@@ -96,7 +106,7 @@ void Camera::ForceCameraView(float x, float y)
 	Vec3 v1(camera.x,camera.y,camera.z);
 	Vec3 v2(look.x,look.y,look.z);
 	Vec3 v3(m_up.x,m_up.y,m_up.z);
-	Singleton<WiiManager>::GetInstanceByRef().m_Frustum.setCamDef(v1,v2,v3);
+	Singleton<WiiManager>::GetInstanceByRef().GetFrustum()->setCamDef(v1,v2,v3);
 }
 
 float Camera::CalculateCameraHeightFor2DViewPort()
@@ -121,9 +131,9 @@ void Camera::SetLightColour(float Colour)
 	m_LightColour = (GXColor) { Colour, Colour, Colour, 0xFF };
 }
 
-void Camera::SetMaterialColour(float Colour)
+void Camera::SetMaterialColour(u8 Colour, u8 Alpha)
 {
-	m_MaterialColour = (GXColor) { Colour, Colour, Colour, 0xFF };
+	m_MaterialColour = (GXColor) { Colour, Colour, Colour, Alpha };
 }
 
 void Camera::SetAmbientLight(float Colour)
@@ -207,6 +217,16 @@ void Camera::SetLightOn2()
 	//GX_SetChanCtrl(GX_COLOR0A0,GX_ENABLE,GX_SRC_REG,GX_SRC_REG,GX_LIGHT0,GX_DF_CLAMP,GX_AF_SPEC);
 	//GX_SetChanMatColor(GX_COLOR0A0,MaterialColour);
 }
+
+
+void Camera::SetLightAlpha(u8 Alpha)
+{
+	SetLightColour(240);
+	SetMaterialColour(0xf0,Alpha);
+	SetAmbientLight(0x0f);
+	DoLight(1000,-500,-1000);
+}
+
 
 void Camera::SetVesselLightOn(float x, float y, float z)
 {

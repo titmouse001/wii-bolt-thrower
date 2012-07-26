@@ -19,10 +19,11 @@ struct FileMemInfo
 class FileInfo  // general (used for just about anything!!!)
 {
 public:
-	FileInfo(string InFileName,string InLogicName) : 
+
+	FileInfo(string InFileName,string InLogicName, bool bPriority = false) : 
 			b_ThisSlotIsBeingUsed(false) ,
 			FileName(InFileName) , LogicName(InLogicName), m_bNorms(true), m_IndexLayerForBones(-1),
-			OverwriteExistingFile(true) {;}
+			OverwriteExistingFile(true) , Priority(bPriority) {;}
 
 	FileInfo() : b_ThisSlotIsBeingUsed(false) {;}
 
@@ -34,6 +35,7 @@ public:
 	int m_IndexLayerForBones;
 	int Size;
 	bool OverwriteExistingFile;
+	bool Priority;
 };
 
 

@@ -11,7 +11,7 @@
 #include <tremor/ivorbiscodec.h>
 #include <tremor/ivorbisfile.h>
 #include <grrmod.h>  // for sound init - since it likes to take over the whole shop
-
+#include "HashString.h"
 
 AESNDPB* RawSample::Play(u8 VolumeLeft, u8 VolumeRight, bool bLoop)
 {
@@ -83,8 +83,8 @@ void SoundManager::PlayRandomBigExplodeSound()
 
 void SoundManager::PlayRandomHullBang()
 {
-	int VolumeFactor = 255 - (((rand()%128)/2)*2);
-	switch (rand()%4)
+	int VolumeFactor = 255 - ( rand()%128 );
+	switch (rand()%6)
 	{
 	case 0:
 		PlaySound( HashString::Hull_bang1, VolumeFactor, VolumeFactor );
@@ -95,9 +95,59 @@ void SoundManager::PlayRandomHullBang()
 	case 2:
 		PlaySound( HashString::Hull_bang3, VolumeFactor, VolumeFactor );
 		break;
-	case 3:
-		PlaySound( HashString::Hull_bang4, VolumeFactor, VolumeFactor );
+
+	}
+}
+
+void SoundManager::PlayRandomHull()
+{
+	int VolumeFactor = 255 - ( rand()%128 );
+	switch (rand()%3)
+	{
+	case 0:
+		PlaySound( HashString::Hull1, VolumeFactor, VolumeFactor );
 		break;
+	case 1:
+		PlaySound( HashString::Hull2, VolumeFactor, VolumeFactor );
+		break;
+	case 2:
+		PlaySound( HashString::Hull3, VolumeFactor, VolumeFactor );
+		break;
+	}
+}
+
+void SoundManager::PlayRandomHullCreak()
+{
+	int VolumeFactor = 255 - ( rand()%128 );
+	switch (rand()%2)
+	{
+	case 0:
+		PlaySound( HashString::HullCreak1, VolumeFactor, VolumeFactor );
+		break;
+	case 1:
+		PlaySound( HashString::HullCreak2, VolumeFactor, VolumeFactor );
+		break;
+	}
+}
+
+void SoundManager::PlayRandomGunFire(u8 VolumeFactor)
+{
+	if (VolumeFactor>0) {
+		switch (rand()%4)
+		{
+		case 0:
+			PlaySound( HashString::GunFire1, VolumeFactor, VolumeFactor );
+			break;
+		case 1:
+			PlaySound( HashString::GunFire2, VolumeFactor, VolumeFactor );
+			break;
+		case 2:
+			PlaySound( HashString::GunFire3, VolumeFactor, VolumeFactor );
+			break;
+		case 3:
+			PlaySound( HashString::GunFire4, VolumeFactor, VolumeFactor );
+			break;
+		}
 	}
 }
 //---------------------
@@ -105,13 +155,13 @@ void SoundManager::PlayRandomHullBang()
 
 AESNDPB* SoundManager::PlaySound(HashLabel SoundName, u8 VolumeLeft, u8 VolumeRight, bool bLoop)
 {
-	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStateGame() )
+	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStatePlaying() )
 		return NULL;
 
 	RawSample* pRaw = GetSound(SoundName);
 	if (pRaw!=NULL)
 	{
-		AESNDPB* pSound = m_SoundContainer[SoundName]->Play( VolumeLeft, VolumeRight, bLoop ); 
+		AESNDPB* pSound = pRaw->Play( VolumeLeft, VolumeRight, bLoop ); 
 		return pSound;
 	}
 
@@ -122,13 +172,13 @@ AESNDPB* SoundManager::PlaySound(HashLabel SoundName, u8 VolumeLeft, u8 VolumeRi
 
 void SoundManager::PlaySoundFromVoice(HashLabel SoundName, u8 VolumeLeft, u8 VolumeRight, bool bLoop, AESNDPB* VoiceData)
 {
-	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStateGame() )
+	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStatePlaying() )
 		return;
 
 	RawSample* pRaw = GetSound(SoundName);
 	if (pRaw!=NULL)
 	{
-		m_SoundContainer[SoundName]->PlayFromVoice( VolumeLeft, VolumeRight, bLoop, VoiceData); 
+		pRaw->PlayFromVoice( VolumeLeft, VolumeRight, bLoop, VoiceData); 
 	}
 	else
 		ExitPrintf("missing sound");
@@ -136,7 +186,7 @@ void SoundManager::PlaySoundFromVoice(HashLabel SoundName, u8 VolumeLeft, u8 Vol
 
 void SoundManager::StopSound(AESNDPB* Chan)
 {
-	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStateGame() )
+	if ( !Singleton<WiiManager>::GetInstanceByRef().IsGameStatePlaying() )
 		return;
 
 	AESND_SetVoiceStop(Chan,true);
@@ -218,18 +268,14 @@ void SoundManager::StoreSoundFromWav( std::string FullFileNameWithPath,std::stri
 	pRawSample->SetRawDataLength(dataChunkData.dataLength);
 
 
-	if (fmtChunkData.BitResolution == 16 )
-	{
-
-		if (fmtChunkData.Channels == 1)
-		{
+	if (fmtChunkData.BitResolution == 16 ){
+		if (fmtChunkData.Channels == 1){
 			pRawSample->SetVoiceFormat(VOICE_MONO16);
-			printf("VOICE_MONO16");
+			//printf("VOICE_MONO16");
 		}
-		else
-		{
+		else{
 			pRawSample->SetVoiceFormat(VOICE_STEREO16);
-			printf("VOICE_STEREO16");
+			//printf("VOICE_STEREO16");
 		}
 	}
 	else
@@ -243,9 +289,9 @@ void SoundManager::StoreSoundFromWav( std::string FullFileNameWithPath,std::stri
 	pRawSample->SetSampleRate(fmtChunkData.SampleRate);
 	pRawSample->SetBitsPerSample(fmtChunkData.BitResolution);
 	//printf("dataLength %d",dataChunkData.dataLength);
-	printf("Channels %d",fmtChunkData.Channels);
-	printf("SampleRate %d",fmtChunkData.SampleRate);
-	printf("BitResolution %d",fmtChunkData.BitResolution);
+//	printf("Channels %d",fmtChunkData.Channels);
+//	printf("SampleRate %d",fmtChunkData.SampleRate);
+//	printf("BitResolution %d",fmtChunkData.BitResolution);
 	//-------------------------------------------------------------
 	u16* pData16 = (u16*)pData;
 	if (fmtChunkData.BitResolution == 16) // 8 or 16 bit samples - anything other than 16 is just seen as 8 bit
@@ -306,23 +352,18 @@ void SoundManager::StoreSoundFromOgg(std::string FullFileNameWithPath,std::strin
 
 	char **ptr=ov_comment(&vf,-1)->user_comments;
 	vorbis_info *vi=ov_info(&vf,-1);
-	while (*ptr)
-	{
-		//printf("%s\n",*ptr);
-		++ptr;
+	while (*ptr) {
+		//printf("%s\n",*ptr);  // user comments
+		++ptr;  // don't care - ignore any user comments
 	}
 
 	//   !!!!! SHIT - some oggs are unseekable   !!!!
 	// need to fallback to something else, it's going to be slow
 	s32 pcm_total = ov_pcm_total(&vf,-1);  // should be 64bits , but I'm not using anything that big!
-	if (pcm_total == OV_EINVAL)	
-	{
+	if (pcm_total == OV_EINVAL)	 {
 		//	printf( "%ld", ov_time_total(&vf,-1) );
-
-		pcm_total = GetOggTotal(&vf);
-
+		pcm_total = GetOggTotal(&vf);  
 		//	printf("slow VERSION: pcm_total %d",pcm_total);
-
 		// Fudge - not possible to use ov_pcm_total, need to close file to zero seek (not nice, but can't find any other way)
 		ov_clear(&vf); // this will close the open file
 		ov_open(  WiiFile::FileOpenForRead( FullFileNameWithPath.c_str() ) , &vf, NULL, 0);

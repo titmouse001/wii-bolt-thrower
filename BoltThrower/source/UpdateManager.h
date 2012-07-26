@@ -2,14 +2,11 @@
 #define UpdateManager_H_
 
 #include "GCTypes.h"
-//#include "HashLabel.h"
-//#include "HashString.h"
 #include <string>
-//#include <map>
-//#include <vector>
-
+#include <vector>
 using namespace std;
 
+class WiiManager;
 
 class UpdateManager
 {
@@ -19,21 +16,23 @@ public:
 	void Init();
 
 	void DoUpdate(string MasterUpdateFile);
-	bool DisplayUpdateMessage();
+	bool UpdatePackageYesOrNo();
 	bool CheckForUpdate(string MasterUpdateFile);
 	void  UpdateApplicationFiles();
 
 	void SetMessageVersionReport(string Value) { m_MessageVersionReport = Value; }
 	string GetMessageVersionReport() const { return m_MessageVersionReport; }
 
+	bool DownloadFilesListedInConfiguration(bool MisssingCheckOnly);
+
 	string m_ReleaseNotes;
 	string m_LatestReleaseAvailable;
 
-
 	vector<FileInfo> m_ApplicationSpecificUpdatesForDownloadFileInfoContainer;
 
-
 private:
+
+	WiiManager* m_pWiiManager;
 
 	string m_MessageVersionReport;
 };

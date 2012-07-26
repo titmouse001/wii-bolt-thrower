@@ -8,22 +8,14 @@
 #include <vector>
 #include <map>
 #include <stdio.h>
-#include <gcmodplay.h>
-//#include "font.h"
-#include "Camera.h"
+#include "ogc/gx.h"
+
 #include "HashLabel.h"
-#include "Render3D.h"
-#include "tga.h"
 #include "GameLogic.h"
 #include "ImageManager.h"
-#include "HashString.h"
-#include "CullFrustum\Vec3.h"
-#include "CullFrustum\FrustumR.h"
 #include "Panels3D.h"
-#include "WiiFile.h"
+#include "WiiFile.h"  // for 'FileInfo'
 
-//#include "GCTypes.h"
-//#include "CharInfo.h"
 
 using namespace std;
 
@@ -39,10 +31,14 @@ class FrustumR;
 class MissionManager;
 class MessageBox;
 class GameDisplay;
+class IntroDisplay;
 class URLManager;
 class UpdateManager;
 class SetUpGame;
+class Render3D;
+class PanelManager;
 
+struct StartAndEndFrameInfo;
 
 struct FrameInfo
 {
@@ -80,31 +76,39 @@ public:
 
 	enum EAlign{eRight,eLeft,eCentre};
 
-	
-	#define ONE_KILOBYTE (1024)
-	#define DEFAULT_GX_FIFO_SIZE ( (4*256) * ONE_KILOBYTE)
-	enum EDebugConsole {eDebugConsoleOn, eDebugConsoleOff} ;
+
+#define ONE_KILOBYTE (1024)
+#define DEFAULT_GX_FIFO_SIZE ( (4*256) * ONE_KILOBYTE)
 
 	WiiManager();
 	~WiiManager();
 
 	void InitWii();
 	void UnInitWii();
-	void FinaliseInputDevices() const;
 
-	void InitialiseVideo();
+	void PreInitManagers();
+	void FinalInitManagers();
+
+	GXRModeObj* InitialiseVideo();
 
 	void InitDebugConsole(int ScreenOriginX = 64, int ScreenOriginY = 0);  // was 20,20
 
 	u32* GetCurrentFrame() const;
 	u32 GetScreenBufferId() const;
-	void SwapScreen(bool bState = true); 
+	void SwapScreen(int bState = GX_TRUE, bool WaitVBL = true); 
+	static  void RetraceCallback( u32 retraceCnt );
 
 	enum EScreenBuffer { eFrontScreenBuffer,eBackScreenBuffer, eMaxScreenBuffers };
 	u32 GetMaxScreenBuffers() const  {return eMaxScreenBuffers;}
 	GXRModeObj* GetGXRMode() const	
 	{ 
-		if  (m_pGXRMode==NULL) exit(1); 
+		#ifndef BUILD_FINAL_RELEASE
+		if  (m_pGXRMode==NULL) {
+			printf("m_pGXRMode is NULL");  // catch this one in the emulator
+			exit(1); 
+		}
+		#endif
+
 		return m_pGXRMode; 
 	}
 	void SetGXRMode(GXRModeObj* pMode) 	{ m_pGXRMode = pMode; }
@@ -112,7 +116,7 @@ public:
 	int GetViWidth() const { return GetGXRMode()->viWidth; }   // width of a scan line - useful for wiimote when sertting resolution of IR
 	int GetScreenWidth() const { return GetGXRMode()->fbWidth; }
 	int GetScreenHeight() const { return GetGXRMode()->efbHeight; }
-	
+
 
 	Mtx m_GXmodelView2D;
 
@@ -120,34 +124,30 @@ public:
 	ImageManager*		GetImageManager()		{ return m_ImageManager; }
 	FontManager*		GetFontManager()		{ return m_FontManager; }
 	InputDeviceManager*	GetInputDeviceManager()	{ return m_InputDeviceManager; }
-	//MapManager*			GetMapManager()			{ return m_MapManager; }
 	SoundManager*		GetSoundManager()		{ return m_SoundManager; }
+	Render3D*			GetRender3D()	const	{ return m_Render3D; }
+	FrustumR*			GetFrustum()	const	{ return m_Frustum; }
 	Camera*				GetCamera()	const		{ return m_Camera; }
 	GameLogic*			GetGameLogic()	const	{ return m_pGameLogic; }
 	MenuScreens*		GetMenuScreens() const	{ return m_pMenuScreens; }
 	MessageBox*			GetMessageBox() const	{ return m_MessageBox; }
+
 	GameDisplay*		GetGameDisplay() const	{ return m_pGameDisplay; }
+
+	IntroDisplay*		GetIntroDisplay() const	{ return m_pIntroDisplay; }
+
 	URLManager*			GetURLManager() const	{ return m_URLManager; }
 	UpdateManager*		GetUpdateManager() const	{ return m_UpdateManager; }
-
-	SetUpGame*			GetSetUpGame() const	{ return m_SetUpGame; }
-	
-	s16 GetViewportX() const { return m_ViewportX; }
-	s16 GetViewportY() const { return m_ViewportY; }
+	PanelManager*		GetPanelManager() const	{ return m_PanelManager; }
 
 	void InitGX(u32 GXFifoBufferSize = DEFAULT_GX_FIFO_SIZE);
 	void SetUp2DProjection();
 	void SetUp3DProjection();
 
-	void Printf(int x, int y, const char* pFormat, ...);
-
 	void CreateSettingsFromXmlConfiguration(std::string FileName);
 
 	float GetXmlVariable(HashLabel Name) { return m_VariablesContainer[Name]; }
-	FrameInfo& GetXmlFrameinfo(HashLabel Name)  { return m_FrameinfoContainer[Name]; }
-	map<HashLabel,FrameInfo>::iterator GetFrameinfoBegin() { return m_FrameinfoContainer.begin(); }
-	map<HashLabel,FrameInfo>::iterator GetFrameinfoEnd() { return m_FrameinfoContainer.end(); }
-	
+
 	//sounds
 	vector<FileInfo>::iterator GetSoundinfoBegin() { return m_SoundinfoContainer.begin(); }
 	vector<FileInfo>::iterator GetSoundinfoEnd() { return m_SoundinfoContainer.end(); }
@@ -157,28 +157,21 @@ public:
 	//LWO's
 	vector<FileInfo>::iterator GetLwoInfoBegin() { return m_LwoinfoContainer.begin(); }
 	vector<FileInfo>::iterator GetLwoInfoEnd() { return m_LwoinfoContainer.end(); }
-	//////Mod's
-	////vector<FileInfo>::iterator GetModInfoBegin() { return m_ModinfoContainer.begin(); }
-	////vector<FileInfo>::iterator GetModInfoEnd() { return m_ModinfoContainer.end(); }
 	//RawTga's
 	vector<FileInfo>::iterator GetRawTgaInfoBegin() { return m_RawTgainfoContainer.begin(); }
 	vector<FileInfo>::iterator GetRawTgaInfoEnd()   { return m_RawTgainfoContainer.end(); }
 	//Ogg's
 	vector<FileInfo>::iterator GetDownloadInfoBegin() { return m_DownloadinfoContainer.begin(); }
 	vector<FileInfo>::iterator GetDownloadInfoEnd() { return m_DownloadinfoContainer.end(); }
-//	int GetSizeOfDownloadInfoContainer();
 
 	//Image*					m_pSpaceBackground;
 	struct RawTgaInfo
 	{
-		Tga::PIXEL*						m_pTinyLogo;
-		Tga::TGA_HEADER			m_pTinyLogoHeader;
+		Tga::PIXEL*				m_pPixelData;
+		Tga::TGA_HEADER			m_pTgaHeader;
 	};
 
 	map<HashLabel,RawTgaInfo> m_RawTgaInfoContainer;
-
-	void DrawRectangle(f32 xpos, f32 ypos, f32 w, f32 h, u8 Alpha, u8 r, u8 g, u8 b );
-	void DrawRectangle(f32 xpos, f32 ypos, f32 w, f32 h, u8 Alpha, u8 r, u8 g, u8 b,u8 r2, u8 g2, u8 b2  );
 
 	void TextBox(const std::string& rText, float x, float y, EAlign eAlign);
 	void TextBox(const std::string& rText, float x, float y, int w, int h, EAlign eAlign);
@@ -189,34 +182,39 @@ public:
 	MenuManager* GetMenuManager()			{ return m_pMenuManager; }
 	MissionManager* GetMissionManager()		{return  m_MissionManager; }
 
-	Render3D	Render;  // MOVE THIS!!!
-
-
 	enum EGameState{
 		eIntro,
 		eMenu,
 		eCredits,
-		eGame,
+		ePlaying,
 		eDemoMode,
 		eHighScore,
 		eControls,
 		eOptions,
 		eExit,
 	};
-	void		SetGameState(EGameState State)	{ m_GameState = State; }
+	void		SetGameState(EGameState State)	{ 
+		if (m_GameState != WiiManager::eExit) {
+			m_GameState = State; 
+		}
+	}
 	EGameState	GetGameState(void)				{ return m_GameState; }
 	bool	IsGameStateIntro()					{ return m_GameState==eIntro; }
 	bool	IsGameStateMenu()					{ return m_GameState==eMenu; }
 	bool	IsGameStateCredits()				{ return m_GameState==eCredits; }
-	bool	IsGameStateGame()					{ return m_GameState==eGame; }
+	bool	IsGameStatePlaying()				{ return m_GameState==ePlaying; }
 	bool	IsGameStateControls()				{ return m_GameState==eControls; }
 	bool	IsGameStateOptions()				{ return m_GameState==eOptions; }
 	bool	IsGameStateExit()					{ return m_GameState==eExit; }
+
 	void	InitGameResources();
+	void	FinalInitGameResources_NOT_DISPLAY_THREAD_SAFE() ;
 
-	std::map<HashLabel,FrameStartEnd> m_FrameEndStartConstainer;  
+	StartAndEndFrameInfo* GetFrameContainer( HashLabel Id) { return &m_FrameEndStartConstainer[Id]; }
 
-	Image* GetSpaceBackground() { return GetImageManager()->GetImage(HashString::SpaceBackground01); }
+	std::map<HashLabel,StartAndEndFrameInfo> m_FrameEndStartConstainer;  
+
+	Image* GetSpaceBackground();
 
 	//-----------------------------------------------------------------
 	// Profiler Section
@@ -227,13 +225,6 @@ public:
 	void profiler_reset(profiler_t* pjob);
 	//------------------------------------------------------------------
 
-	void SetFrustumView(int w, int h);
-	FrustumR m_Frustum;
-
-	void BuildMenus(bool KeepSettings = false);
-
-//	void DisplaySimpleMessage(std::string Text);
-	
 	int GetConfigValueWithDifficultyApplied(HashLabel Name);
 	float ApplyDifficultyFactor(float Value);
 
@@ -260,20 +251,24 @@ public:
 
 	void GetFolderFileNames(string Path, vector<FileInfo>* rMusicFilesContainer);
 
-	vector<FileInfo> m_MusicFilesContainer;
 
 	string			m_ExePath;
 	bool			m_MusicStillLeftToDownLoad;
 
 	FileMemInfo*	m_pMusicData;  // holds things like mods & oggs
 
-	PannelManager	m_PannelManager;
+		void MainLoop();
+
+	int GetMusicFilesContainerSize() const { return m_MusicFilesContainer.size(); }
+	int GetSupportedLanguagesEmpty() const { return m_SupportedLanguages.empty(); }
+	map<string, map<string,string> >::iterator  GetSupportedLanguagesBegin() { return m_SupportedLanguages.begin(); }
+	map<string, map<string,string> >::iterator  GetSupportedLanguagesEnd() { return m_SupportedLanguages.end(); }
+
 
 private:
-	
+
 	void LoadMusic();
 
-	void SetViewport(s16 x, s16 y) { m_ViewportX = x;m_ViewportY=y; }
 
 	u32* 					m_pFrameBuffer[2];
 	GXRModeObj*				m_pGXRMode;
@@ -283,43 +278,63 @@ private:
 	ImageManager*			m_ImageManager;
 	FontManager*			m_FontManager;
 	InputDeviceManager*		m_InputDeviceManager;
-	//MapManager*				m_MapManager;
 	SoundManager*			m_SoundManager;
+	Render3D*				m_Render3D;  
+	FrustumR*				m_Frustum;
 	Camera*					m_Camera;
 	URLManager*				m_URLManager;
 	UpdateManager*			m_UpdateManager;
 	u8						m_IngameMusicVolume;
-	SetUpGame*				m_SetUpGame;
+//	SetUpGame*				m_SetUpGame;
+	PanelManager*			m_PanelManager;
 	MenuManager*			m_pMenuManager;
 	MissionManager*			m_MissionManager;
 	GameLogic*				m_pGameLogic;
 	GameDisplay*			m_pGameDisplay;
+
+	IntroDisplay*			m_pIntroDisplay;
+
+
 	MenuScreens*			m_pMenuScreens;
 	MessageBox*				m_MessageBox;
-	s16						m_ViewportX;
-	s16						m_ViewportY;
 	EGameState				m_GameState;
 	string					m_Language;
 	bool					m_bMusicEnabled;
 	string					m_Difficulty;
 
-private:
+	
+	void MenusLoop();
 
+	void PlayLoop();
+	void IntroLoop();
+
+	//
+	// Frame Info
+	//
+	//FrameInfo& GetXmlFrameinfo(HashLabel Name)  { return m_FrameinfoContainer[Name]; }
+	map<HashLabel,FrameInfo>::iterator GetFrameinfoBegin() { return m_FrameinfoContainer.begin(); }
+	map<HashLabel,FrameInfo>::iterator GetFrameinfoEnd() { return m_FrameinfoContainer.end(); }
 	map<HashLabel,FrameInfo> m_FrameinfoContainer;
-	vector<FileInfo> m_SoundinfoContainer;
-	// maybe use a <map> if this stuff gets out of hand
+
+	//
+	// load file containers
+	//
+	vector<FileInfo> m_SoundinfoContainer;  // maybe use a <map> if this stuff gets out of hand
 	vector<FileInfo> m_FontinfoContainer;
 	vector<FileInfo> m_LwoinfoContainer;
-	//vector<FileInfo> m_ModinfoContainer;
 	vector<FileInfo> m_RawTgainfoContainer;
 	vector<FileInfo> m_DownloadinfoContainer;
+	vector<FileInfo> m_MusicFilesContainer;
 
+	//
+	// Language support
+	//
 	map< string, map< string, string > > m_SupportedLanguages;
 
 	map<HashLabel,float> m_VariablesContainer;
 
 
-	
+
 };	
 
 #endif

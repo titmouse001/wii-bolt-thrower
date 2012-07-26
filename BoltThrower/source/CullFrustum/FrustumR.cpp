@@ -5,12 +5,20 @@
 #include <math.h>
 #include <stdio.h>
 
-//#include <GL/glut.h>
-
 #define HALF_ANG2RAD 3.14159265358979323846/360.0 
-
-
 #define m(col,row)  m[row*4+col]
+
+void FrustumR::SetFrustumView(int w, int h) 
+{
+	if(h == 0)
+		h = 1;
+
+	static const float nearP = 1.0f, farP = 50000.0f;
+	static const float angle = 45.0f;
+	
+	float ratio = w * 1.0 / h;
+	setCamInternals(angle,ratio,nearP,farP);
+}
 
 
 void FrustumR::setFrustum(float *m) {
@@ -44,8 +52,8 @@ void FrustumR::setFrustum(float *m) {
 #undef M
 
 
-void FrustumR::setCamInternals(float angle, float ratio, float nearD, float farD) {
-
+void FrustumR::setCamInternals(float angle, float ratio, float nearD, float farD) 
+{
 	// store the information
 	this->ratio = ratio;
 	this->angle = angle * HALF_ANG2RAD;
@@ -64,12 +72,11 @@ void FrustumR::setCamInternals(float angle, float ratio, float nearD, float farD
 
 	fh = farD * tang;
 	fw = fh * ratio;
-
 }
 
 
-void FrustumR::setCamDef(Vec3 &p, Vec3 &l, Vec3 &u) {
-
+void FrustumR::setCamDef(Vec3 &p, Vec3 &l, Vec3 &u) 
+{
 	Vec3 dir,nc,fc;
 
 	camPos = p;
@@ -132,8 +139,6 @@ void FrustumR::setCamDef(Vec3 &p, Vec3 &l, Vec3 &u) {
 	pl[RIGHT].setNormalAndPoint(normal,nc+X*nw);
 }
 
-
-
 int FrustumR::pointInFrustum(Vec3 &p) {
 
 	float pcz,pcx,pcy,aux;
@@ -158,16 +163,12 @@ int FrustumR::pointInFrustum(Vec3 &p) {
 	if (pcx > aux || pcx < -aux)
 		return(OUTSIDE);
 
-
 	return(INSIDE);
-
-	
 }
 
 
-int FrustumR::sphereInFrustum(Vec3 &p, float radius) {
-
-
+int FrustumR::sphereInFrustum(Vec3 &p, float radius) 
+{
 	float d1,d2;
 	float az,ax,ay,zz1,zz2;
 	int result = INSIDE;
@@ -190,8 +191,6 @@ int FrustumR::sphereInFrustum(Vec3 &p, float radius) {
 	if (ay > zz2+d2 || ay < -zz2-d2)
 		return(OUTSIDE);
 
-
-
 	if (az > farD - radius || az < nearD+radius)
 		result = INTERSECT;
 	if (ay > zz2-d2 || ay < -zz2+d2)
@@ -199,10 +198,9 @@ int FrustumR::sphereInFrustum(Vec3 &p, float radius) {
 	if (ax > zz1-d1 || ax < -zz1+d1)
 		result = INTERSECT;
 
-
 	return(result);
-
 }
+
 //
 //
 //void FrustumR::drawPoints() {

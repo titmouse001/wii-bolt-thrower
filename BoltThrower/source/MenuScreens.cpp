@@ -17,6 +17,9 @@
 #include "Timer.h"
 #include "GameDisplay.h"
 #include "UpdateManager.h"
+#include "camera.h"
+#include "Render3D.h"
+#include "Draw_Util.h"
 
 MenuScreens::MenuScreens() :  m_ZoomAmountForSpaceBackground(3.1f), m_pTimer(NULL)
 {
@@ -25,6 +28,7 @@ MenuScreens::MenuScreens() :  m_ZoomAmountForSpaceBackground(3.1f), m_pTimer(NUL
 void MenuScreens::Init()
 {
 	m_pWii = Singleton<WiiManager>::GetInstanceByPtr();
+	m_pGameLogic = m_pWii->GetGameLogic();
 	m_pTimer = new Timer;
 }
 
@@ -88,20 +92,20 @@ void MenuScreens::DoMenuScreen()
 	guMtxTrans(mat, 35,12, -450);
 	guMtxConcat(mat,Model,Model);
 	guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
-	m_pWii->Render.RenderModelHardNorms( HashString::WiiMote, Model );
+	m_pWii->GetRender3D()->RenderModelHardNorms( HashString::WiiMote, Model );
 	//--------------------------
 
 	m_pWii->GetCamera()->DoDefaultLight(50000.0f, 10000.0f, -10000.0f);
 
-	m_pWii->GetGameDisplay()->DisplayMoon();
+	m_pWii->GetGameDisplay()->DisplayMoon(HashString::MoonHiRes);
 
 
 	m_pWii->GetCamera()->SetLightOff();
 	GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
 	Util3D::CameraIdentity();
-	m_pWii->DrawRectangle( -320, -200-4,  640,  4,	 112, 0,0,0 );
-	m_pWii->DrawRectangle( -320, -200,	  640, 42,	  88, 0,0,0 );
-	m_pWii->DrawRectangle( -320, -200+42, 640,  4,	 112, 0,0,0 );
+	Draw_Util::DrawRectangle( -320, -200-4,  640,  4,	 112, 0,0,0 );
+	Draw_Util::DrawRectangle( -320, -200,	  640, 42,	  88, 0,0,0 );
+	Draw_Util::DrawRectangle( -320, -200+42, 640,  4,	 112, 0,0,0 );
 
 	// "B O L T    T H R O W E R"
 	m_pWii->GetFontManager()->DisplayTextCentre( m_pWii->GetText("MainMenuScreenTopTitle") ,0,-180,190); 
@@ -128,7 +132,7 @@ void MenuScreens::DoMenuScreen()
 	
 
 
-	m_pWii->DrawRectangle( -300, 200, 600, 20, 55, 0,0,0 );
+	Draw_Util::DrawRectangle( -300, 200, 600, 20, 55, 0,0,0 );
 	m_pWii->GetFontManager()->DisplayTextCentre( BarText,0,210,222,HashString::SmallFont); 
 
 
@@ -150,22 +154,21 @@ void MenuScreens::DoMenuScreen()
 		float PointerY = m_pWii->GetCamera()->GetCamY() + WiiMote->y - (m_pWii->GetScreenHeight()/2);
 
 		Util3D::TransRot(PointerX,PointerY,0, roll );
-		m_pWii->DrawRectangle( -640, -3,  640*2,  6,	 32, 0,0,0 );
-		m_pWii->DrawRectangle( -3, -480,  6,  512*2,	 32, 0,0,0 );
+		Draw_Util::DrawRectangle( -640, -3,  640*2,  6,	 32, 0,0,0 );
+		Draw_Util::DrawRectangle( -3, -480,  6,  512*2,	 32, 0,0,0 );
 
 		for (int ix=-14 ; ix<14; ++ix)
 		{
 			if (ix&1)
 			{
-				m_pWii->DrawRectangle(  50*ix, -10,  2, 20, 32, 0,0,0 );
-				m_pWii->DrawRectangle( -10, 50*ix, 20, 2, 32, 0,0,0 );
+				Draw_Util::DrawRectangle(  50*ix, -10,  2, 20, 32, 0,0,0 );
+				Draw_Util::DrawRectangle( -10, 50*ix, 20, 2, 32, 0,0,0 );
 			}
 			else
 			{
-				m_pWii->DrawRectangle(  50*ix, -15, 2, 30, 32, 0,0,0 );
-				m_pWii->DrawRectangle( -15, 50*ix, 30, 2, 32, 0,0,0 );
+				Draw_Util::DrawRectangle(  50*ix, -15, 2, 30, 32, 0,0,0 );
+				Draw_Util::DrawRectangle( -15, 50*ix, 30, 2, 32, 0,0,0 );
 			}		
-
 		}
 		m_pWii->GetImageManager()->GetImage( m_pWii->m_FrameEndStartConstainer[HashString::AimingPointer32x32].StartFrame )
 			->DrawImageXYZ( m_pWii->GetCamera()->GetCamX() + WiiMote->x - (m_pWii->GetScreenWidth()/2), 
@@ -174,10 +177,6 @@ void MenuScreens::DoMenuScreen()
 	}
 
 	m_pWii->GetGameDisplay()->DebugInformation();
-
-	//GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
-	//m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
-
 }
 
 void MenuScreens::DoControlsScreen()
@@ -214,7 +213,7 @@ void MenuScreens::DoControlsScreen()
 	guMtxConcat(mat,Model,Model);
 	guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
 
-	m_pWii->Render.RenderModelHardNorms(HashString::WiiMote, Model);
+	m_pWii->GetRender3D()->RenderModelHardNorms(HashString::WiiMote, Model);
 
 	//--------------------------
 
@@ -222,9 +221,9 @@ void MenuScreens::DoControlsScreen()
 	GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
 	//=====================
 	Util3D::CameraIdentity();
-	m_pWii->DrawRectangle( -320, -200-4,  640,  4,	 112, 0,0,0 );
-	m_pWii->DrawRectangle( -320, -200,	  640, 42,	  88, 0,0,0 );
-	m_pWii->DrawRectangle( -320, -200+42, 640,  4,	 112, 0,0,0 );
+	Draw_Util::DrawRectangle( -320, -200-4,  640,  4,	 112, 0,0,0 );
+	Draw_Util::DrawRectangle( -320, -200,	  640, 42,	  88, 0,0,0 );
+	Draw_Util::DrawRectangle( -320, -200+42, 640,  4,	 112, 0,0,0 );
 
 	// "C O N T R O L S"
 	m_pWii->GetFontManager()->DisplayTextCentre( m_pWii->GetText("ControlsMenuScreenTopTitle"),0,-180,190,HashString::LargeFont);
@@ -233,12 +232,12 @@ void MenuScreens::DoControlsScreen()
 	ImageManager* pImageManager = m_pWii->GetImageManager();
 
 	Util3D::CameraIdentity();
-	m_pWii->DrawRectangle(  0, -120,  42, 272,	 128, 255,255,255 );
-	m_pWii->DrawRectangle( 42, -120, 250, 272,	 64, 0,0,0 );
+	Draw_Util::DrawRectangle(  0, -120,  42, 272,	 128, 255,255,255 );
+	Draw_Util::DrawRectangle( 42, -120, 250, 272,	 64, 0,0,0 );
 	
-	int y= -150;
+	int y= -145;
 	int x= 21;
-	int step = 55;
+	int step = 45;
 
 	pImageManager->GetImage(HashString::WiiMoteButtonA)->DrawImage(x,y+=step);
 	m_pWii->GetFontManager()->DisplayTextVertCentre(m_pWii->GetText("WiiMoteButtonA"),32,0,200,HashString::SmallFont); //"Fire Missile"
@@ -248,6 +247,9 @@ void MenuScreens::DoControlsScreen()
 
 	pImageManager->GetImage(HashString::WiiMoteDirectionDownMarkedRed)->DrawImage(x,y+=step);
 	m_pWii->GetFontManager()->DisplayTextVertCentre(m_pWii->GetText("WiiMoteDirectionDown"),32,0,200,HashString::SmallFont); // "Drop Mine"
+
+	pImageManager->GetImage(HashString::WiiMoteDirectionUpMarkedRed)->DrawImage(x,y+=step);
+	m_pWii->GetFontManager()->DisplayTextVertCentre(m_pWii->GetText("WiiMoteDirectionUp"),32,0,200,HashString::SmallFont); // "defence Mine"
 
 	pImageManager->GetImage(HashString::WiiMoteInfraRedPointer)->DrawImage(x,y+=step);
 	m_pWii->GetFontManager()->DisplayTextVertCentre(m_pWii->GetText("WiiMoteInfraRedPointer"),32,0,200,HashString::SmallFont); //"Aim"
@@ -263,9 +265,7 @@ void MenuScreens::DoControlsScreen()
 		m_pWii->GetFontManager()->DisplayTextCentre(m_pWii->GetText("PressButtonAToContinueMessage"),0,200.0f,50 + fabs(cos(wobble)*60.0f),HashString::LargeFont);
 	}
 
-
-	GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
-	m_pWii->SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
+	m_pWii->SwapScreen();  
 }
 
 
@@ -298,44 +298,60 @@ void MenuScreens::DoCreditsScreen()
 	guMtxTrans(mat, 0,0, 0);
 	guMtxConcat(mat,Model,Model);
 	guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
-	m_pWii->Render.RenderModelHardNorms(HashString::Viper, Model);
+	m_pWii->GetRender3D()->RenderModelHardNorms(HashString::Viper, Model);
 	m_pWii->GetCamera()->SetLightOff();
 	GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
 	//=====================
 
 	Util3D::CameraIdentity();
-	m_pWii->DrawRectangle( -320, -200-4,  640,  4,	 112, 0,0,0 );
-	m_pWii->DrawRectangle( -320, -200,	  640, 42,	  88, 0,0,0 );
-	m_pWii->DrawRectangle( -320, -200+42, 640,  4,	 112, 0,0,0 );
+	Draw_Util::DrawRectangle( -320, -200-4,  640,  4,	 112, 0,0,0 );
+	Draw_Util::DrawRectangle( -320, -200,	  640, 42,	  88, 0,0,0 );
+	Draw_Util::DrawRectangle( -320, -200+42, 640,  4,	 112, 0,0,0 );
 
 	//"C R E D I T S"
 	m_pWii->GetFontManager()->DisplayTextCentre(m_pWii->GetText("CreditsMenuScreenTopTitle"),0,-180,190,HashString::LargeFont);
 
-	Util3D::TransRot(0,-160,0,0);
-	int y(0);
-	for (int i=0; i<99; ++i)  // could use a infinite loop, 99 just to play it safe!
-	{
-		// 'GetText' - all text comes from the GameConfiguration.xml file, i.e get text labeled 'Credits01'
-		string Message(m_pWii->GetText( "Credits" + Util::NumberToString(i)) );
 
+	Util3D::TransRot(0,-164,0,0);
+	int y(0);
+
+	static float ScrollText=1.0f;
+	ScrollText += (60.0f/250.0f);
+	int i = ((int)ScrollText)/19;
+	int scroll = ( (int)ScrollText) % 19;
+
+	//printf("%d",scroll);
+
+	GX_SetScissor(0,86,m_pWii->GetScreenWidth(),m_pWii->GetScreenHeight()-230);
+
+	static const int AMOUNT(16);
+	string Message;
+	int CountItems=0;
+	while ( (++CountItems) < AMOUNT) {
+		// 'GetText' - all text comes from the GameConfiguration.xml file, i.e get text labeled 'Credits01'
+		Message = m_pWii->GetText( "Credits" + Util::NumberToString(i++,2));
+		if (Message == "TAG-END")
+		{
+			ScrollText=1.0f;
+			break;
+		}
 		Util::Replace(Message,"%%RELEASE_VERSION%%", s_ReleaseVersion);
 		Util::Replace(Message,"%%DATE_OF_BUILT%%", s_DateOfRelease);
+		int alpha = min(127+(int)(( (y/2) / (float)AMOUNT) * (128/(AMOUNT-1)) ) , 255);
+	
+		m_pWii->GetFontManager()->DisplayTextCentre( Message,0, y - scroll , alpha ,HashString::SmallFont);	
+		y+=19;
+	};
 
-		if (Message != "TAG-END")
-			m_pWii->GetFontManager()->DisplayTextCentre( Message,0,y+=19,200,HashString::SmallFont);
-		else
-			break;
-	} 
+	GX_SetScissor(0,0,m_pWii->GetScreenWidth(),m_pWii->GetScreenHeight());
 
 	{
 		static float wobble	(0);
 		wobble+=0.05;
-		m_pWii->GetFontManager()->DisplayTextCentre(m_pWii->GetText("PressButtonAToContinueMessage"),0,exp(sin(wobble)*2.8f)+330.0f,128,HashString::LargeFont);
+		m_pWii->GetFontManager()->DisplayTextCentre(m_pWii->GetText("PressButtonAToContinueMessage"),0,exp(sin(wobble)*2.8f)+340.0f,128,HashString::LargeFont);
 	}
 
-	
-	GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
-	m_pWii->SwapScreen();  // t	o clear zbuffer keep GX_SetZMode on until after this call 
+	m_pWii->SwapScreen(); 
 }
 
 void MenuScreens::DoOptionsScreen()
@@ -366,17 +382,17 @@ void MenuScreens::DoOptionsScreen()
 	guMtxRotRad(mat,'y', M_PI + bbb*0.3f);
 	guMtxConcat(mat,Model,Model);
 	guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
-	//Wii.Render.RenderModelHardNorms("SaturnV", Model);
-	m_pWii->Render.RenderModelHardNorms( HashString::Satellite,Model);
+	//Wii.GetRender3D()->RenderModelHardNorms("SaturnV", Model);
+	m_pWii->GetRender3D()->RenderModelHardNorms( HashString::Satellite,Model);
 
 	m_pWii->GetCamera()->SetLightOff();
 	GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
 
 	//=========================
 	Util3D::CameraIdentity();
-	m_pWii->DrawRectangle( -320, -200-4,  640,  4,	 112, 0,0,0 );
-	m_pWii->DrawRectangle( -320, -200,	  640, 42,	  88, 0,0,0 );
-	m_pWii->DrawRectangle( -320, -200+42, 640,  4,	 112, 0,0,0 );
+	Draw_Util::DrawRectangle( -320, -200-4,  640,  4,	 112, 0,0,0 );
+	Draw_Util::DrawRectangle( -320, -200,	  640, 42,	  88, 0,0,0 );
+	Draw_Util::DrawRectangle( -320, -200+42, 640,  4,	 112, 0,0,0 );
 	// "O P T I O N S"
 	m_pWii->GetFontManager()->DisplayTextCentre(m_pWii->GetText("OptionsMenuScreenTopTitle"),0,-180,190,HashString::LargeFont);
 		//=========================
@@ -394,15 +410,6 @@ void MenuScreens::DoOptionsScreen()
 			m_pWii->GetCamera()->GetCamY() + WiiMote->y - (m_pWii->GetScreenHeight()/2),
 			WiiMote->z, 255, 0) ; //GetPlrVessel()->GetFacingDirection() );
 
-	GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
-	m_pWii->SwapScreen();  // t	o clear zbuffer keep GX_SetZMode on until after this call 
+	m_pWii->SwapScreen();  
 }
 
-
-
-
-
-
-	////////////// ... check the view is correct - should fit snug inside the view port
-	////////////Util3D::CameraIdentity();
-	////////////Wii.DrawRectangle(-310, -230,640-20, 480-20, 100,255,255,255);

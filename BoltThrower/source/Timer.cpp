@@ -28,3 +28,13 @@ u32 Timer::GetTimerSeconds()
 	return ticks_to_secs(m_Timer - Util::timer_gettime());
 }
 
+u64 Timer::GetTimerMicrosecs() 
+{ 
+	return ticks_to_microsecs(m_Timer - Util::timer_gettime());
+}
+
+
+void Timer::ResetTimer() 
+{ 
+	SetTimerTicks( Util::timer_gettime() );
+}

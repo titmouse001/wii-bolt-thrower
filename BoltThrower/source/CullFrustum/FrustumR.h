@@ -64,6 +64,9 @@ public:
 	FrustumR() {;}
 	~FrustumR() {;}
 
+	
+	void SetFrustumView(int w, int h);
+
 	void setFrustum(float *m);
 	void setCamInternals(float angle, float radius, float nearD, float farD);
 	void setCamDef(Vec3 &p, Vec3 &l, Vec3 &u);

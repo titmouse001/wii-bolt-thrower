@@ -1,5 +1,5 @@
 // Bolt Thrower for the wii - Paul Overy - 2010
-// To turn on/off visual indicators of whitespace in Visual Studio, use the keyboard chord (Ctrl-R, Ctrl-W) 
+// reminder to myself - To turn on/off visual indicators of whitespace in Visual Studio, use the keyboard chord (Ctrl-R, Ctrl-W) 
 
 #include <gccore.h>
 #include <sys/dir.h>
@@ -7,26 +7,21 @@
 #include "Singleton.h"
 #include "WiiManager.h"
 #include "debug.h"
-#include "Util3d.h"
-#include "HashString.h"
-#include "WiiFile.h"
-#include "FontManager.h"
-#include "ImageManager.h"
-#include "Image.h"
 #include "GameDisplay.h"
-#include "MenuScreens.h"
 #include "URIManager.h"
-#include "SetupGame.h"
 #include "UpdateManager.h"
+#include "camera.h"
+
+#include "Thread.h"
+#include "util.h"
 
 #ifndef BUILD_FINAL_RELEASE
 #warning *** DONT FORGET TO CHANGE THIS DEFINE FOR RELEASE BUILDS ***
 #endif
 
-bool DownloadFilesListedInConfiguration(bool MisssingCheckOnly = false);
 
-string CreateHashString(string domain);
-
+Thread MyThread;
+#include "HashString.h"
 extern "C" {  extern void __exception_setreload(int t); }
 int main(int /* argc */, char**  argv ) 
 {	
@@ -36,84 +31,48 @@ int main(int /* argc */, char**  argv )
 	if (argv[0]!=NULL)
 		rWiiManager.m_ExePath = WiiFile::GetPathFromFullFileName( argv[0] ) ;
 	else
-		rWiiManager.m_ExePath ="";
+		rWiiManager.m_ExePath = "";
+
+	rWiiManager.InitWii();  
+
+	rWiiManager.InitGameResources();   // NOTE: a thread is started in here, just after loading the small font & cog graphics
+
+	rWiiManager.FinalInitManagers();   // dependancy on call to InitWii that sets up GXRModeObj
 	
-	rWiiManager.InitWii();
-
-	//printf( CreateHashString("code.google.com").c_str() );
-
-	rWiiManager.InitGameResources();
-	rWiiManager.GetCamera()->SetUpView(); // 3D View
-
-
 #if (0)
 	//-------------------------------------------------
+	// Downloads the "LatestVersion.XML" containing the update information
 	rWiiManager.GetUpdateManager()->DoUpdate(s_MasterFileLatestVersion);
 	//-------------------------------------------------
 #endif
-
 #if (0)
+	//-------------------------------------------------
 	// Check for any missing downloads like extra music - from DownloadFiles section in the "configurtion.xml" file
-	rWiiManager.m_MusicStillLeftToDownLoad = DownloadFilesListedInConfiguration(true); // true so SCAN ONLY
+	rWiiManager.m_MusicStillLeftToDownLoad = rWiiManager.GetUpdateManager()->DownloadFilesListedInConfiguration(true); // true so SCAN ONLY
 	//-------------------------------------------------
 #endif
 
-	rWiiManager.GetSetUpGame()->MainLoop();
-	rWiiManager.GetGameDisplay()->DisplaySimpleMessage(rWiiManager.GetText("QuitMessage"));
+	MyThread.Stop();
+
+
+	rWiiManager.FinalInitGameResources_NOT_DISPLAY_THREAD_SAFE();  // don't forget to turn off display thread before calling this
+
+	//
+	// Main loop
+	//
+	rWiiManager.MainLoop();
+
+	//
+	// Display exit message using display thread
+	//
+	MyThread.Start(ThreadData::QUIT);
+	Util::SleepForMilisec(1500);
+	MyThread.Stop();
 	rWiiManager.UnInitWii();
+
+
 	return 0;
 }
-
-// DownloadFiles from configuration ... AddURI
-bool DownloadFilesListedInConfiguration(bool MisssingCheckOnly)
-{
-	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
-	URLManager* pURLManager = rWiiManager.GetURLManager();
-//	URLManager* pURLManager( new URLManager );
-
-	if (pURLManager->m_Initialised)
-	{
-		WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
-		rWiiManager.GetCamera()->SetCameraView(0,0) ;
-
-		// download missing files
-		for ( vector<FileInfo>::iterator Iter( rWiiManager.GetDownloadInfoBegin()); Iter !=  rWiiManager.GetDownloadInfoEnd() ; ++Iter )
-		{
-			string FullDownloadPath(WiiFile::GetGamePath() + Iter->FullDownloadPath );
-			string FullDownloadPathWithoutEndSlash = FullDownloadPath.substr(0,FullDownloadPath.rfind("/"));
-
-			string URI_FilePath ( Iter->LogicName.c_str() );
-			string FileName ( FullDownloadPath + WiiFile::GetFileNameWithoutPath( URI_FilePath ) );
-
-			if ( !(WiiFile::CheckFileExist(FileName)) )
-			{
-				if (MisssingCheckOnly)
-				{
-					return true;
-				}
-				else
-				{
-					if ( !(WiiFile::CheckFileExist(FullDownloadPathWithoutEndSlash)) )
-					{
-						mkdir(FullDownloadPathWithoutEndSlash.c_str(), 0777);
-					}
-
-					//rWiiManager.GetGameDisplay()->DisplaySmallSimpleMessage("MK DIR " + FullDownloadPathWithoutEndSlash);
-					rWiiManager.GetGameDisplay()->DisplaySmallSimpleMessage(" downloading "+ URI_FilePath);
-					if ( ! pURLManager->SaveURI(URI_FilePath , FullDownloadPath ) )
-						rWiiManager.GetGameDisplay()->DisplaySmallSimpleMessage("Not Found "+ URI_FilePath);
-				}
-			}
-		}
-		
-		//Refresh music list - may have just download something
-		rWiiManager.ScanMusicFolder();
-
-	}
-//	delete pURLManager;
-	return false;
-}
-
 
 
 // Buzz words for web search

@@ -105,6 +105,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\IntroDisplay.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\IntroDisplay.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\Main.cpp"
 				>
 			</File>
@@ -157,14 +165,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\SetupGame.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\source\SetupGame.h"
-				>
-			</File>
-			<File
 				RelativePath=".\source\Timer.cpp"
 				>
 			</File>
@@ -203,6 +203,14 @@
 			<Filter
 				Name="Managers"
 				>
+				<File
+					RelativePath=".\source\ExplosionManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\source\ExplosionManager.h"
+					>
+				</File>
 				<File
 					RelativePath=".\source\FontManager.cpp"
 					>
@@ -264,7 +272,23 @@
 				Name="Utilities"
 				>
 				<File
+					RelativePath=".\source\Draw_Util.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\source\Draw_Util.h"
+					>
+				</File>
+				<File
 					RelativePath=".\source\singleton.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\Thread.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\source\Thread.h"
 					>
 				</File>
 				<File
@@ -551,7 +575,7 @@
 			Name="Data"
 			>
 			<File
-				RelativePath="..\Data\GameConfiguration.xml"
+				RelativePath="..\Data\BoltThrower_DevelopmentVersion\GameConfiguration.xml"
 				>
 			</File>
 			<File

@@ -11,8 +11,10 @@ class InputDeviceManager
 {
 public:
 
-	InputDeviceManager( int Value = 60*5 );
+	InputDeviceManager();
 	~InputDeviceManager();
+
+	void Init( int Value = 60*5  );
 
 	void Store();
 

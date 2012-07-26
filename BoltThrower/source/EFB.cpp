@@ -10,7 +10,7 @@ void EFB::CopyTextureFromGX(u32* pTexture, u32 x, u32 y, u32 uWidth, u32 uHeight
 	GXRModeObj* pMode( rWii.GetGXRMode() );
 
     GX_SetCopyFilter(GX_FALSE, pMode->sample_pattern, GX_FALSE, pMode->vfilter);
-    GX_SetTexCopySrc(x/*+rWii.GetViewportX()*/, y+rWii.GetViewportY(), uWidth, uHeight); //  odd thing here as only origin Y needs to be added
+    GX_SetTexCopySrc(x, y , uWidth, uHeight);
     GX_SetTexCopyDst(uWidth, uHeight, GX_TF_RGBA8, GX_FALSE);
     GX_CopyTex(pTexture, GX_FALSE);
     GX_PixModeSync();

@@ -99,12 +99,14 @@ FILE* WiiFile::FileOpenForRead(const char* const pFileName)
 		Util::SleepForMilisec(1000*3);   
 		exit(1);
 	}
-#ifndef	BUILD_FINAL_RELEASE
-	else
-	{
-		printf("loading... '%s'\n",pFileName);
-	}
-#endif
+//#ifndef	BUILD_FINAL_RELEASE
+//#ifdef LAUNCH_VIA_WII_EMULATOR
+//	else
+//	{
+//		printf("loading... '%s'\n",pFileName);
+//	}
+//#endif
+//#endif
 
 	return pFile;
 }

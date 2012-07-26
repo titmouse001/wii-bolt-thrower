@@ -65,6 +65,9 @@ public:
 	void PlayRandomExplodeSound();
 	void PlayRandomBigExplodeSound();
 	void PlayRandomHullBang();
+	void PlayRandomGunFire(u8 VolumeFactor);
+	void PlayRandomHull();
+	void PlayRandomHullCreak();
 
 	OggPlayer  m_OggPlayer;
 

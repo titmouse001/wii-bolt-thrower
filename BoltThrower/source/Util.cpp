@@ -115,10 +115,17 @@ u32 Util::ENDIAN32(u32 Value)
 		((Value&0x000000ff)<<24));
 }
 
+std::string Util::NumberToString(int Value, int DigitWidth)
+{
+	std::stringstream stream; 
+	stream << std::setw( DigitWidth ) << std::setfill( '0' )  << Value;
+	return stream.str();
+}
+
 std::string Util::NumberToString(int Value)
 {
 	std::stringstream stream; 
-	stream << std::setw( 2 ) << std::setfill( '0' )  << Value;
+	stream << Value;
 	return stream.str();
 }
 
@@ -144,11 +151,12 @@ void Util::Replace(std::string& str,const std::string& from,const std::string& t
 std::string Util::urlDecode(std::string Text) 
 {     
 	std::string BuildString;     
-	for (std::string::iterator iter(Text.begin()); iter!=Text.end(); ++iter)
-	{         
+	for (std::string::iterator iter(Text.begin()); iter!=Text.end(); ++iter) {         
 		char Character( *iter );  
-		if (Character == '%')
-		{           
+		if (Character == '?') {
+			return BuildString; 
+		}
+		if (Character == '%') {           
 			int Temp;     
 			sscanf( Text.substr(distance(Text.begin(),iter)+1,2).c_str() , "%x", &Temp);     
 			Character = static_cast<char>(Temp); 

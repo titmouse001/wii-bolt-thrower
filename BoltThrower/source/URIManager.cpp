@@ -5,17 +5,21 @@
 #include <sstream>
 #include "network.h"
 #include "URIManager.h"
+#include "Util.h"
 #include "Config.h"
 #include "debug.h"
+#include "thread.h"
 
 #define URL_DEBUG (false)
+
+extern Thread MyThread;
 
 // <unistd.h> defines miscellaneous symbolic constants, types and declares miscellaneous functions.
 // see http://pubs.opengroup.org/onlinepubs/000095399/basedefs/unistd.h.html
 
 URLManager::URLManager()
 {
-	Init();  // might move this since it takes a will and it's done at startup before any screen updates - long black screen!!!
+	//Init();  // might move this since it takes a will and it's done at startup before any screen updates - long black screen!!!
 }
 
 URLManager::~URLManager()
@@ -25,14 +29,13 @@ URLManager::~URLManager()
 
 void URLManager::Init()
 {
+
 	char* pIP = new char[16]; // i.e. room for 255.255.255.255 + NULL
 	// this calls net_init() for us in a nice way (must provide first param)
-	if ( if_config(pIP, NULL, NULL, true) < 0 ) // throw away the IP result - don't need it
-	{
+	if ( if_config(pIP, NULL, NULL, true) < 0 )  {  // throw away the IP result - don't need it
 		m_Initialised = false;  // failed
 	}
-	else
-	{
+	else {
 		m_Initialised = true;
 	}
 	delete []pIP;
@@ -40,24 +43,22 @@ void URLManager::Init()
 
 void URLManager::UnInit()
 {
-	if ( m_Initialised )
-	{
+	if ( m_Initialised ) {
 		net_deinit();
 	}
 }
 
+//
 // URLManager section
-
+//
 string URLManager::GetHostNameFromUrl(const string& Url, const string& Match)
 {
 	//	static const string Match("http://");  // assume incoming string is in lower case
 	string SiteName(Url);
-	if (Url.find(Match) != string::npos)
-	{
+	if (Url.find(Match) != string::npos) {
 		SiteName.replace(0,Match.length(),""); // wipe http:// ... left with something like www.fnordware.com/superpng/...
 		size_t pos = SiteName.find("/");
-		if (pos != string::npos)
-		{
+		if (pos != string::npos) {
 			SiteName = SiteName.substr(0,pos); // now have the 'hostname', for example "www.google.com"  (not "google.com" as that is the 'domain')
 			return SiteName;
 		}
@@ -73,7 +74,8 @@ string URLManager::CreateHttpRequest(const string& CommandWithSpace, const strin
 	//host; www.google.com
 
 	string Host( GetHostNameFromUrl(Url) );
-	string Path = Url.substr(string("http://").length() + Host.length(),Url.length() - string("http://").length() );
+	//lazy here as I span past the end of the current string content as only those characters until the end of the string are used
+	string Path = Url.substr(string("http://").length() + Host.length(), Url.length() );
 	string BuildPacket( CommandWithSpace + Path + " HTTP/1.1\r\n" );    //i.e. "GET /stuff/test.png HTTP/1.1\r\n"
 	string RefererPath = Url.substr( 0, Url.rfind("/") + 1  );
 
@@ -84,36 +86,28 @@ string URLManager::CreateHttpRequest(const string& CommandWithSpace, const strin
 	BuildPacket +=  "User-Agent: WiiBoltThrower/" + s_ReleaseVersion + " (Nintendo Wii; N; ; 2047-7;en)\r\n"; //User agents SHOULD include this field with requests
 
 	BuildPacket +=  "Connection: close\r\n\r\n";  //HTTP/1.1 applications that do not support persistent connections MUST include the "close" connection option in every message. 
-	return BuildPacket;
-
-
-	//BuildPacket +=  "Accept: image/gif, image/jpeg, image/pjpeg, image/pjpeg, application/x-shockwave-flash, application/xaml+xml, application/x-ms-xbap, application/x-ms-application, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, application/vnd.ms-xpsdocument, */*\r\n";
-	//BuildPacket +=  "Accept-Language: en-gb\r\n";
-	//BuildPacket +=  "User-Agent: Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET4.0C; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; InfoPath.2)\r\n";
-	//BuildPacket +=  "Accept-Encoding: gzip, deflate\r\n";
-
 
 	// or the above could use an older http call with ... CommandWithSpace + URL + " HTTP/1.0\r\n\r\n";
+
+	return BuildPacket;
 }
 
 bool URLManager::SaveURI(string URI, string DestinationPath )
 {
 	bool Found(false);
-//	printf("SaveURI");
-	MemoryInfo* pMeminfo( GetFromURI( URI ) );
+
+	MemoryInfo* pMeminfo( GetFromURI( URI ) ); // download
+
 	if (pMeminfo!=NULL)
 	{
 		if ((pMeminfo->GetSize()!=0) && (pMeminfo->GetData()!=NULL))
 		{
-			pMeminfo->SavePath( DestinationPath );
+			MyThread.m_Data.WorkingBytesDownloaded  = -1;
+
+			pMeminfo->SavePath( DestinationPath );	 // save to disk
 			Found = true;
 		}
 	}
-//	else
-//	{
-//		Found = false;
-//		//ExitPrintf("%s URI NOT FOUND",URI.c_str());
-//	}
 	delete pMeminfo;
 
 	return Found;
@@ -186,7 +180,7 @@ MemoryInfo* URLManager::GetFromURI(string URI)
 	string WorkingString; 
 	// looks like the tiny header comes in on its own - but I'll allow for it to be part of a bigger packet
 	int MTU ( 1432 ); // my broadband network has an MTU of 1432 bytes 
-	int BufferSize( MTU * 2000 ); // This will grow if not Content-Length is found
+	int BufferSize( MTU * 2000 ); // This can grow if no Content-Length is found
 	u8* TempStoreForReadData( (u8*)malloc( BufferSize ) ); 
 	u8* ptrWorking( TempStoreForReadData );
 	int reallocAmount( MTU*2 );
@@ -223,6 +217,8 @@ MemoryInfo* URLManager::GetFromURI(string URI)
 		}
 		ptrWorking += BytesRead;  //5,937,797   // 5,937,412
 		TotalReceived += BytesRead; // ptrWorking - TempStoreForReadData;
+
+		MyThread.m_Data.WorkingBytesDownloaded  = TotalReceived;
 
 //#if URL_DEBUG
 //		char a[128]; sprintf(a,"%d %p %p\n",(Value+WorkingString.length() + 1)-TotalReceived, ptrWorking , TempStoreForReadData) ;
@@ -318,6 +314,20 @@ string URLManager::GetStringFromHeaderLabel(string WorkingString, string Label)
 	return ContentTypeValue;
 }
 
+//
+// MemoryInfo
+//
+
+MemoryInfo::~MemoryInfo() 
+{ 
+	free(m_pData); m_pData=NULL; m_uSize=0; m_FileNameWithExtension.clear(); 
+}
+
+void MemoryInfo::SavePath(string PathName)
+{
+	Save(PathName + Util::urlDecode( m_FileNameWithExtension ) );
+}
+
 void MemoryInfo::Save(string FullPathFileName)
 {
 	if ( (m_pData != NULL) && (m_uSize > 0) )
@@ -326,38 +336,4 @@ void MemoryInfo::Save(string FullPathFileName)
 		fwrite (m_pData , 1 , m_uSize , pFile );
 		fclose (pFile);
 	}
-//	else
-//	{
-//		printf("MemoryInfo failed to save anything");
-//	}
 }
-
-
-MemoryInfo::~MemoryInfo() 
-{ 
-	free(m_pData); m_pData=NULL; m_uSize=0; m_FileNameWithExtension.clear(); 
-}
-
-
-void MemoryInfo::SavePath(string PathName)
-{
-	Save(PathName + urlDecode( m_FileNameWithExtension ) );
-}
-
-string MemoryInfo::urlDecode(string Text) 
-{     
-	string BuildString;     
-	for (string::iterator iter(Text.begin()); iter!=Text.end(); ++iter)
-	{         
-		char Character( *iter );  
-		if (Character == '%')
-		{           
-			int Temp;     
-			sscanf( Text.substr(distance(Text.begin(),iter)+1,2).c_str() , "%x", &Temp);     
-			Character = static_cast<char>(Temp); 
-			iter += 2;  // fudge, should realy error check this 
-		} 
-		BuildString += Character;
-	}    
-	return BuildString; 
-} 

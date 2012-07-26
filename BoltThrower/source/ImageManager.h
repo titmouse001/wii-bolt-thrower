@@ -20,7 +20,7 @@ public:
 	enum EDirection { eDown,eRight };
 
 
-	ImageManager() : m_pTgaData(NULL) { ; }
+	ImageManager() : m_Wii(NULL),m_pTgaData(NULL) { ; }
 	~ImageManager();
 
 	Image* GetImage(u32 ImageID);
@@ -49,6 +49,10 @@ public:
 	u8*				 GetTgaData() { return m_pTgaData; }
 
 	u32* AllocateMemConvertToRGBA8(u8* src, u32 bufferWidth, u32 bufferHeight) ;
+
+	void Init();
+	WiiManager* m_Wii;
+
 
 private:
 

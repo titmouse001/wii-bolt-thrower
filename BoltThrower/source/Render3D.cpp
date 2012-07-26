@@ -3,9 +3,11 @@
 #include "Image.h"
 #include "Util.h"
 #include "WiiManager.h"
+#include "camera.h"
 #include <string>
 #include <gccore.h>
 #include <math.h>
+#include "HashString.h"
 //#include <vector>
 
 //#define HACK_COLOR_OR_TEXTURE (0)
@@ -170,7 +172,7 @@ void Render3D::SetTextureFromModelName(HashLabel Name, int GX_TexMap)
 		if ((HashLabel)AllModelsIter->GetName() == Name) 
 		{
 			GX_LoadTexObj( AllModelsIter->GetTexture()->GetHardwareTextureInfo(), GX_TexMap);   
-			return;
+			break;
 		}
 	}
 

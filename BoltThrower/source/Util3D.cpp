@@ -1,6 +1,7 @@
 #include "Util3D.h"
 #include "Singleton.h"
 #include "WiiManager.h"
+#include "camera.h"
 #include <gccore.h>
 
 

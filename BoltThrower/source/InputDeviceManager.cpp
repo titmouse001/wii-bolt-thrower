@@ -57,23 +57,34 @@ void DeviceNunChuck::SetJoyValues(expansion_t* pData)
 
 //-----------------------------------------------------
 
-InputDeviceManager::InputDeviceManager( int Value )
-{ 
+InputDeviceManager::InputDeviceManager( ) { 
+	//WPAD_Init();
+	//WPAD_SetIdleTimeout(Value); 
+	//m_pNunChuck = new DeviceNunChuck;
+}
+
+InputDeviceManager::~InputDeviceManager() { 
+	delete m_pNunChuck;
+	WPAD_Flush(0); 
+	WPAD_Disconnect(0);  
+	WPAD_Shutdown(); 
+}
+
+void InputDeviceManager::Init(int Value ) {
+	
 	WPAD_Init();
 	WPAD_SetIdleTimeout(Value); 
+	WPAD_SetDataFormat(WPAD_CHAN_ALL, WPAD_FMT_BTNS_ACC_IR);  // use everthing
+
+	// fudge, using hard coded values - depending were this is called things like GetScreenWidth() might fail
+	// no values like these exists, kind of tried them out before sitting with them, gives a nice overlap rather tha, clipping/stopping pointer at the screen edged.
+	WPAD_SetVRes(WPAD_CHAN_ALL, 640+100, 480+100 );  // resolution of IR
+
+#warning *** DONT FORGET DeviceNunChuck 
 
 	m_pNunChuck = new DeviceNunChuck;
 }
 
-InputDeviceManager::~InputDeviceManager()
-{ 
-	delete m_pNunChuck;
-
-	WPAD_Flush(0); 
-	WPAD_Disconnect(0);  
-	WPAD_Shutdown(); 
-
-}
 bool InputDeviceManager::IsWiiMoteReady(s32 Chan)
 {
 	u32 Status;

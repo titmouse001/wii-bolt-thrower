@@ -7,6 +7,8 @@
 
 using namespace std;
 
+class Vessel;
+
 class Camera
 {
 
@@ -36,7 +38,7 @@ public:
 	void AddCamY(float Value) {  m_camera.y += Value; }
 	void AddCamZ(float Value) {  m_camera.z += Value; }
 
-	void CameraMovementLogic(float MoveToX,float MoveToY,float MoveToZ,float fFactor = 0.065f);
+	void CameraMovementLogic(Vessel* pVessel,float fFactor = 0.065f);
 		
 	Mtx&  GetcameraMatrix() { return m_cameraMatrix; }
 
@@ -45,6 +47,7 @@ public:
 
 	void SetLightOn(int LightNumber=1, float x = 250000.0f, float y = 250000.0f, float z = -1000000.0f);
 	void SetLightOn2();
+	void SetLightAlpha(u8 Alpha);
 	void SetLightOff();
 
 	//void SetSpotLight( guVector pos, guVector lookat, 
@@ -70,7 +73,7 @@ public:
 
 	void		SetAmbientLight(float Colour);
 	void		SetLightColour(float Colour);
-	void		SetMaterialColour(float Colour);
+	void		SetMaterialColour(u8 Colour, u8 Alpha=255);
 	GXColor		m_LightColour;
 	GXColor		m_MaterialColour;
 	GXColor		m_AmbientColour;

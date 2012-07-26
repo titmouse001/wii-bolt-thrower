@@ -8,6 +8,9 @@
 #include <limits.h>
 #include <iomanip> //std::setw
 #include <wiiuse/wpad.h>
+#include <string>
+#include <sstream>
+#include <grrmod.h>
 
 #include "WiiManager.h"
 #include "ImageManager.h"
@@ -16,9 +19,8 @@
 #include "SoundManager.h"
 #include "FontManager.h"
 #include "URIManager.h"
-#include "SetupGame.h"
+//#include "SetupGame.h"
 #include "UpdateManager.h"
-
 #include "TinyXML/TinyXML.h"
 #include "Image.h"
 #include "font.h"
@@ -31,15 +33,22 @@
 #include "Mission.h"
 #include "MessageBox.h"
 #include "GameDisplay.h"
+#include "introDisplay.h"
 #include "config.h"
 #include "debug.h"
-#include <string>
-#include <sstream>
 #include "oggplayer/oggplayer.h"
-#include <grrmod.h>
+#include "camera.h"
+#include "CullFrustum/FrustumR.h"
+#include "Render3D.h"
+#include "Panels3d.h"  // has manager
+#include "Draw_Util.h"
+#include "Vessel.h"
 
-#define DEBUGCONSOLESTATE	( eDebugConsoleOn )  // it's ignored (off) in final release
+#include "Thread.h"
+extern Thread MyThread;
+
 #define COLOUR_FOR_WIPE		( COLOR_BLACK )  // crash at startup colour
+
 
 WiiManager::WiiManager() :	m_MusicStillLeftToDownLoad(false),
 							m_pMusicData(NULL),
@@ -48,15 +57,17 @@ WiiManager::WiiManager() :	m_MusicStillLeftToDownLoad(false),
 							m_uScreenBufferId(eFrontScreenBuffer), 
 							m_uFrameCounter(0),
 							m_ImageManager(NULL), 
-//							m_MapManager(NULL), 
 							m_SoundManager(NULL),
+							m_Render3D(NULL),
+							m_Frustum(NULL),
 							m_Camera(NULL),		
 							m_URLManager(NULL),
 							m_UpdateManager(NULL),
 							m_IngameMusicVolume(3),
-							m_SetUpGame(NULL),
-							m_ViewportX(0),
-							m_ViewportY(0),
+							//m_SetUpGame(NULL),
+							m_PanelManager(NULL),
+							//m_ViewportX(0),
+							//m_ViewportY(0),
 							m_GameState(eIntro),
 							m_Language("English"),
 							m_bMusicEnabled(true),
@@ -66,21 +77,30 @@ WiiManager::WiiManager() :	m_MusicStillLeftToDownLoad(false),
 	m_pFrameBuffer[0] = NULL;
 	m_pFrameBuffer[1] = NULL;
 	// -----------------------------
-	m_ImageManager			= new ImageManager;
-	m_FontManager			= new FontManager;
-	m_InputDeviceManager	= new InputDeviceManager;
-	//m_MapManager			= new MapManager;
-	m_SoundManager			= new SoundManager;
-	m_Camera				= new Camera;
-	m_pMenuManager			= new MenuManager;
-	m_pGameLogic			= new GameLogic;
-	m_pGameDisplay			= new GameDisplay;
-	m_pMenuScreens			= new MenuScreens;
-	m_MissionManager		= new MissionManager;
-	m_MessageBox			= new MessageBox;
-	m_URLManager			= new URLManager;
-	m_UpdateManager			= new UpdateManager;
-	m_SetUpGame				= new SetUpGame;
+	
+	// this lot is taking about 4 to 5 seconds to complete!!! See id I can know that down some, don't like blank see at startup
+
+	m_ImageManager			= new ImageManager;			// low time overheads  (inside constructor)
+	m_FontManager			= new FontManager;			// low
+	m_InputDeviceManager	= new InputDeviceManager;	// high  ... ok, now done at init
+	m_SoundManager			= new SoundManager;			// low
+	m_Render3D				= new Render3D;				// low
+	m_Frustum 				= new FrustumR;				// low
+	m_Camera				= new Camera;				// low
+	m_pMenuManager			= new MenuManager;			// low
+	m_pGameLogic			= new GameLogic;			// high ... ok now
+	m_pGameDisplay			= new GameDisplay;			// low
+
+	m_pIntroDisplay			= new IntroDisplay;
+
+	m_pMenuScreens			= new MenuScreens;			// low
+	m_MissionManager		= new MissionManager;		// low
+	m_MessageBox			= new MessageBox;			// low
+	m_URLManager			= new URLManager;			// high calls init!  ... ok nw
+	m_UpdateManager			= new UpdateManager;		// low
+//	m_SetUpGame				= new SetUpGame;			// low
+	m_PanelManager			= new PanelManager;			// low
+
 	// -----------------------------
 	m_pMusicData			= new FileMemInfo;
 	m_pMusicData->pData = NULL;
@@ -95,7 +115,8 @@ WiiManager::~WiiManager()
 	delete m_ImageManager;		
 	delete m_FontManager;	
 	delete m_InputDeviceManager;
-	//delete m_MapManager;	
+	delete m_Render3D;
+	delete m_Frustum;
 	delete m_Camera;
 	delete m_pMenuManager;	
 	delete m_pGameLogic;
@@ -104,6 +125,7 @@ WiiManager::~WiiManager()
 	delete m_MessageBox;
 	delete m_URLManager;
 	delete m_UpdateManager;
+	delete m_PanelManager;
 	// -----------------------------
 	delete m_pMusicData;
 	// -----------------------------
@@ -140,44 +162,69 @@ void WiiManager::UnInitWii()
 
 }
 
-void WiiManager::InitWii()
+
+void WiiManager::PreInitManagers()
 {
-	m_pGameLogic->Init();
+	m_ImageManager->Init();
 	m_pGameDisplay->Init();
 	m_pMenuScreens->Init();
 	m_MessageBox->Init();
-	m_SetUpGame->Init();
+	//m_SetUpGame->Init();
 	m_UpdateManager->Init();
 	m_SoundManager->Init();
+	m_PanelManager->Init();
+	m_Camera->Init();  // dependancy on GXRModeObj
 
+	m_pIntroDisplay->Init();
 
+	m_pMenuManager->Init();
+
+}
+
+void WiiManager::FinalInitManagers()
+{	
+	
+	MyThread.m_Data.Message = "Initialising GameLogic...";
+	m_pGameLogic->Init();			// maybe slow
+	
+	MyThread.m_Data.Message = "Initialising InputDeviceManager...";
+	m_InputDeviceManager->Init();	// maybe slow
+	
+	MyThread.m_Data.Message = "Initialising URLManager...";
+	m_URLManager->Init();			// is slow
+}
+
+void WiiManager::InitWii()
+{
+	//
+	// WiiMote
+	//
 	Util::SetUpPowerButtonTrigger();
 
+	//
+	// File System
+	//
 	WiiFile::InitFileSystem();
 
-	// try to do everything after this - that way we get to see the debug console
-	//maybe my ExitPrintf() should check is the display is up and running - creating one when needed for user error messages???
-	// do this after the display is setup - its a debug dependancy thing
-
+	//
 	//Screen specific
-	SetViewport(0.0f,0.0f);
-	InitialiseVideo();
+	//
+	InitialiseVideo();  // internally calls "SetGXRMode()"
 	InitGX();
 	SetUp3DProjection();
-
-	m_Camera->Init();
+	
+	//
+	// Managers - minimal setup for now, slow stuff down later on to avoid long wait (black screen) at start up
+	//
+	PreInitManagers();
 
 	// XML configuration - this places sections of data into specificly named containers found in the code
 	CreateSettingsFromXmlConfiguration(WiiFile::GetGamePath() + "GameConfiguration.xml");
 
-	FinaliseInputDevices();  // maybe do this first? but has dependancy on screen size
-	//maybe do kind of part1 and part2 of this, that way the wiimote can get up and going sooner????
-
-	if (! m_VariablesContainer.empty())
-	{
+	// The XML settings now loaded, so start using them...
+	if (! m_VariablesContainer.empty()) {
 		int Timeout( GetXmlVariable( HashString::WiiMoteIdleTimeoutInSeconds) );
-		if ( Timeout > 0 )
-		{
+		if ( Timeout > 0 ) {
 			WPAD_SetIdleTimeout(Timeout); 
 		}
 	}
@@ -186,44 +233,12 @@ void WiiManager::InitWii()
 GXRModeObj* WiiManager::GetBestVideoMode()
 {
 	GXRModeObj* vmode = VIDEO_GetPreferredMode(NULL); // get default video mode
-
-	bool pal = false;
-
-	if (vmode == &TVPal528IntDf)
-	{
-		pal = true;
-		vmode = &TVPal576IntDfScale; //&TVPal574IntDfScale;
+	if (CONF_GetAspectRatio() == CONF_ASPECT_16_9) {
+		vmode->viWidth = 678;
+		vmode->viXOrigin = (VI_MAX_WIDTH_NTSC - 678)/2;
 	}
-
-	if (CONF_GetAspectRatio() == CONF_ASPECT_16_9)
-	{
-	      vmode->viWidth = 678;  // probably top limit for stretching the display onto your TV
-	}
-	//else
-	//{
-	//		vmode->viWidth = 672;  // not tested...this may work ok
-	//}
-
-
-	if (pal)
-	{
-		vmode->viXOrigin = (VI_MAX_WIDTH_PAL - vmode->viWidth) / 2;
-		vmode->viYOrigin = (VI_MAX_HEIGHT_PAL - vmode->viHeight) / 2;
-	}
-	else
-	{
-		vmode->viXOrigin = (VI_MAX_WIDTH_NTSC - vmode->viWidth) / 2;
-		vmode->viYOrigin = (VI_MAX_HEIGHT_NTSC - vmode->viHeight) / 2;
-	}
-
-	s8 hoffset = 0;
-
-	if (CONF_GetDisplayOffsetH(&hoffset) == 0)
-		vmode->viXOrigin += hoffset;
-
 	return vmode;
 }
-
 
 // this function may be called more than once
 void WiiManager::InitGX(u32 GXFifoBufferSize)
@@ -280,87 +295,69 @@ void WiiManager::InitGX(u32 GXFifoBufferSize)
 		GX_SetPixelFmt(GX_PF_RGB8_Z24, GX_ZC_LINEAR);
 
 	VIDEO_Flush(); // Apply hardware changes
+
 }
 
 
-//private
-void WiiManager::InitialiseVideo()
-{
-	//	GXRModeObj* pScreenMode( VIDEO_GetPreferredMode(NULL) );
 
+GXRModeObj* WiiManager::InitialiseVideo()
+{
 	GXRModeObj* pScreenMode( GetBestVideoMode() );
 
-	if (pScreenMode != NULL)
-	{
-		SetGXRMode( pScreenMode );		// keep a working copy - bit nasty as it creates dependances
+	if (pScreenMode != NULL) {
+		SetGXRMode(pScreenMode);
 
 		// Initialise the video system
 		VIDEO_Init();
 
 		// incase InitialiseVideo is called multiple times - it may change to another display region later.
-		if (m_pFrameBuffer[0] != NULL) // Has the 1'st frame buffer already been set
-		{
+		if (m_pFrameBuffer[0] != NULL) { // Has the 1'st frame buffer already been set
 			free(MEM_K1_TO_K0(m_pFrameBuffer[0]));
 		}
-		m_pFrameBuffer[0] = static_cast<u32*>(MEM_K0_TO_K1(SYS_AllocateFramebuffer(m_pGXRMode)));
-		VIDEO_ClearFrameBuffer (GetGXRMode(), m_pFrameBuffer[0], COLOUR_FOR_WIPE);   
+		m_pFrameBuffer[0] = static_cast<u32*>(MEM_K0_TO_K1(SYS_AllocateFramebuffer(pScreenMode)));
+		VIDEO_ClearFrameBuffer (pScreenMode, m_pFrameBuffer[0], COLOUR_FOR_WIPE);   
 
-		if (DEBUGCONSOLESTATE == eDebugConsoleOn)
-		{
-			InitDebugConsole();
-		}
+		//
+		// DEBUG - ignored when in BUILD_FINAL_RELEASE
+		//
+		InitDebugConsole(); 
 
-		VIDEO_Configure( GetGXRMode() );	// Setup the video registers with the chosen mode
+		VIDEO_Configure( pScreenMode );	// Setup the video registers with the chosen mode
 
 		VIDEO_WaitVSync();												// for VI retrace
 		VIDEO_SetNextFramebuffer(m_pFrameBuffer[m_uScreenBufferId]);	// Give H/W a starting point.
 		VIDEO_SetBlack(FALSE);											// signal output - show our frame buffer
 		VIDEO_Flush();  												// Apply the changes
 
-		// 2nd frame buffer - doing this here should reduce screen starting hickups
-		// As we need to prepare the first buffer before the VI displays it
+		// 2nd frame buffer - doing this here should reduce screen starting flicker
+		// trying to ready the first buffer before the VI displays it
 		if (m_pFrameBuffer[1] != NULL) 
 		{
 			free(MEM_K1_TO_K0(m_pFrameBuffer[1]));
 		}
 		m_pFrameBuffer[1] = static_cast<u32*>(MEM_K0_TO_K1(SYS_AllocateFramebuffer(m_pGXRMode)));
-		VIDEO_ClearFrameBuffer (GetGXRMode(), m_pFrameBuffer[1], COLOUR_FOR_WIPE );
+		VIDEO_ClearFrameBuffer (pScreenMode, m_pFrameBuffer[1], COLOUR_FOR_WIPE );
 
-		if ((GetGXRMode()->viTVMode) & VI_NON_INTERLACE)  
+		if ((pScreenMode->viTVMode) & VI_NON_INTERLACE)  
 			VIDEO_WaitVSync(); // wait for 2nd interlace to finnish.. is this really needed?
 
+		VIDEO_SetPostRetraceCallback(RetraceCallback);
 	}
+
+	return pScreenMode;
 }
-
-void WiiManager::FinaliseInputDevices() const
-{
-	WPAD_SetDataFormat(WPAD_CHAN_ALL, WPAD_FMT_BTNS_ACC_IR);  // use everthing
-	if (m_pGXRMode==NULL)
-		ExitPrintf("m_pGXRMode is null, did you forget to initialise screen first");
-	else
-		//		WPAD_SetVRes(WPAD_CHAN_ALL, GetScreenWidth(), GetScreenHeight() );  // resolution of IR
-		//		WPAD_SetVRes(WPAD_CHAN_ALL, GetViWidth(), GetScreenHeight() );  // resolution of IR
-		WPAD_SetVRes(WPAD_CHAN_ALL, 640+100, 480+100 );  // resolution of IR
-
-	//WPAD_SetVRes(WPAD_CHAN_ALL, GetGXRMode()->fbWidth, GetGXRMode()->xfbHeight);  // resolution of IR
-}
-
-
 
 // Matrix tutorial:- http://www.gamedev.net/reference/articles/article877.asp
 void	WiiManager::SetUp3DProjection()
 {
-	f32 w = GetScreenWidth();
-	f32 h = GetScreenHeight();
 	static float Fov = 45.0f; 
-	static float aspect = w/h;
+	static float aspect = (float)GetScreenWidth() / (float)GetScreenHeight();
 	Mtx44 perspective;
 	guPerspective(perspective, Fov, aspect, 1.0f, 50000.0f);
 	GX_LoadProjectionMtx(perspective, GX_PERSPECTIVE);
 
-
 	//------------------------------------------------------------
-	SetFrustumView(w,h); 	// setup culling logic 
+	GetFrustum()->SetFrustumView( GetScreenWidth() , GetScreenHeight() ); 	// setup culling logic 
 	//------------------------------------------------------------
 
 	GX_InvalidateTexAll();
@@ -440,76 +437,66 @@ u32* WiiManager::GetCurrentFrame() const
 	return m_pFrameBuffer[m_uScreenBufferId]; 
 }
 
+
 u32 WiiManager::GetScreenBufferId() const 
 { 
 	return m_uScreenBufferId; 
 }
 
-void WiiManager::SwapScreen(bool bState)
-{
+void WiiManager::RetraceCallback(u32 retraceCnt) {
 
-	//TODO - Time this waste???
-	GX_DrawDone();  // flush & wait for the pipline (could use callback here)
+	// ??? hangs Util::DoResetSystemCheck();
 
-
-	if (bState)
-		GX_CopyDisp( GetCurrentFrame() , GX_TRUE); // mainly to clear the z buffer (don't think its possible to clear just the Z buffer ? )
-	else
-		GX_CopyDisp( GetCurrentFrame() , GX_FALSE);
-
-	GX_Flush();
-
-	++m_uScreenBufferId; 
-	if (m_uScreenBufferId >= GetMaxScreenBuffers()) 
-		m_uScreenBufferId=0;
-	// calling 'VIDEO_WaitVSync' at the incorrect time can cause screen tearing when the hardware flips
-	VIDEO_WaitVSync(); //must wait here for a full VBL before the next frame is set
-
-	VIDEO_SetNextFramebuffer( GetCurrentFrame() );
-	VIDEO_Flush();
-
-	++m_uFrameCounter;
+	if ( (WPAD_ButtonsUp(0) & WPAD_BUTTON_HOME)!= 0 )
+	{
+ 		Singleton<WiiManager>::GetInstanceByPtr()->SetGameState(WiiManager::eExit);
+	}
 }
 
 
-void WiiManager::Printf(int x, int y, const char* pFormat, ...)
+void WiiManager::SwapScreen(int bState, bool WaitVBL)
 {
-	static const u32 BufferSize(128);
+	++m_uFrameCounter;
+	++m_uScreenBufferId; 
+	if (m_uScreenBufferId >= GetMaxScreenBuffers())  {
+		m_uScreenBufferId = 0;
+	}
 
-	va_list tArgs;
-	va_start(tArgs, pFormat);
-	char Buffer[BufferSize+1];
-	vsnprintf(Buffer, BufferSize, pFormat, tArgs);	
-	va_end(tArgs);
+	GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE); // clear zbuffer  
+	
+	//GX_SetColorUpdate(GX_TRUE); // EFB color-buffer updates 
 
-	Util3D::Trans(GetCamera()->GetCamX(),GetCamera()->GetCamY());
-	GetFontManager()->DisplayText(Buffer,x,y,200,HashString::SmallFont);
+	GX_CopyDisp( GetCurrentFrame() , bState); // mainly to clear the z buffer (don't think its possible to clear just the Z buffer ? )
+	
+	GX_DrawDone();  // wait for the immediate rendering - DO THIS BEFORE GX_CopyDisp or you will create a "screen tearing" effect
+
+	VIDEO_SetNextFramebuffer( GetCurrentFrame() );
+
+	VIDEO_Flush();
+
+	if ( WaitVBL ) {
+		VIDEO_WaitVSync();  // GET RID OF WAIT ???? MAYBE use RetraceCallback ...hmmm set flag and do update when ready???? 
+	}
 }
 
 void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 {
 	TiXmlDocument doc( FileName.c_str() );
-	if ( doc.LoadFile() )
-	{
-		//map<string,int> VariablesContainer;
-
+	if ( doc.LoadFile() ) {
 		TiXmlHandle docHandle( &doc );
 		TiXmlHandle Data( docHandle.FirstChild( "Data" ) );
 
 		// do we have a valid 'data' root
-		if (Data.Element() != NULL)
-		{
+		if (Data.Element() != NULL) {
 			// Catch things like;
 			// <Variables><AmountStars>3000</AmountStars> ... </Variables>
 			//
 
 			TiXmlElement* pChild =  Data.FirstChild( "Variables" ).FirstChildElement().ToElement();
-			for( TiXmlElement* pElem(pChild); pElem!=NULL; pElem=pElem->NextSiblingElement() )
-			{
+			for( TiXmlElement* pElem(pChild); pElem!=NULL; pElem=pElem->NextSiblingElement() ) {
 				const char* const pKey(pElem->Value());
 				const char* const pText(pElem->GetText());
-				if (pKey && pText) 
-				{
+				if (pKey && pText) {
 					//printf("%s:%s",pKey,pText ); ///debug
 					m_VariablesContainer[(HashLabel)pKey] = atof( pText ) ;
 				}
@@ -532,8 +519,7 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 				for( TiXmlElement* pGraphicsElem(pGraphics); pGraphicsElem!=NULL; pGraphicsElem=pGraphicsElem->NextSiblingElement() )
 				{
 					string Key(pGraphicsElem->Value());
-					if (Key=="AddImage") 
-					{
+					if (Key=="AddImage") {
 						FrameInfo Info;
 						string  Name =	pGraphicsElem->Attribute("Name");
 						pGraphicsElem->Attribute("StartX",&Info.iStartX);
@@ -544,17 +530,14 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 
 						const char* str = pGraphicsElem->Attribute("Direction");
 						string Direction = "";
-						if (str!=NULL)
-						{
+						if (str!=NULL){
 							Direction = str;
 						}
 
-						if (Direction=="Down")
-						{
+						if (Direction=="Down") {
 							Info.eDirection = ImageManager::eDown;
 						}
-						else
-						{
+						else {
 							Info.eDirection = ImageManager::eRight;
 						}
 
@@ -572,8 +555,7 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 			for( TiXmlElement* pElement(pSounds); pElement!=NULL; pElement=pElement->NextSiblingElement() )
 			{
 				string Key(pElement->Value());
-				if (Key=="AddSound") 
-				{
+				if (Key=="AddSound") {
 					FileInfo Info(pElement->Attribute("FileName"),pElement->Attribute("Name"));
 					m_SoundinfoContainer.push_back( Info );
 				}
@@ -584,9 +566,10 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 			for( TiXmlElement* pElement(pFonts); pElement!=NULL; pElement=pElement->NextSiblingElement() )
 			{
 				string Key(pElement->Value());
-				if (Key=="AddFont") 
-				{
-					FileInfo Info(pElement->Attribute("FileName"),pElement->Attribute("Name"));
+				if (Key=="AddFont") {
+					bool Priority(false);
+					pElement->QueryBoolAttribute("Priority", &Priority) ;
+					FileInfo Info(pElement->Attribute("FileName"),pElement->Attribute("Name"), Priority  );
 					m_FontinfoContainer.push_back( Info );
 				}
 			}
@@ -596,8 +579,7 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 			for( TiXmlElement* pElement(pLwo); pElement!=NULL; pElement=pElement->NextSiblingElement() )
 			{
 				string Key(pElement->Value());
-				if (Key=="AddLWO") 
-				{
+				if (Key=="AddLWO") {
 					FileInfo Info(pElement->Attribute("FileName"),pElement->Attribute("Name"));
 					int temp(0);
 					if (pElement->Attribute("UseModelsNormalData",&temp) != NULL)
@@ -610,29 +592,13 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 				}
 			}
 
-			//////// *** Mod's ***
-			//////TiXmlElement* pMod =  Data.FirstChild( "TrackerModules" ).FirstChildElement().ToElement();
-			//////for( TiXmlElement* pElement(pMod); pElement!=NULL; pElement=pElement->NextSiblingElement() )
-			//////{
-			//////	string Key(pElement->Value());
-			//////	if (Key=="AddMod") 
-			//////	{
-			//////		FileInfo Info(pElement->Attribute("FileName"),pElement->Attribute("Name"));
-			//////		m_ModinfoContainer.push_back( Info );
-			//////	}
-			//////}
-
-
-
 			// *** Downloads ***
 			TiXmlElement* pOgg =  Data.FirstChild( "DownloadFiles" ).FirstChildElement().ToElement();
 			for( TiXmlElement* pElement(pOgg); pElement!=NULL; pElement=pElement->NextSiblingElement() )
 			{
 				string Key(pElement->Value());
-				if (Key=="AddURI") 
-				{
-					if ( (pElement->Attribute("URI")!=0) && (pElement->Attribute("FullDownloadPath")!=0) )
-					{
+				if (Key=="AddURI") {
+					if ( (pElement->Attribute("URI")!=0) && (pElement->Attribute("FullDownloadPath")!=0) ) {
 						FileInfo Info( pElement->Attribute("URI"), Util::urlDecode( pElement->Attribute("URI") ) );
 						Info.FullDownloadPath = pElement->Attribute("FullDownloadPath");
 						m_DownloadinfoContainer.push_back( Info );
@@ -643,11 +609,9 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 
 			// *** Raw tga's ***
 			TiXmlElement* pRawTga =  Data.FirstChild( "RawTga" ).FirstChildElement().ToElement();
-			for( TiXmlElement* pElement(pRawTga); pElement!=NULL; pElement=pElement->NextSiblingElement() )
-			{
+			for( TiXmlElement* pElement(pRawTga); pElement!=NULL; pElement=pElement->NextSiblingElement() ) {
 				string Key(pElement->Value());
-				if (Key=="AddRawTga") 
-				{
+				if (Key=="AddRawTga") {
 					FileInfo Info(pElement->Attribute("FileName"),pElement->Attribute("Name"));
 					m_RawTgainfoContainer.push_back( Info );
 				}
@@ -657,11 +621,9 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 			// *** Languages ***
 			vector<string> WorkingTempLanguagesFoundContainer;
 			TiXmlElement* pLanguages =  Data.FirstChild( "Languages" ).FirstChildElement().ToElement();
-			for( TiXmlElement* pElement(pLanguages); pElement!=NULL; pElement=pElement->NextSiblingElement() )
-			{
+			for( TiXmlElement* pElement(pLanguages); pElement!=NULL; pElement=pElement->NextSiblingElement() ) {
 				string Key(pElement->Value());
-				if (Key=="AddLanguage") 
-				{
+				if (Key=="AddLanguage") {
 					std::string Text(pElement->Attribute("Name"));
 					//printf("AddLanguage: %s ", Text.c_str());
 					WorkingTempLanguagesFoundContainer.push_back( Text );
@@ -669,17 +631,12 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 			}
 
 			// fill up the different language containers - but only with the those found above 
-			for ( vector<string>::iterator LangIter(WorkingTempLanguagesFoundContainer.begin());LangIter!=WorkingTempLanguagesFoundContainer.end(); ++LangIter )
-			{
-				for ( TiXmlElement* pElement(pLanguages); pElement!=NULL; pElement=pElement->NextSiblingElement() )
-				{
-					if ( pElement->Value() == *LangIter )
-					{
-						for ( TiXmlElement* pAddText(pElement->FirstChildElement()); pAddText!=NULL; pAddText=pAddText->NextSiblingElement() )
-						{
+			for ( vector<string>::iterator LangIter(WorkingTempLanguagesFoundContainer.begin());LangIter!=WorkingTempLanguagesFoundContainer.end(); ++LangIter ) {
+				for ( TiXmlElement* pElement(pLanguages); pElement!=NULL; pElement=pElement->NextSiblingElement() ) {
+					if ( pElement->Value() == *LangIter ) {
+						for ( TiXmlElement* pAddText(pElement->FirstChildElement()); pAddText!=NULL; pAddText=pAddText->NextSiblingElement() ) {
 							string Value( pAddText->Value() );
-							if (  Value == "AddText" )
-							{
+							if (  Value == "AddText" ){
 								std::string AttributeText( pAddText->FirstAttribute()->Value() );
 								std::string NameText( pAddText->FirstAttribute()->Name() );
 								
@@ -712,42 +669,7 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 	if (m_SoundinfoContainer.empty()) ExitPrintf(ErrorString.c_str(),"sound");
 	if (m_FontinfoContainer.empty()) ExitPrintf(ErrorString.c_str(),"fonts");
 	if (m_LwoinfoContainer.empty()) ExitPrintf(ErrorString.c_str(),"lwo's");
-	
-	//if (m_DownloadinfoContainer.empty()) ExitPrintf(ErrorString.c_str(),"Dowloads's");
-	
-
 }
-
-void WiiManager::DrawRectangle(f32 xpos, f32 ypos, f32 w, f32 h, u8 Alpha, u8 r, u8 g, u8 b)
-{
-	DrawRectangle(xpos, ypos, w, h,Alpha, r,g, b,r,g,b );
-}
-void WiiManager::DrawRectangle(f32 xpos, f32 ypos, f32 w, f32 h, u8 Alpha, u8 r, u8 g, u8 b,u8 r2, u8 g2, u8 b2  )
-{	
-	GX_SetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
-
-	GX_ClearVtxDesc();
-	GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
-	GX_SetVtxDesc(GX_VA_CLR0, GX_DIRECT);
-
-	float z=0; 
-
-	GX_Begin(GX_QUADS, GX_VTXFMT3,4);		
-
-	GX_Position3f32(xpos, ypos,z);		
-	GX_Color4u8(r,g,b,Alpha);        
-
-	GX_Position3f32(xpos+(w), ypos,z);
-	GX_Color4u8(r,g,b,Alpha);     
-
-	GX_Position3f32(xpos+(w), ypos+(h),z);         
-	GX_Color4u8(r2,g2,b2,Alpha);     
-
-	GX_Position3f32(xpos, ypos+(h),z);
-	GX_Color4u8(r2,g2,b2,Alpha);  
-
-	GX_End();
-} 
 
 void WiiManager::TextBoxWithIcon(float x, float y, int w, int h, EAlign eAlign, HashLabel IconName, const char*  formatstring, ...)
 {
@@ -771,7 +693,7 @@ void WiiManager::TextBox(const std::string& rText, float x, float y, EAlign eAli
 void WiiManager::TextBox(const std::string& rText, float x, float y, int w, int h, EAlign eAlign)
 {
 	Util3D::Trans(x,y);
-	DrawRectangle(0,0,w,h,98,0,0,0);
+	Draw_Util::DrawRectangle(0,0,w,h,98,0,0,0);
 
 	int TextWidth(GetFontManager()->GetTextWidth(rText,HashString::SmallFont));
 	int TextHeight(GetFontManager()->GetFont(HashString::SmallFont)->GetHeight());
@@ -792,9 +714,7 @@ void WiiManager::TextBox(const std::string& rText, float x, float y, int w, int 
 		int Diffx = 0;
 		int Diffy = (h - TextHeight)/2;
 		GetFontManager()->DisplayText(rText, Diffx + 4, Diffy,222,HashString::SmallFont);
-	}
-
-	
+	}	
 }
 
 void WiiManager::TextBox(float x, float y, int w, int h, EAlign eAlign, const char*  formatstring, ...) 
@@ -827,70 +747,82 @@ void WiiManager::InitDebugConsole(int ScreenOriginX, int ScreenOriginY)
 
 void WiiManager::InitGameResources()
 {
-	// *** fonts ***
-	for ( vector<FileInfo>::iterator Iter( GetFontInfoBegin());	Iter !=  GetFontInfoEnd() ; ++Iter )
-	{
-		GetFontManager()->LoadFont(WiiFile::GetGamePath() + Iter->FileName, Iter->LogicName);
+	m_ImageManager->AddImage(WiiFile::GetGamePath() + "graphics/Cog_256x256.png");
 
-		if (Iter->LogicName == "SmallFont")
-		{
-			// do message as soon as the font becomes available
-			GetCamera()->SetUpView();
-			GetGameDisplay()->DisplaySmallSimpleMessage("Loading...");
+	// *** fonts ***
+	for ( vector<FileInfo>::iterator Iter( GetFontInfoBegin());	Iter !=  GetFontInfoEnd() ; ++Iter ) {
+		if (Iter->Priority) {
+			GetFontManager()->LoadFont(WiiFile::GetGamePath() + Iter->FileName, Iter->LogicName);	
+			MyThread.m_Data.Message = Iter->FileName;
+		}
+	}
+
+	//
+	//  Display thread - safe to start we now have minimal gfx neededs
+	//
+	MyThread.Start(ThreadData::LOADING);  // thread drawing now uses all the fonts
+
+	// Now load anything not marked as high priority
+	for ( vector<FileInfo>::iterator Iter( GetFontInfoBegin());	Iter !=  GetFontInfoEnd() ; ++Iter ) {
+		if ( ! Iter->Priority ) {
+			GetFontManager()->LoadFont(WiiFile::GetGamePath() + Iter->FileName, Iter->LogicName);
+			MyThread.m_Data.Message = Iter->FileName;
 		}
 	}
 
 	// *** Add 3D Objects -  Lightwave 3d Objects, LWO ***
-	for ( vector<FileInfo>::iterator Iter( GetLwoInfoBegin());	Iter !=  GetLwoInfoEnd() ; ++Iter )
-	{
-	
-		Render.Add3DObject( WiiFile::GetGamePath() + Iter->FileName, !Iter->m_bNorms ) 
-							->SetName(Iter->LogicName);
-		Render.CreateDisplayList(Iter->LogicName);  
+	for ( vector<FileInfo>::iterator Iter( GetLwoInfoBegin());	Iter !=  GetLwoInfoEnd() ; ++Iter ) {
+		MyThread.m_Data.Message = Iter->FileName;
 
-		if (Iter->m_IndexLayerForBones != -1)
-		{
+		GetRender3D()->Add3DObject( WiiFile::GetGamePath() + Iter->FileName, !Iter->m_bNorms ) 
+							->SetName(Iter->LogicName);
+
+		// ADDED THREAD AT LOADING, SO THIS NEED TO BE DONE LATER ON ONCE THE LOADING THREAD HAS COMPLETED 
+		// MOVED ..... GetRender3D()->CreateDisplayList(Iter->LogicName);  
+
+		// check if this model need bones, load up the same file again but with "[BONE]" appended.
+		if (Iter->m_IndexLayerForBones != -1) {
 			// We don't create a display list for this part, holds BONEs
-			Render.Add3DObject( WiiFile::GetGamePath() + Iter->FileName, !Iter->m_bNorms, Iter->m_IndexLayerForBones) 
+			GetRender3D()->Add3DObject( WiiFile::GetGamePath() + Iter->FileName, !Iter->m_bNorms, Iter->m_IndexLayerForBones) 
 					->SetName(Iter->LogicName+"[BONE]");
 		}
-	
 	}
 
 	//***  Sounds, WAV or OGG ***
-	for ( vector<FileInfo>::iterator SoundInfoIter( GetSoundinfoBegin()); SoundInfoIter !=  GetSoundinfoEnd() ; ++SoundInfoIter )
-	{
+	for ( vector<FileInfo>::iterator SoundInfoIter( GetSoundinfoBegin()); SoundInfoIter !=  GetSoundinfoEnd() ; ++SoundInfoIter ) {
+		MyThread.m_Data.Message = SoundInfoIter->FileName;
 		GetSoundManager()->LoadSound(WiiFile::GetGamePath()+SoundInfoIter->FileName,SoundInfoIter->LogicName);
 	}
 
-	// *** Raw tga ***
-	for ( vector<FileInfo>::iterator SoundInfoIter( GetRawTgaInfoBegin()); SoundInfoIter !=  GetRawTgaInfoEnd() ; ++SoundInfoIter )
-	{
+	// *** tga ***
+	for ( vector<FileInfo>::iterator TgaIter( GetRawTgaInfoBegin()); TgaIter !=  GetRawTgaInfoEnd() ; ++TgaIter ) {
+		MyThread.m_Data.Message = TgaIter->FileName;
 		RawTgaInfo Info;
-		Info.m_pTinyLogo = (Tga::PIXEL*) Tga::LoadTGA( WiiFile::GetGamePath() + SoundInfoIter->FileName, Info.m_pTinyLogoHeader ); 
-		m_RawTgaInfoContainer[(HashLabel)SoundInfoIter->LogicName] = Info;
+		Info.m_pPixelData = (Tga::PIXEL*) Tga::LoadTGA( WiiFile::GetGamePath() + TgaIter->FileName, Info.m_pTgaHeader ); 
+		m_RawTgaInfoContainer[(HashLabel)TgaIter->LogicName] = Info;
 	}
 
 	//---------------------------------------------------------------------------
-	// Collect the files required for loading images
-	std::set<std::string> ContainerOfUnqueFileNames;  // using set to store unique names
-	for ( map<HashLabel,FrameInfo>::iterator FrameInfoIter( GetFrameinfoBegin() );FrameInfoIter !=  GetFrameinfoEnd() ; ++FrameInfoIter )
-	{
+	// Collect the file names (unique) required for loading images
+	std::set<std::string> ContainerOfUnqueFileNames;  // using "set" to store unique names
+	for ( map<HashLabel,FrameInfo>::iterator FrameInfoIter( GetFrameinfoBegin() );FrameInfoIter !=  GetFrameinfoEnd() ; ++FrameInfoIter ) {
 		ContainerOfUnqueFileNames.insert( FrameInfoIter->second.FileName );
 	}
 
 	ImageManager* pImageManager( GetImageManager() );
-	for (std::set<std::string>::iterator NameIter(ContainerOfUnqueFileNames.begin()); NameIter != ContainerOfUnqueFileNames.end(); ++NameIter )
-	{
+	for (std::set<std::string>::iterator NameIter(ContainerOfUnqueFileNames.begin()); NameIter != ContainerOfUnqueFileNames.end(); ++NameIter ) {
+		
 		// pick the one's that match the current file being looked at
-		if (pImageManager->BeginGraphicsFile(WiiFile::GetGamePath() + *NameIter ))
-		{
+		if (pImageManager->BeginGraphicsFile(WiiFile::GetGamePath() + *NameIter )) {
+
 			// Cut-out sprite graphics into memory from graphic file
 			for ( map<HashLabel,FrameInfo>::iterator FrameInfoIter( GetFrameinfoBegin() );FrameInfoIter !=  GetFrameinfoEnd() ; ++FrameInfoIter )
 			{
-				FrameInfo& Info( FrameInfoIter->second );
 
-				if (Info.FileName != *NameIter)
+				MyThread.m_Data.Message = (*NameIter) + " : " + FrameInfoIter->second.Name;
+
+				FrameInfo& Info( FrameInfoIter->second );
+				if (Info.FileName != *NameIter) // Skip anything that not in the current file being processed
 					continue;
 
 				int frameStart = pImageManager->AddImage(
@@ -898,9 +830,8 @@ void WiiManager::InitGameResources()
 					Info.iItemWidth,Info.iItemHeight,
 					Info.iNumberItems,Info.eDirection );
 
-				FrameStartEnd frameinfo = {frameStart, frameStart + Info.iNumberItems - 1 };
-
-				m_FrameEndStartConstainer[(HashLabel)Info.Name] = frameinfo;
+				StartAndEndFrameInfo frameinfo = {frameStart, frameStart + Info.iNumberItems - 1 };
+				m_FrameEndStartConstainer[(HashLabel)Info.Name] = frameinfo;  // Store new frame details
 
 				//printf("%s x:%d y:%d (%dx%d) FrameStart:%d Frames:%d", 
 				//	Info.Name.c_str(),Info.iStartX,Info.iStartY,
@@ -910,15 +841,21 @@ void WiiManager::InitGameResources()
 		}
 	}
 	
-	BuildMenus();
+	m_pMenuManager->BuildMenus();
 
 	ScanMusicFolder( true );
 	PlayMusic();
-
 	
-	m_PannelManager.Add( "score ", -190 , new Panels3DScore);
-	m_PannelManager.Add( "scrap ", -150 , new Panels3DScrap);
+	GetPanelManager()->Add( "score ", new Panels3DScore);
+	GetPanelManager()->Add( "scrap ", new Panels3DScrap);
+}
 
+void WiiManager::FinalInitGameResources_NOT_DISPLAY_THREAD_SAFE() {
+	
+	// *** LWO's
+	for ( vector<FileInfo>::iterator Iter( GetLwoInfoBegin());	Iter !=  GetLwoInfoEnd() ; ++Iter ) {
+		GetRender3D()->CreateDisplayList(Iter->LogicName);  
+	}
 
 }
 
@@ -991,29 +928,23 @@ void WiiManager::SetMusicVolume(int Volume)
 
 	if (Header2 == "OggS")
 	{
-		if ( Volume > 0)
-		{
+		if ( Volume > 0) {
 			GetSoundManager()->m_OggPlayer.SetVolume(Volume * (255/5));
 			GetSoundManager()->m_OggPlayer.Pause(false);
 		}
-		else
-		{
+		else {
 			GetSoundManager()->m_OggPlayer.Pause();
 		}
 	}
 	else
 	{
-		if ( Volume > 0 )
-		{
-			if (GRRMOD_GetPause())
-			{
+		if ( Volume > 0 ) {
+			if (GRRMOD_GetPause()) {
 				GRRMOD_Pause();
 			}
-
 			GRRMOD_SetVolume( Volume*51,  Volume*51 );
 		}
-		else
-		{
+		else {
 			GRRMOD_Pause();
 		}
 	}
@@ -1029,16 +960,13 @@ void WiiManager::PlayMusic()
 	memset (pTemp,0,5);
 	memcpy (pTemp,m_pMusicData->pData,4);
 	string Header2 = pTemp;
-	if (Header2 == "OggS")
-	{
+	if (Header2 == "OggS") {
 		FileInfo* Info = GetCurrentMusicInfo();
-		if (Info != NULL)
-		{
+		if (Info != NULL) {
 			GetSoundManager()->m_OggPlayer.Play(m_pMusicData->pData, (s32)Info->Size, 255 );
 		}
 	}
-	else
-	{
+	else {
 		GRRMOD_SetMOD(m_pMusicData->pData, m_pMusicData->Size );
 		static const int MenuMusicVolume(255);
 		GRRMOD_Start( MenuMusicVolume );
@@ -1079,124 +1007,292 @@ string WiiManager::GetNameOfCurrentMusic()
 	return "nothing";
 }
 
-void WiiManager::BuildMenus(bool KeepSettings)
+int WiiManager::GetConfigValueWithDifficultyApplied(HashLabel Name) 
 {
-	int Music = 1; 
-	int Difficulty = 1;
-	int Language = 0;
-	int MusicVolume = 3;
-	string Group = GetMenuManager()->GetMenuGroup(); 
-
-	if ( KeepSettings )
-	{
-		Music = GetMenuManager()->GetMenuItemIndex(HashString::IngameMusicState);
-		Difficulty = GetMenuManager()->GetMenuItemIndex(HashString::DifficultySetting);
-		Language = GetMenuManager()->GetMenuItemIndex(HashString::LanguageSetting);
-		MusicVolume = GetMenuManager()->GetMenuItemIndex(HashString::IngameMusicVolumeState);
-	}
-
-	SetMusicEnabled( (bool) Music );
-	SetIngameMusicVolume( MusicVolume );
-
-	GetMenuManager()->ClearMenus();
-
-	//========================================
-	// Main Menu - one time setup
-	int y=-36;
-	int step=24+8;
-	int height=24;
-	float width=180;
-	
-	GetMenuManager()->SetMenuGroup("MainMenu");
-
-	GetMenuManager()->AddMenu(-width*0.10, y, width,height,"Start_Game",false,true);
-	y+=step;
-	GetMenuManager()->AddMenu(-width*0.15, y, width,height,"Options",false,true);
-	y+=step;
-	GetMenuManager()->AddMenu(-width*0.20, y, width,height,"Intro",false,true);
-	y+=step;
-	//move this one into options
-
-	if ( m_MusicFilesContainer.size() > 1)
-		GetMenuManager()->AddMenu( -width*0.25, y, width,height,"Change_Tune",false,true);
-	else
-		GetMenuManager()->AddMenu( -width*0.25, y, width,height,"Change_Tune",true,false);
-	
-	if (m_MusicStillLeftToDownLoad)
-		GetMenuManager()->AddMenu( 160, y, 220,height,"download_extra_music",false,false);
-
-	y+=step;
-	GetMenuManager()->AddMenu( -width*0.30, y, width,height ,"Controls",false,true );
-	y+=step;
-	GetMenuManager()->AddMenu( -width*0.35, y, width,height ,"Credits",false,true );
-
-	//==========================================================
-	// Options Menu - one time setup
 	GetMenuManager()->SetMenuGroup("OptionsMenu");
-
-	int x=0; // centre of screen
-	y=-98;
-	height=26;
-	step=26+8;
-
-	//GetMenuManager()->AddMenu( x - 108, y, 200, height ,"Credits" );
-	//GetMenuManager()->AddMenu( x + 108, y, 200, height ,"Controls" );
-	y+=step;
-
-	GetMenuManager()->AddMenu(x, y, 600, height, "Ingame_Music",false,true);
-	GetMenuManager()->AddMenu(x+222, y, 1, height, "IngameMusicState",true)->
-		AddTextItem(GetText("off"))->AddTextItem(GetText("on"))->SetCurrentItemIndex(Music);
-
-	y+=step;
-	GetMenuManager()->AddMenu(x, y, 600, height, "Ingame_MusicVolume",false,true);
-	GetMenuManager()->AddMenu(x+222, y, 1, height, "IngameMusicVolumeState",true)->
-		AddTextItem(("0"))->AddTextItem(("1"))->
-		AddTextItem(("2"))->AddTextItem(("3"))->
-		AddTextItem(("4"))->AddTextItem(("5"))->SetCurrentItemIndex(MusicVolume);
-
-	y+=step;
-	GetMenuManager()->AddMenu(x, y , 600, height, "Difficulty_Level",false,true );
-	GetMenuManager()->AddMenu(x+222, y, 1, height, "DifficultySetting",true)->
-		AddTextItem(GetText("easy"))->AddTextItem(GetText("medium"))->AddTextItem(GetText("hard"))->SetCurrentItemIndex(Difficulty);
-
-	y+=step;
-	GetMenuManager()->AddMenu(x, y , 600, height, "Set_Language",false,true);
-	// GetMenuManager()->AddMenu(x+300, y, 1, height, "LanguageSetting",true)->AddTextItem("English")->AddTextItem("Italian")->AddTextItem("Esperanto")->SetCurrentItemIndex(0);
-	if ( !m_SupportedLanguages.empty() )
-	{
-		Menu* NextItem = NULL; 
-		//TODO - typedef this !!!
-		for (map<string, map<string,string> >::iterator IterSupportedLanguages(m_SupportedLanguages.begin()) ;
-			IterSupportedLanguages!=m_SupportedLanguages.end(); ++IterSupportedLanguages)
-		{
-			// (first is the language, second english word we wish to find in that language
-			if (NextItem==NULL)
-				NextItem= GetMenuManager()->AddMenu(x+222, y, 1, height, "LanguageSetting",true)->AddTextItem(IterSupportedLanguages->first) ;
-			else
-				NextItem = NextItem->AddTextItem(IterSupportedLanguages->first) ;
-		}
-		NextItem->SetCurrentItemIndex(Language); // set the fisrt one as the default language
-	}
-	y+=step+30;
-	GetMenuManager()->AddMenu(0, y , 600, height, "Back");
-
-	GetMenuManager()->SetMenuGroup( Group );
-
-	// From now on text loaded and available - call to CreateSettingsFromXmlConfiguration is needed first
-	// default message - may get overwritten later
-	//GetUpdateManager()->SetMessageVersionReport( GetText("RunningLatestVersion")  + s_ReleaseVersion + " - " + s_DateOfRelease );
+	float Value = GetXmlVariable(Name);
+	return ApplyDifficultyFactor( Value );
 }
 
-void WiiManager::SetFrustumView(int w, int h) 
+float WiiManager::ApplyDifficultyFactor(float Value) 
 {
-	if(h == 0)
-		h = 1;
+	int Index = GetMenuManager()->GetMenuItemIndex(HashString::DifficultySetting);
+	if (Index==0)
+		Value *= GetXmlVariable( (HashLabel)"easy" );
+	else if (Index==1)
+		Value *= GetXmlVariable( (HashLabel)"medium" );
+	else if (Index==2)
+		Value *= GetXmlVariable( (HashLabel)"hard" );
 
-	static const float nearP = 1.0f, farP = 50000.0f;
-	static const float angle = 45.0f;
+	return Value;
+}
+
+string WiiManager::GetText(string Name)
+{
+	if (m_SupportedLanguages.empty())
+		return "-";
+
+	map< string, string >* ptr( &m_SupportedLanguages[m_Language] );
+	return (*ptr)[Name]; // todo  ... some checking needed here
+}
+
+Image* WiiManager::GetSpaceBackground() { 
+	return GetImageManager()->GetImage(HashString::SpaceBackground01); 
+}
+
+//===================================================================
+
+void WiiManager::MainLoop() 
+{	
+	SetGameState(WiiManager::eIntro);
+
+	while (true)
+	{
+		SetMusicVolume( 5 ); // 0 to 5, 0 is off - 5 is max
+
+		switch( (int)GetGameState() )
+		{
+		case WiiManager::eIntro:
+			IntroLoop();
+			break;
+		case WiiManager::eMenu:
+			MenusLoop();
+			break;
+		case WiiManager::ePlaying:
+			PlayLoop();
+			break;
+		case WiiManager::eExit:
+			return; // quit game
+		}
+	}
+}
+
+void WiiManager::IntroLoop()
+{
+	m_pGameLogic->InitialiseGame();
+	GetCamera()->SetCameraView( 0, 0, -(579.4f));
+	m_pGameLogic->ClearBadContainer();
+	m_pGameLogic->InitialiseIntro();
+
+	do 
+	{	
+		Util::DoResetSystemCheck();  // place this in scanpads_extra as as a wrapper
+		
+		m_pGameLogic->Intro();
+
+		if (GetGameState() == WiiManager::eExit) {
+			break;
+		}
+	} while( (WPAD_ButtonsUp(0) & (WPAD_BUTTON_A | WPAD_BUTTON_B) )== 0 );
+
+	SetGameState(WiiManager::eMenu);
+}
+
+void WiiManager::PlayLoop()
+{
+	if (GetMusicEnabled())
+		SetMusicVolume( GetIngameMusicVolume() );
+	else
+		SetMusicVolume( 0 );
+
+
+	m_pGameLogic->InitialiseGame();
+
+	WPAD_ScanPads();   // Do a read now, this will flush out anything old ready for a fresh start.
 	
-	float ratio = w * 1.0 / h;
-	m_Frustum.setCamInternals(angle,ratio,nearP,farP);
+	while (IsGameStatePlaying()) 
+	{
+		m_pGameLogic->DoGameLogic();
+
+		if ( m_pGameLogic->IsEndLevelTrigger() )  {
+			if (WPAD_ButtonsUp(0) & WPAD_BUTTON_A) {
+				SetGameState(WiiManager::eIntro);
+			}
+		}
+		Util::DoResetSystemCheck();
+	}
+}
+
+void WiiManager::MenusLoop()
+{
+	SetGameState(WiiManager::eMenu);
+	GetCamera()->SetCameraView( 0, 0, -(579.4f));
+	GetMenuScreens()->SetTimeOutInSeconds();
+	
+	m_pGameLogic->InitMenu();
+
+	m_pMenuManager->BuildMenus( true );
+
+	while (GetGameState() != WiiManager::eExit) 
+	{	
+		Util::DoResetSystemCheck();
+
+		if (IsGameStateMenu())
+		{
+			GetMenuManager()->SetMenuGroup("MainMenu");
+
+			m_pGameLogic->MoonRocksLogic();
+			m_pGameLogic->CelestialBodyLogic();
+
+			GetMenuScreens()->DoMenuScreen();
+	
+			if ( (WPAD_ButtonsUp(0) & WPAD_BUTTON_B) || (GetMenuScreens()->HasMenuTimedOut()) )  
+			{
+				SetGameState(WiiManager::eIntro);
+				break;
+			}
+
+			if ( (WPAD_ButtonsUp(0) & WPAD_BUTTON_A) != 0) 
+			{
+				HashLabel Name = GetMenuManager()->GetSelectedMenu();
+
+
+				if (Name == HashString::Options)
+				{
+					SetGameState(WiiManager::eOptions);
+				}
+				else if (Name == HashString::Start_Game)
+				{
+					SetGameState(WiiManager::ePlaying);
+					break;
+				}
+				else if (Name == HashString::Intro)
+				{
+					SetGameState(WiiManager::eIntro);
+					break;
+				}
+				else if ( Name ==  HashString::Change_Tune )
+				{
+					// The menu screen hs been set above, so now just set the message
+					Util3D::CameraIdentity();
+					Util3D::TransRot(-280,-150,0, M_PI *0.5f );
+					GetFontManager()->DisplayTextCentre("Loading...", 0,0,200,HashString::SmallFont);
+					SwapScreen();  
+					//----------------------------------------------------------------------
+					// next frame - now need to set the menu screen again before the text message
+					GetMenuScreens()->DoMenuScreen();  // draw menu screen again
+					Util3D::CameraIdentity();
+					Util3D::TransRot(-280,-150,0, M_PI *0.5f );
+					GetFontManager()->DisplayTextCentre("Loading...", 0,0,200,HashString::SmallFont);
+					SwapScreen();  
+					//---------------------------------------------------------------------
+					NextMusic();
+
+					continue; // don't do the loops screen swap since its already done
+				}
+				else if ( Name == HashString::download_extra_music ) {
+
+					//
+					// Download online files
+					//
+					GetUpdateManager()->DownloadFilesListedInConfiguration(false);
+
+					m_MusicStillLeftToDownLoad = false;
+					m_pMenuManager->BuildMenus(true);
+				}
+				else if (Name == HashString::Credits)
+				{
+					SetGameState(WiiManager::eCredits);
+				}
+				else if (Name == HashString::Controls)
+				{
+					SetGameState(WiiManager::eControls);
+				}
+			}
+
+			SwapScreen();  
+		}
+
+		// ***************
+		// *** CREDITS ***
+		// ***************
+		if (IsGameStateCredits())
+		{
+			GetMenuScreens()->DoCreditsScreen();
+			if ( WPAD_ButtonsUp(0) & (WPAD_BUTTON_A|WPAD_BUTTON_B) )
+			{
+				//GetMenuScreens()->SetTimeOutInSeconds();
+				SetGameState(WiiManager::eMenu);
+			}
+		}
+
+		// ****************
+		// *** Controls ***
+		// ****************
+		if (IsGameStateControls())
+		{
+			GetMenuScreens()->DoControlsScreen();
+			if ( WPAD_ButtonsUp(0) & (WPAD_BUTTON_A|WPAD_BUTTON_B) )
+			{
+				//GetMenuScreens()->SetTimeOutInSeconds();
+				SetGameState(WiiManager::eMenu);
+			}
+		}
+
+		// ***************
+		// *** OPTIONS ***
+		// ***************
+		if (IsGameStateOptions())
+		{
+			GetMenuScreens()->DoOptionsScreen();		
+			GetMenuManager()->SetMenuGroup("OptionsMenu");
+
+			if ( WPAD_ButtonsUp(0) & (WPAD_BUTTON_B) )
+			{
+				GetMenuScreens()->SetTimeOutInSeconds();
+				SetGameState(WiiManager::eMenu);
+				m_pMenuManager->BuildMenus( true );
+			}
+
+			if ( WPAD_ButtonsUp(0) & (WPAD_BUTTON_A) )
+			{
+				HashLabel Name = GetMenuManager()->GetSelectedMenu();		
+
+				GetMenuManager()->SetMenuGroup("OptionsMenu");
+
+				if (Name == (HashLabel)"Ingame_Music")
+				{
+					GetMenuManager()->AdvanceMenuItemText(HashString::IngameMusicState);
+					SetMusicEnabled( GetMenuManager()->GetMenuItemIndex(HashString::IngameMusicState) );
+				}
+				else if (Name == (HashLabel)"Ingame_MusicVolume")
+				{
+					GetMenuManager()->AdvanceMenuItemText(HashString::IngameMusicVolumeState);
+					SetIngameMusicVolume(GetMenuManager()->GetMenuItemIndex(HashString::IngameMusicVolumeState));
+
+					//printf("%d",GetIngameMusicVolume());
+
+					if ( (GetIngameMusicVolume()==0) && (GetMusicEnabled()) )
+					{
+						SetMusicEnabled(false);
+						GetMenuManager()->AdvanceMenuItemText(HashString::IngameMusicState);
+					}
+					if ( (GetIngameMusicVolume()>0) && (!GetMusicEnabled()) )
+					{
+						SetMusicEnabled(true);
+						GetMenuManager()->AdvanceMenuItemText(HashString::IngameMusicState);
+					}
+				}
+				
+				else if (Name == (HashLabel)"Difficulty_Level")
+				{
+					GetMenuManager()->AdvanceMenuItemText(HashString::DifficultySetting);
+					SetDifficulty(GetMenuManager()->GetMenuItemText(HashString::DifficultySetting));
+				}
+				else if (Name == (HashLabel)"Set_Language")
+				{
+					GetMenuManager()->AdvanceMenuItemText(HashString::LanguageSetting);
+					SetLanguage( GetMenuManager()->GetMenuItemText(HashString::LanguageSetting) );
+				}
+				else if ((Name == (HashLabel)"Back") )
+				{
+					GetMenuScreens()->SetTimeOutInSeconds();
+					SetGameState(WiiManager::eMenu);
+				}
+				m_pMenuManager->BuildMenus( true );
+			}
+		}
+	}
 }
 
 
@@ -1225,18 +1321,12 @@ void WiiManager::profiler_start(profiler_t* pjob)
 
 void WiiManager::profiler_stop(profiler_t* pjob)
 {
-	u64 stop_time;
-	u64 start_time;
-	//u64 duration;
-	
-	stop_time = Util::timer_gettime();
-	
 	if(pjob->active)
 	{
-		start_time = pjob->start_time;
-		pjob->duration = stop_time - start_time;
-		pjob->total_time += pjob->duration;
-		
+		u64 stop_time = Util::timer_gettime();
+
+		pjob->duration = stop_time - pjob->start_time;
+		pjob->total_time = pjob->duration;
 		if (pjob->duration < pjob->min_time)
 		{
 			if (pjob->duration != 0)
@@ -1246,7 +1336,7 @@ void WiiManager::profiler_stop(profiler_t* pjob)
 		if (pjob->duration > pjob->max_time)
 			pjob->max_time = pjob->duration;
 		
-		pjob->no_hits += 1;
+		pjob->no_hits++;
 		pjob->active = 0;
 	}
 };
@@ -1279,94 +1369,3 @@ string WiiManager::profiler_output(profiler_t* pjob)
 // ==================================================================================
 // *** ProFile End ***
 // ==================================================================================
-
-
-int WiiManager::GetConfigValueWithDifficultyApplied(HashLabel Name) 
-{
-	GetMenuManager()->SetMenuGroup("OptionsMenu");
-	float Value = GetXmlVariable(Name);
-	return ApplyDifficultyFactor( Value );
-
-	//GetMenuManager()->SetMenuGroup("OptionsMenu");
-	//float value = GetXmlVariable(Name);
-
-	////value *= GetXmlVariable( (HashLabel)GetMenuManager()->GetMenuItemText(HashString::DifficultySetting) );
-
-	//int Index = GetMenuManager()->GetMenuItemIndex(HashString::DifficultySetting);
-	//if (Index==0)
-	//	value *= GetXmlVariable( (HashLabel)"easy" );
-	//else if (Index==1)
-	//	value *= GetXmlVariable( (HashLabel)"medium" );
-	//else if (Index==2)
-	//	value *= GetXmlVariable( (HashLabel)"hard" );
-
-	//printf("%d %f",Index,value);
-
-	//return value;
-}
-float WiiManager::ApplyDifficultyFactor(float Value) 
-{
-	int Index = GetMenuManager()->GetMenuItemIndex(HashString::DifficultySetting);
-	if (Index==0)
-		Value *= GetXmlVariable( (HashLabel)"easy" );
-	else if (Index==1)
-		Value *= GetXmlVariable( (HashLabel)"medium" );
-	else if (Index==2)
-		Value *= GetXmlVariable( (HashLabel)"hard" );
-
-	return Value;
-}
-
-string WiiManager::GetText(string Name)
-{
-	if (m_SupportedLanguages.empty())
-		return "-";
-
-	map< string, string >* ptr( &m_SupportedLanguages[m_Language] );
-	return (*ptr)[Name]; // todo  ... some checking needed here
-}
-
-//int WiiManager::GetSizeOfDownloadInfoContainer() { return m_DownloadinfoContainer.size(); }
-//NOTE: things like LWO VAR "index" are seen HERE!!!!
-
-
-//
-//void DrawCircle(int x, int y, int radius, u32 rgba, bool filled)
-//{
-//	int i;
-//    u32 a;
-//    f32 ra, G_DTOR = M_DTOR * 10, x1[36], y1[36];
-//
-//    for(a = 0; a < 36; a++)
-//    {
-//        ra = a * G_DTOR;
-//
-//        x1[a] = cos(ra) * radius + x;
-//        y1[a] = sin(ra) * radius + y;
-//    }
-//	
-//	if(filled) GX_Begin(GX_TRIANGLEFAN, GX_VTXFMT0, 36);
-//	else GX_Begin(GX_LINESTRIP, GX_VTXFMT0, 36);
-//	for(i = 0; i < 36; i++) 
-//	{
-//		GX_Position3f32(x1[i], y1[i], 0.0f);
-//		GX_Color1u32(rgba);
-//	}
-//	GX_End();
-//}
-//
-//void Brightness(u8 alpha)
-//{ 
-//	GXRModeObj* pScreenMode( GetBestVideoMode() );
-//    guVector v[] = { {0,0,0.0f}, {pScreenMode->fbWidth,0,0.0f}, 
-//					 {pScreenMode->fbWidth,pScreenMode->xfbHeight,0.0f}, 
-//					 {0,pScreenMode->xfbHeight,0.0f}, {0,0,0.0f} };    
-//    GX_Begin(GX_TRIANGLEFAN, GX_VTXFMT0, 4);
-//    for (int i = 0; i < 4; i++) 
-//    {
-//        GX_Position3f32(v[i].x, v[i].y,  v[i].z);
-//        GX_Color4u8(0x00, 0x00, 0x00, alpha);
-//    }
-//    GX_End();
-//}
-

@@ -13,6 +13,7 @@ namespace Util_GA
 	string CreateHashString(string domain);
 	string GetUnixTimeNow();
 	string GetRandom9DigitDecimalAsString();
+	string CreateGoogleAnalyticsRequest(string MasterUpdateFile);
 }
 
 #endif

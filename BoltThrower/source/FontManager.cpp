@@ -44,6 +44,16 @@ void FontManager::DisplayText(const string& Text, int uXpos, int uYpos, HashLabe
 	WiiManager& Wii(Singleton<WiiManager>::GetInstanceByRef());
 	Font* pFont(Wii.GetFontManager()->GetFont( FontSize ));
 
+#if defined (BUILD_FINAL_RELEASE)
+	if (pFont==NULL)
+		return;  // just incase - need to display this but we are still loading font (safegard again FUTURE loading times!!!)
+	// (note: small font is loaded well before any threads startup)
+#else
+	if (pFont==NULL)
+		ExitPrintf("Font missing");
+#endif
+
+
 	for (string::const_iterator Iter(Text.begin()); Iter!=Text.end(); ++Iter )
 	{
 		const CharInfo* const  pChar ( pFont->GetChar( *Iter ) );

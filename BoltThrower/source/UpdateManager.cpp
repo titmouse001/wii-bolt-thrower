@@ -19,97 +19,50 @@
 #include <string.h>
 
 #include "debug.h"
-
+#include "camera.h"
 #include "Util_google_analytics.h"
 
+#include "Thread.h"
 
+extern Thread MyThread;
 
-
-string CreateGoogleAnalyticsRequest(string MasterUpdateFile)
-{
-	// This was worked out using a network packet analyzer - I used WireShark 
-	// Corners have been cut in places, and the code just says each  visit is a new one. i.e. fudged the same DataTime x3 
-
-	string DateTime = Util_GA::GetUnixTimeNow();
-	vector<string> GA_Parameters; 
-	GA_Parameters.push_back("utmwv=5.1.9");
-	GA_Parameters.push_back("&utms=15");
-	GA_Parameters.push_back("&utmn=" + Util_GA::GetRandom9DigitDecimalAsString() );
-	GA_Parameters.push_back("&utmhn=code.google.com");
-	GA_Parameters.push_back("&utmcs=utf-8");
-	GA_Parameters.push_back("&utmsr=640x480");  // Wii resolution (mostly)
-	GA_Parameters.push_back("&utmsc=32-bit");
-	GA_Parameters.push_back("&utmul=en-gb");
-	GA_Parameters.push_back("&utmje=1");
-	GA_Parameters.push_back("&utmfl=10.3%20r183");
-	
-	GA_Parameters.push_back("&utmdt=" + MasterUpdateFile + ".xml%20-%20wii-bolt-thrower%20-%20Wii%20Bolt%20Thrower%20-%20developed%20under%20the%20Wii%20homebrew%20platform%20-%20Google%20Project%20Hosting");
-
-	GA_Parameters.push_back("&utmhid=" + Util_GA::GetRandom9DigitDecimalAsString() );
-	GA_Parameters.push_back("&utmr=0");
-	GA_Parameters.push_back("&utmp=%2Fp%2Fwii-bolt-thrower%2Fsource%2Fbrowse%2F" + MasterUpdateFile + ".xml");
-	GA_Parameters.push_back("&utmac=UA-25374250-1");
-	GA_Parameters.push_back("&utmcc=__utma%3D" +
-							 Util_GA::CreateHashString("code.google.com") +		// Domain hash ... i.e. 247248150 for "code.google.com"
-							 "." + Util_GA::GetRandom9DigitDecimalAsString() +	// Unique Identifier ... i.e. ".233226017"
-							 "." + DateTime +	// Timestamp of first visit
-							 "." + DateTime +	// Timestamp of previous visit
-							 "." + DateTime +	// Timestamp of current visit
-							 ".1%3B%2B"					// "7;+" - Number of sessions started???
-							 "__utmz%3D" +				// "__utmz="
-							 Util_GA::CreateHashString("code.google.com") +	// Domain Hash  ...
-							 "." + DateTime +	// Timestamp when cookie was set
-							 ".1"						// Session number
-							 ".1"						// Campaign number
-							 ".utmcsr%3Dwii-bolt-thrower.googlecode.com%7Cutmccn%3D(referral)%7Cutmcmd%3Dreferral%7Cutmcct%3D%2Fhg%2F%3B");
-	GA_Parameters.push_back("&utmu=qAAg~");
-
-	string BuildGetRequest("http://www.google-analytics.com/__utm.gif?");
-	for (vector<string>::iterator Iter(GA_Parameters.begin()) ; Iter!=GA_Parameters.end(); ++Iter)
-		BuildGetRequest += *Iter;
-
-	return BuildGetRequest;
-}
-
-
-
-
-
-UpdateManager::UpdateManager():
-	m_ReleaseNotes("-"),
-	m_LatestReleaseAvailable("-"),
-	m_MessageVersionReport("-")
+UpdateManager::UpdateManager(): m_ReleaseNotes("-"), m_LatestReleaseAvailable("-"), m_MessageVersionReport("-")
 {
 }
 
-void UpdateManager::Init()
-{
-//	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
-
+void UpdateManager::Init(){
+	m_pWiiManager =  Singleton<WiiManager>::GetInstanceByPtr();
 }
 
-void UpdateManager::DoUpdate(string MasterUpdateFile)
-{
+void UpdateManager::DoUpdate(string MasterUpdateFile){
+
 	if ( CheckForUpdate(MasterUpdateFile) )
 	{
-		if (DisplayUpdateMessage())
+		if (UpdatePackageYesOrNo())
 		{
+			MyThread.m_Data.Message = "";
+			MyThread.m_Data.WorkingBytesDownloaded =0;
+			MyThread.m_Data.State = ThreadData::ONLINEDOWNLOAD_UPDATE;
+
 			//update
 			UpdateApplicationFiles();
+			
+			MyThread.m_Data.Message = "";
+			MyThread.m_Data.WorkingBytesDownloaded =0;
+			MyThread.m_Data.State = ThreadData::UPDATE_COMPLETE_RESET;
 
-			WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
-			rWiiManager.GetGameDisplay()->DisplaySimpleMessage("Update complete, please reload",-3.14f/34.0f);
-			rWiiManager.UnInitWii();
+			Util::SleepForMilisec(15); // give that above stuff time to kick in and display
+			MyThread.Stop();
+	
+			m_pWiiManager->UnInitWii();
 			exit(0);
 		}
 	}
 }
 
-void  UpdateManager::UpdateApplicationFiles( )
-{
-	//URLManager* pURLManager( new URLManager );
-	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
-	URLManager* pURLManager = rWiiManager.GetURLManager();
+void  UpdateManager::UpdateApplicationFiles( ){
+
+	URLManager* pURLManager = m_pWiiManager->GetURLManager();
 
 	for ( vector<FileInfo>::iterator Iter( m_ApplicationSpecificUpdatesForDownloadFileInfoContainer.begin()); 
 		Iter !=  m_ApplicationSpecificUpdatesForDownloadFileInfoContainer.end() ; ++Iter )
@@ -136,34 +89,32 @@ void  UpdateManager::UpdateApplicationFiles( )
 			{
 				mkdir(FullDownloadPathWithoutEndSlash.c_str(), 0777);
 			}
-			//rWiiManager.GetGameDisplay()->DisplaySmallSimpleMessage("MK DIR " + FullDownloadPathWithoutEndSlash);
-			rWiiManager.GetGameDisplay()->DisplaySmallSimpleMessage("downloading " + URI_FilePath);
-			if (! pURLManager->SaveURI(URI_FilePath , FullDownloadPath ) )
-				rWiiManager.GetGameDisplay()->DisplaySmallSimpleMessage("Not Found "+ URI_FilePath);
+
+			MyThread.m_Data.Message = "downloading "+ WiiFile::GetFileNameWithoutPath(URI_FilePath);
+	
+			// Download and Save 
+			if ( pURLManager->SaveURI(URI_FilePath , FullDownloadPath ) )
+				MyThread.m_Data.Message = "Not Found "+ WiiFile::GetFileNameWithoutPath(URI_FilePath);
+
 		}
 	}
-	//delete pURLManager;
 }
 
 bool UpdateManager::CheckForUpdate(string MasterUpdateFile)
 {
+	MyThread.m_Data.State = ThreadData::ONLINEDOWNLOAD_UPDATE;
+	MyThread.m_Data.Message = "";
+
 	bool Report( false );
 
-	//URLManager* pURLManager( new URLManager );
-	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
-	URLManager* pURLManager = rWiiManager.GetURLManager();
+	URLManager* pURLManager = m_pWiiManager->GetURLManager();
 
 	if (pURLManager->m_Initialised)
 	{
-		WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
-		rWiiManager.GetCamera()->SetCameraView(0,0) ;
 
 #define TEST_FROM_FILE (0)
-
 #if (TEST_FROM_FILE==1)
-
 #warning *** DONT FORGET TO CHANGE 'TEST_FROM_FILE' DEFINE FOR RELEASE BUILDS ***
-
 		// TEST CODE - usefull when testing from emulator (from file rather than http site)
 		FILE* pFile( WiiFile::FileOpenForRead( WiiFile::GetGamePath() +  "LatestVersion.xml" )  );
 		fseek (pFile , 0, SEEK_END);
@@ -172,12 +123,15 @@ bool UpdateManager::CheckForUpdate(string MasterUpdateFile)
 		u8* ptestdata = (u8*) malloc (sizeof(char) * FileSize);
 		size_t TestSize = fread (ptestdata,1,FileSize,pFile);
 #else
-
 		if ( MasterUpdateFile != "LatestVersion_FAKE")
 		{
 			m_ReleaseNotes = "";
 			m_MessageVersionReport = ""; // setup later in this section
-			pURLManager->GetFromURI( CreateGoogleAnalyticsRequest(MasterUpdateFile) ); // google analytics
+			// Tally online
+			pURLManager->GetFromURI( Util_GA::CreateGoogleAnalyticsRequest(MasterUpdateFile) ); // google analytics
+
+			MyThread.m_Data.Message = MasterUpdateFile+ ".xml : tally";
+
 		}
 		else
 		{	m_ReleaseNotes = "FAKE";  // fake test running
@@ -186,6 +140,9 @@ bool UpdateManager::CheckForUpdate(string MasterUpdateFile)
 
 		// pURLManager->SaveURI("http://wii-bolt-thrower.googlecode.com/hg/LatestVersion.xml",WiiFile::GetGamePath() );
 		MemoryInfo* pData(pURLManager->GetFromURI("http://wii-bolt-thrower.googlecode.com/hg/" + MasterUpdateFile + ".xml"));
+
+		MyThread.m_Data.Message = MasterUpdateFile + ".xml : new file updates";
+
 #endif
 
 		TiXmlDocument doc;
@@ -224,8 +181,7 @@ bool UpdateManager::CheckForUpdate(string MasterUpdateFile)
 				//-----------------------------------------------------------------------------------------
 				//string ReleaseNotesText;
 				TiXmlElement* Notes =  Data.FirstChild( "ReleaseNotes" ).ToElement();
-				if (Notes != NULL)
-				{
+				if (Notes != NULL) {
 					m_ReleaseNotes += Notes->GetText();
 				}
 				//-----------------------------------------------------------------------------------------
@@ -237,13 +193,12 @@ bool UpdateManager::CheckForUpdate(string MasterUpdateFile)
 					if ( fLatestReleaseAvailable > s_fVersion )
 					{
 						Report = true;
-						//	DisplayUpdateMessage(m_ReleaseNotes, m_LatestReleaseAvailable + " Available");
-
 						m_MessageVersionReport += "ver " + m_LatestReleaseAvailable + " now available, visit http://wiibrew.org/wiki/BoltThrower";
 					}
 					else
 					{
-						SetMessageVersionReport( rWiiManager.GetText("RunningLatestVersion")  + s_ReleaseVersion + " - " + s_DateOfRelease );
+						// will be used by the bottom Bar Text in the menu menu
+						SetMessageVersionReport( m_pWiiManager->GetText("RunningLatestVersion")  + s_ReleaseVersion + " - " + s_DateOfRelease );
 					}
 				}
 				//-----------------------------------------------------------------------------------------
@@ -253,39 +208,79 @@ bool UpdateManager::CheckForUpdate(string MasterUpdateFile)
 //	ExitPrintf(doc.ErrorDesc());
 	}
 
-//	delete pURLManager;
-
 	return Report;
 }
 
 
-bool UpdateManager::DisplayUpdateMessage()
+bool UpdateManager::UpdatePackageYesOrNo()
 {
-	WiiManager& rWiiManager( Singleton<WiiManager>::GetInstanceByRef() );
-	rWiiManager.GetCamera()->SetCameraView(0,0) ;
+	//m_pWiiManager->GetCamera()->SetCameraView(0,0) ;
+//	m_pWiiManager->GetMessageBox()->SetUpMessageBox( m_LatestReleaseAvailable + " Available", m_ReleaseNotes );			
 
-	rWiiManager.GetMessageBox()->SetUpMessageBox( m_LatestReleaseAvailable + " Available", m_ReleaseNotes );			
+	MyThread.m_Data.State = ThreadData::QUESTION;
+	MyThread.m_Data.Message = "";
+	MyThread.m_Data.WorkingBytesDownloaded = 0;
 
-	do
-	{
+	// this section is logic only (a separate thread takes care of the screen updates)
+	do {
+		Util::SleepForMilisec(10);
 		WPAD_ScanPads();
-		static float spin=0.0f;
-		spin+=0.01f;
-		GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
-		Util3D::Trans(rWiiManager.GetScreenWidth()/2.0f, rWiiManager.GetScreenHeight()/2.0f);
-
-		// image is 1024x1024  ((100-n)% more zoomed in)
-		rWiiManager.GetSpaceBackground()->DrawImageXYZ(0,0, 0.95f * (579.4f * (579.4f/1024.0f)) ,255);
-
-		rWiiManager.GetMessageBox()->DisplayMessageBox(500,300);
-		GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
-		rWiiManager.SwapScreen();  // to clear zbuffer keep GX_SetZMode on until after this call 
-		GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
-
 		if (WPAD_ButtonsUp(0) & WPAD_BUTTON_B)
 			return false; // don't update
 
 	} while( (WPAD_ButtonsUp(0) & WPAD_BUTTON_A ) == 0 );
 
 	return true; // update
+}
+
+
+//
+// This function Downloads Files read from the configuration, using anything keep in AddURI
+//		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.62/boot.dol"
+//					FullDownloadPath="/" OverwriteExistingFile="YES"/>
+//
+bool UpdateManager::DownloadFilesListedInConfiguration(bool MisssingCheckOnly)
+{
+	URLManager* pURLManager = m_pWiiManager->GetURLManager();
+
+	if (pURLManager->m_Initialised) {
+
+		if (!MisssingCheckOnly) {
+			MyThread.Start(ThreadData::ONLINEDOWNLOAD_EXTRAFILES);
+		}
+
+		// download missing files
+		for ( vector<FileInfo>::iterator Iter( m_pWiiManager->GetDownloadInfoBegin()); Iter !=  m_pWiiManager->GetDownloadInfoEnd() ; ++Iter )
+		{
+			string FullDownloadPath(WiiFile::GetGamePath() + Iter->FullDownloadPath );
+			string FullDownloadPathWithoutEndSlash = FullDownloadPath.substr(0,FullDownloadPath.rfind("/"));
+
+			string URI_FilePath ( Iter->LogicName.c_str() );
+			string FileName ( FullDownloadPath + WiiFile::GetFileNameWithoutPath( URI_FilePath ) );
+
+			if ( !(WiiFile::CheckFileExist(FileName)) )
+			{
+				if (MisssingCheckOnly) {
+					return true;
+				}
+				else {
+					if ( !(WiiFile::CheckFileExist(FullDownloadPathWithoutEndSlash)) ) {
+						mkdir(FullDownloadPathWithoutEndSlash.c_str(), 0777);
+					}
+
+					MyThread.m_Data.Message = "downloading "+ WiiFile::GetFileNameWithoutPath(URI_FilePath);
+					if ( ! pURLManager->SaveURI(URI_FilePath , FullDownloadPath ) )
+						MyThread.m_Data.Message = "Not Found "+ WiiFile::GetFileNameWithoutPath(URI_FilePath);
+				}
+			}
+		}
+
+		if (!MisssingCheckOnly)
+			MyThread.Stop();
+
+		//Refresh music list - may have just download something
+		m_pWiiManager->ScanMusicFolder();
+
+	}
+	return false;
 }

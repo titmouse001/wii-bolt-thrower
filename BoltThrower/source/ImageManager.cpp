@@ -103,6 +103,13 @@ u8* write_buf_to_mem(u32* SrcData, WORD X_bitmap, WORD Y_bitmap)
 	return MemStart;
 }
 
+
+void ImageManager::Init()
+{
+	m_Wii = Singleton<WiiManager>::GetInstanceByPtr();
+}
+
+
 ImageManager::~ImageManager()
 {
 	RemoveAllImages();
@@ -137,16 +144,17 @@ void ImageManager::RefreshAllImages()
 
 Image* ImageManager::GetImage(HashLabel rHashName)
 {
-	WiiManager& Wii( Singleton<WiiManager>::GetInstanceByRef() );
-	return GetImage( Wii.m_FrameEndStartConstainer[rHashName].StartFrame );
+//	WiiManager& Wii( Singleton<WiiManager>::GetInstanceByRef() );
+	return GetImage( m_Wii->m_FrameEndStartConstainer[rHashName].StartFrame );
 }
 
 Image* ImageManager::GetImage(u32 ImageID)
 {
-	if ( ImageID < m_ImageContainer.size())
+// dev only - should be no need for this check for this kind of thing in final version
+//	if ( ImageID < m_ImageContainer.size())
 		return  m_ImageContainer[ImageID] ;
-	else
-		return  m_ImageContainer[0] ;
+//	else
+//		return  m_ImageContainer[0] ;
 }
 
 void ImageManager::AddImage(string FullName)

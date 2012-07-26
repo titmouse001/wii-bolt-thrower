@@ -49,6 +49,10 @@ bool MissionManager::IsCurrentMissionObjectiveComplete()
 				return (true);
 			break;
 		case 6:
+			if (Wii.GetGameLogic()->m_TerraformingCounter>=255)
+				return true;
+			break;
+		case 7:
 			return (Wii.GetGameLogic()->IsEnemyDestroyed());
 			break;
 	}

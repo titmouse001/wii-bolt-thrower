@@ -9,7 +9,9 @@
 
 #include "hashlabel.h"
 #include "timer.h"
-
+#include "WiiManager.h"
+#include "Singleton.h"
+#include "debug.h"
 //class  HashLabel;
 class  WiiManager;
 //class  Timer;
@@ -83,10 +85,10 @@ public:
 	f32 GetScaleZ() const { return m_Scale.z; }
 
 
-	float  GetSqaureRadius(float center_x, float center_y)
-	{
-		return fabs((GetX()-center_x)*(GetX()-center_x) ) + ((GetY()-center_y)*(GetY()-center_y)) ;
-	}
+	//float  GetSqaureRadius(float center_x, float center_y)
+	//{
+	//	return fabs((GetX()-center_x)*(GetX()-center_x) ) + ((GetY()-center_y)*(GetY()-center_y)) ;
+	//}
 
 	bool  InsideRadius(float center_x, float center_y, float radius) const 
 	{
@@ -175,9 +177,11 @@ private:
 class Vessel
 {
 public:
-	Vessel() :	m_FireRate(222.0f), m_BulletSpeedFactor(0.10f), m_fTurrentDirection(0.0f),
+
+	Vessel() :	m_FireRate(222.0f), //m_BulletSpeedFactor(0.10f), 
+			m_fTurrentDirection(0.0f),
 				m_SpeedFactor(1.0f), m_iEndFrame(0), m_fFrameStart(0),m_fFrame(0), m_fFrameSpeed(0.025f), m_iShieldLevel(1), 
-				m_FacingDirection(0), m_Spin(0.0f), m_Gravity(0.995f), m_iFuelValue(0), m_Alpha(255),// m_bGoingBoom(false),
+				m_FacingDirection(0), m_Spin(0.0f), m_GravityFactor(0.995f), m_iFuelValue(0), m_Alpha(255),m_KillValue(0),m_HitCoolDownTimer(0),
 				m_fCurrentScaleFactor(1.0f),m_fScaleToFactor(1.0f), m_fScaleToFactorSpeed(0.20f)
 	{
 		m_Vel.x=0.0f;
@@ -186,15 +190,16 @@ public:
 	}
 
 	Vessel(guVector& Pos, guVector& Velocity, float StartFrame, float EndFrame, float FrameSpeed, float Gravity) :
-				m_FireRate(222.0f), m_BulletSpeedFactor(0.10f), m_fTurrentDirection(0.0f),
+				m_FireRate(222.0f), //m_BulletSpeedFactor(0.10f), 
+				m_fTurrentDirection(0.0f),
 				m_SpeedFactor(1.0f),
 				m_iEndFrame(EndFrame), 
 				m_fFrameStart(StartFrame),
 				m_fFrame(StartFrame), 
 				m_fFrameSpeed(FrameSpeed), 
 				m_iShieldLevel(1), m_FacingDirection(0), m_Spin(0.0f), 
-				m_Gravity(Gravity), 
-				m_iFuelValue(0), m_Alpha(255), //m_bGoingBoom(false),
+				m_GravityFactor(Gravity), 
+				m_iFuelValue(0), m_Alpha(255),m_KillValue(0),m_HitCoolDownTimer(0),
 				m_fCurrentScaleFactor(1.0f),m_fScaleToFactor(1.0f), m_fScaleToFactorSpeed(0.20f)
 	{
 		m_Pos = Pos;
@@ -202,15 +207,17 @@ public:
 	}
 
 	Vessel(Item3D* Item, float Gravity) :
-				m_FireRate(222.0f), m_BulletSpeedFactor(0.10f), m_fTurrentDirection(0.0f),
+				m_FireRate(222.0f), 
+					//m_BulletSpeedFactor(0.10f),
+					m_fTurrentDirection(0.0f),
 				m_SpeedFactor(1.0f),
 			//	m_iEndFrame(EndFrame), 
 			//	m_fFrameStart(StartFrame),
 			//	m_fFrame(StartFrame), 
 			//	m_fFrameSpeed(FrameSpeed), 
 				m_iShieldLevel(1), m_FacingDirection(0), m_Spin(0.0f), 
-				m_Gravity(Gravity), 
-				m_iFuelValue(0), m_Alpha(255), //m_bGoingBoom(false),
+				m_GravityFactor(Gravity), 
+				m_iFuelValue(0), m_Alpha(255),m_KillValue(0), m_HitCoolDownTimer(0), 
 				m_fCurrentScaleFactor(1.0f),m_fScaleToFactor(1.0f), m_fScaleToFactorSpeed(0.20f)
 	{
 		m_Pos = Item->GetPos();
@@ -218,7 +225,12 @@ public:
 	}
 
 
-	void  Init();
+//	static void  InitOnce();
+		
+
+	void SetDestinationPos(float x, float y, float z);
+	void SetDestinationPos(guVector& v ) { SetDestinationPos(v.x,v.y,v.z); }
+	guVector& GetDestinationPos() { return m_Destination; }
 
 	void SetPos(f32 x,f32 y , f32 z);
 	void SetZ(f32 z) {m_Pos.z = z;}
@@ -230,7 +242,8 @@ public:
 	void SetVel(f32 x, f32 y, f32 z);
 	void AddVelToPos();
 
-	void VelReduce();
+	void FactorVel();
+	void FactorVel(float factor);
 	guVector& GetPos() { return m_Pos; }
 	void SetPos(guVector& v ) { SetPos(v.x,v.y,v.z); }
 	f32 GetX() const { return m_Pos.x; }
@@ -255,8 +268,8 @@ public:
 	float GetSpin() const { return m_Spin; }
 	void SetSpin(float fValue)  { m_Spin = fValue; }	
 	
-	float GetGravity() const { return m_Gravity; }
-	void SetGravity(float fValue) { m_Gravity = fValue;}
+	float GetGravityFactor() const { return m_GravityFactor; }
+	void SetGravityFactor(float fValue) { m_GravityFactor = fValue;}
 
 	int GetFuel() const { return m_iFuelValue; }
 	void SetFuel(int iFuel) { m_iFuelValue = iFuel;}
@@ -285,6 +298,7 @@ public:
 	bool IsShieldOk() const { return m_iShieldLevel > 0; }
 	bool HasShieldFailed() const { return m_iShieldLevel <= 0; }
 
+	//float GetFrame() const { return floor(m_fFrame); }
 	float GetFrame() const { return m_fFrame; }
 	void SetFrame(float Value) { m_fFrame = Value; }
 	void  AddFrame(float Value) { m_fFrame+=Value; }
@@ -296,32 +310,47 @@ public:
 
 	int GetFireRate() const { return m_FireRate; }
 	void SetFireRate(int Value) { m_FireRate = Value; }
+	int  ReduceFireRate() { return --m_FireRate; }
 
-	float GetBulletSpeedFactor() const { return m_BulletSpeedFactor; }
-	void SetBulletSpeedFactor(float Value) { m_BulletSpeedFactor = Value; }
+
+	//float GetBulletSpeedFactor() const { return m_BulletSpeedFactor; }
+//	void SetBulletSpeedFactor(float Value) { m_BulletSpeedFactor = Value; }
 
 	float GetSpeedFactor() const { return m_SpeedFactor; }
 	void SetSpeedFactor(float Value) { m_SpeedFactor = Value; }
 
-
-	//void DetonationSpin();
-	void SetFrameGroupWithRandomFrame(HashLabel FrameName, float FrameSpeed);
-	void SetFrameGroup(HashLabel FrameName, float FrameSpeed=0);
+	void SetFrameGroupWithRandomFrame(StartAndEndFrameInfo* rFameInfo, float FrameSpeed);
+	void SetFrameGroup(StartAndEndFrameInfo* rFameInfo, float FrameSpeed=0.0f);
 	
 	f32 GetTurnDirection(guVector* Vec);
 	f32 GetTurnDirectionForTurret(guVector* Vec);
 
 	void SetRadius(float Value) { m_Radius = Value; }
 	float GetRadius() const { return m_Radius; }
+	
+	void SetKillValue(int Value) { m_KillValue = Value; }
+	int GetKillValue() const { return m_KillValue; }
+
+	void SetHitCoolDownTimer(u8 Value) { m_HitCoolDownTimer = Value; }
+	int GetHitCoolDownTimer() const { return m_HitCoolDownTimer; }
+	int AddHitCoolDownTimer(u8 Value) { return m_HitCoolDownTimer += Value; }
+	
+
+	void SetID(int Value) { m_ID = Value; }
+	int GetID() const { return m_ID; }
+
+//	static WiiManager* m_pWii;
+
+	void SetFrameSpeed(float Value) { m_fFrameSpeed = Value; }
 
 private:
 	void SetEndFrame(int Value) { m_iEndFrame = Value; }
 	void SetFrameStart(float Value) { m_fFrameStart = Value; }
-	void SetFrameSpeed(float Value) { m_fFrameSpeed = Value; }
+
 
 	// gun ship section
 	int			m_FireRate;
-	float		m_BulletSpeedFactor;
+//	float		m_BulletSpeedFactor;
 	float		m_fTurrentDirection;
 
 	// factor for movement speed
@@ -335,11 +364,16 @@ private:
 
 	guVector	m_Pos;
 	guVector	m_Vel;
+
+	guVector	m_Destination;
+
 	float		m_FacingDirection;
 	float		m_Spin;
-	float		m_Gravity;
+	float		m_GravityFactor;
 	int			m_iFuelValue;
 	u8			m_Alpha;  
+	int			m_KillValue;
+	u8			m_HitCoolDownTimer;
 
 	//explosions
 	float		m_fCurrentScaleFactor; 
@@ -348,16 +382,21 @@ private:
 
 	float		m_Radius;
 
+	int			m_ID;
+
 };
 
 
 class PlayerVessel : public Vessel
 {
 public:
-	PlayerVessel() : m_PickUpTotal(0.0f) {;}
+	PlayerVessel() :  m_LastShieldLevel(0),m_PickUpTotal(0.0f) {;}
 	void AddToPickUpTotal(int Value) { m_PickUpTotal += Value; }
 	int GetPickUpTotal() { return m_PickUpTotal; }
 	void ClearPickUpTotal() { m_PickUpTotal=0.0f; }
+
+	Timer	m_PopUpMessageTimer;	
+	int		m_LastShieldLevel;
 private:
 	int m_PickUpTotal;
 };

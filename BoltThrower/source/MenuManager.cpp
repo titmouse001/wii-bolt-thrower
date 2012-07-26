@@ -5,10 +5,17 @@
 #include "InputDeviceManager.h"
 #include "HashLabel.h"
 
+#include "camera.h"
 #include "MenuManager.h"
+#include "Draw_Util.h"
 
-MenuManager::MenuManager() : m_MenuGroupName("")
+MenuManager::MenuManager() : m_MenuGroupName("") 
 {
+}
+
+void MenuManager::Init() 
+{
+	m_pWii = Singleton<WiiManager>::GetInstanceByPtr();
 }
 
 Menu* MenuManager::AddMenu(int x, int y, int w, int h, std::string Name, bool bShowTextOnly, bool bJustifyLeft, HashLabel FontSize )
@@ -182,7 +189,7 @@ void MenuManager::Draw()
 				{
 					rect.w*=1.15f; 
 					rect.h*=1.10f; 
-					Wii.DrawRectangle(rect.x-(rect.w/2), Down + rect.y- (rect.h/2), rect.w, rect.h, 160, 20,20,60);
+					Draw_Util::DrawRectangle(rect.x-(rect.w/2), Down + rect.y- (rect.h/2), rect.w, rect.h, 160, 20,20,60);
 
 // add yet aother hack to this lot  ... all this is bad code, needs refactor big time
 //NEED TO DO SOMETHING LIKE THIS...
@@ -204,7 +211,7 @@ void MenuManager::Draw()
 				//	rect.h*=0.9f;
 				//	rect.w*=0.9f;  // fudge something todo later, if I ever do!
 
-					Wii.DrawRectangle(rect.x-(rect.w/2), Down + rect.y- (rect.h/2), rect.w, rect.h, 120,10,10,30);
+					Draw_Util::DrawRectangle(rect.x-(rect.w/2), Down + rect.y- (rect.h/2), rect.w, rect.h, 120,10,10,30);
 					if ( pWorkingItem->GetJustifyLeft() )
 					{
 						float w = 28.0f;
@@ -219,4 +226,110 @@ void MenuManager::Draw()
 			pWorkingItem = pWorkingItem->GetChildMenu();  // any children to work through
 		}
 	}
+}
+
+
+
+void MenuManager::BuildMenus(bool KeepSettings)
+{
+	int Music = 1; 
+	int Difficulty = 1;
+	int Language = 0;
+	int MusicVolume = 3;
+	string Group = GetMenuGroup(); 
+
+	if ( KeepSettings )
+	{
+		Music = GetMenuItemIndex(HashString::IngameMusicState);
+		Difficulty = GetMenuItemIndex(HashString::DifficultySetting);
+		Language = GetMenuItemIndex(HashString::LanguageSetting);
+		MusicVolume = GetMenuItemIndex(HashString::IngameMusicVolumeState);
+	}
+
+	m_pWii->SetMusicEnabled( (bool) Music );
+	m_pWii->SetIngameMusicVolume( MusicVolume );
+
+	ClearMenus();
+
+	//========================================
+	// Main Menu - one time setup
+	int y=-(60);
+	int step=24+8+4+2;
+	int height=24+4;
+	float width=180;
+	
+	SetMenuGroup("MainMenu");
+
+	AddMenu(-width*0.10, y, width,height,"Start_Game",false,true);
+	y+=step;
+	AddMenu(-width*0.15, y, width,height,"Options",false,true);
+	y+=step;
+	AddMenu(-width*0.20, y, width,height,"Intro",false,true);
+	y+=step;
+	//move this one into options
+
+	if ( m_pWii->GetMusicFilesContainerSize() > 1)
+		AddMenu( -width*0.25, y, width,height,"Change_Tune",false,true);
+	else
+		AddMenu( -width*0.25, y, width,height,"Change_Tune",true,false);
+	
+	if (m_pWii->m_MusicStillLeftToDownLoad)
+		AddMenu( 160, y, 220,height,"download_extra_music",false,false);
+
+	y+=step;
+	AddMenu( -width*0.30, y, width,height ,"Controls",false,true );
+	y+=step;
+	AddMenu( -width*0.35, y, width,height ,"Credits",false,true );
+
+	//==========================================================
+	// Options Menu - one time setup
+	SetMenuGroup("OptionsMenu");
+
+	int x=0; // centre of screen
+	y=-98;
+	height=26;
+	step=26+8;
+
+	//GetMenuManager()->AddMenu( x - 108, y, 200, height ,"Credits" );
+	//GetMenuManager()->AddMenu( x + 108, y, 200, height ,"Controls" );
+	y+=step;
+
+	AddMenu(x, y, 600, height, "Ingame_Music",false,true);
+	AddMenu(x+222, y, 1, height, "IngameMusicState",true)->
+		AddTextItem( m_pWii->GetText("off") )->AddTextItem( m_pWii->GetText("on"))->SetCurrentItemIndex(Music);
+
+	y+=step;
+	AddMenu(x, y, 600, height, "Ingame_MusicVolume",false,true);
+	AddMenu(x+222, y, 1, height, "IngameMusicVolumeState",true)->
+		AddTextItem(("0"))->AddTextItem(("1"))->
+		AddTextItem(("2"))->AddTextItem(("3"))->
+		AddTextItem(("4"))->AddTextItem(("5"))->SetCurrentItemIndex(MusicVolume);
+
+	y+=step;
+	AddMenu(x, y , 600, height, "Difficulty_Level",false,true );
+	AddMenu(x+222, y, 1, height, "DifficultySetting",true)->
+		AddTextItem( m_pWii->GetText("easy"))->AddTextItem( m_pWii->GetText("medium"))->
+		AddTextItem( m_pWii->GetText("hard"))->SetCurrentItemIndex(Difficulty);
+
+	y+=step;
+	AddMenu(x, y , 600, height, "Set_Language",false,true);
+	// GetMenuManager()->AddMenu(x+300, y, 1, height, "LanguageSetting",true)->AddTextItem("English")->AddTextItem("Italian")->AddTextItem("Esperanto")->SetCurrentItemIndex(0);
+	if ( m_pWii->GetSupportedLanguagesEmpty() == false )
+	{
+		Menu* NextItem = NULL; 
+		//TODO - typedef this !!!
+		for (map<string, map<string,string> >::iterator IterSupportedLanguages( m_pWii->GetSupportedLanguagesBegin() ) ;
+			IterSupportedLanguages != m_pWii->GetSupportedLanguagesEnd(); ++IterSupportedLanguages)
+		{
+			// (first is the language, second english word we wish to find in that language
+			if (NextItem==NULL)
+				NextItem= AddMenu(x+222, y, 1, height, "LanguageSetting",true)->AddTextItem(IterSupportedLanguages->first) ;
+			else
+				NextItem = NextItem->AddTextItem(IterSupportedLanguages->first) ;
+		}
+		NextItem->SetCurrentItemIndex(Language); // set the fisrt one as the default language
+	}
+	y+=step+30;
+	AddMenu(0, y , 600, height, "Back");
+	SetMenuGroup( Group );
 }
