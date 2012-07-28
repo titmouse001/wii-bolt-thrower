@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 <Data>
-	<LatestReleaseAvailable>0.10</LatestReleaseAvailable>
+	<LatestReleaseAvailable>0.70</LatestReleaseAvailable>
 	
 	<ReleaseNotes>
     visit http://wiibrew.org/wiki/BoltThrower for release notes\n\n
@@ -52,39 +52,39 @@
 		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Sounds/Alarm2.ogg"
 					FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
 					
-		<AddFile Name="ExplodeWithSparks"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/ExplodeWithSparks.ogg" 
+		<AddFile Name="ExplodeWithSparks"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Sounds/ExplodeWithSparks.ogg" 
 						FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
-		<AddFile Name="GunFire1"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/GunFire1.ogg"
+		<AddFile Name="GunFire1"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Sounds/GunFire1.ogg"
 						FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
-		<AddFile Name="GunFire2"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/GunFire2.ogg"
+		<AddFile Name="GunFire2"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Sounds/GunFire2.ogg"
 						FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
-		<AddFile Name="GunFire3"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/GunFire3.ogg"
+		<AddFile Name="GunFire3"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Sounds/GunFire3.ogg"
 					FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
-		<AddFile Name="GunFire4"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/GunFire4.ogg"
+		<AddFile Name="GunFire4"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Sounds/GunFire4.ogg"
 					FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
-		<AddFile Name="HitShield"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/HitShield.ogg"
+		<AddFile Name="HitShield"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Sounds/HitShield.ogg"
 					FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
-		<AddFile Name="Hull1"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Hull1.ogg" 
+		<AddFile Name="Hull1"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Sounds/Hull1.ogg" 
 					FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
-		<AddFile Name="Hull2"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Hull2.ogg" 
+		<AddFile Name="Hull2"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Sounds/Hull2.ogg" 
 					FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
-		<AddFile Name="Hull3"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Hull3.ogg" 
+		<AddFile Name="Hull3"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Sounds/Hull3.ogg" 
 					FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
-		<AddFile Name="HullCreak1"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/HullCreak1.ogg"
+		<AddFile Name="HullCreak1"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Sounds/HullCreak1.ogg"
 					FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
-		<AddFile Name="HullCreak2"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/HullCreak2.ogg"
+		<AddFile Name="HullCreak2"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Sounds/HullCreak2.ogg"
 					FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
-		<AddFile Name="lockedOut"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/lockedOut.ogg" 
+		<AddFile Name="lockedOut"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Sounds/lockedOut.ogg" 
 					FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
-		<AddFile Name="Metal_pickup"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Metal_pickup.ogg"
+		<AddFile Name="Metal_pickup"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Sounds/Metal_pickup.ogg"
 					FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
-		<AddFile Name="MineLockOn"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/MineLockOn.ogg"
+		<AddFile Name="MineLockOn"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Sounds/MineLockOn.ogg"
 				FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
-		<AddFile Name="MinePing"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/MinePing.ogg" 
+		<AddFile Name="MinePing"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Sounds/MinePing.ogg" 
 				FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
-		<AddFile Name="PickUphealth"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/PickUphealth.ogg" 
+		<AddFile Name="PickUphealth"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Sounds/PickUphealth.ogg" 
 				FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
-		<AddFile Name="shrapnel"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/shrapnel.ogg" 
+		<AddFile Name="shrapnel"	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Sounds/shrapnel.ogg" 
 				FullDownloadPath="Sounds/" OverwriteExistingFile="YES"/>
 				
 				
@@ -94,7 +94,7 @@
 		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Lwo/Textures/OneEndedBarTexture.png"
 					FullDownloadPath="lwo/textures/" OverwriteExistingFile="YES"/>
 					
-		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Lwo/Earth_medres.lwo"
+		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Lwo/Earth_medres.LWO"
 					FullDownloadPath="lwo/" OverwriteExistingFile="YES"/>
 		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Lwo/Textures/land_ocean_ice_cloud_800x400.jpg"
 					FullDownloadPath="lwo/textures/" OverwriteExistingFile="YES"/>
