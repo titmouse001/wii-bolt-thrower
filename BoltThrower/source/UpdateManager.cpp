@@ -215,7 +215,7 @@ bool UpdateManager::CheckForUpdate(string MasterUpdateFile)
 bool UpdateManager::UpdatePackageYesOrNo()
 {
 	//m_pWiiManager->GetCamera()->SetCameraView(0,0) ;
-//	m_pWiiManager->GetMessageBox()->SetUpMessageBox( m_LatestReleaseAvailable + " Available", m_ReleaseNotes );			
+	m_pWiiManager->GetMessageBox()->SetUpMessageBox( m_LatestReleaseAvailable + " Available", m_ReleaseNotes );			
 
 	MyThread.m_Data.State = ThreadData::QUESTION;
 	MyThread.m_Data.Message = "";

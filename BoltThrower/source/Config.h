@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static const std::string s_ReleaseVersion("0.69");
+static const std::string s_ReleaseVersion("0.70");
 static const std::string s_DateOfRelease("July 2012");
 static const float s_fVersion( atof( s_ReleaseVersion.c_str() ) );
 
@@ -37,7 +37,6 @@ static const std::string  s_MasterFileLatestVersion ( "LatestVersion_FAKE" ); //
 #define BUILD_FINAL_RELEASE
 
 static const std::string  s_MasterFileLatestVersion ( "LatestVersion" ); // <<< release
-
 
 // NOTE ABOUT LatestVersion_TESTING
 // static const std::string  s_MasterFileLatestVersion ( "LatestVersion_TESTING.xml" );  // release 0.61 used this - so it needs to say on web site!!!
