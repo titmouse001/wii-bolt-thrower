@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 <Data>
-	<LatestReleaseAvailable>0.10</LatestReleaseAvailable>
+	<LatestReleaseAvailable>0.71</LatestReleaseAvailable>
 	
 	<ReleaseNotes>
     visit http://wiibrew.org/wiki/BoltThrower for release notes\n\n
@@ -94,7 +94,7 @@
 		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Lwo/Textures/OneEndedBarTexture.png"
 					FullDownloadPath="lwo/textures/" OverwriteExistingFile="YES"/>
 					
-		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Lwo/Earth_medres.lwo"
+		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Lwo/Earth_medres.LWO"
 					FullDownloadPath="lwo/" OverwriteExistingFile="YES"/>
 		<AddFile 	URI="http://wii-bolt-thrower.googlecode.com/hg/Data/BoltThrower_v0.70/Lwo/Textures/land_ocean_ice_cloud_800x400.jpg"
 					FullDownloadPath="lwo/textures/" OverwriteExistingFile="YES"/>
