@@ -68,7 +68,7 @@
   
    <LightWaveObjects>
 		<AddLWO Name="MoonLowRes"	FileName="lwo/Moon_lowres.LWO" 						UseModelsNormalData="0"/>
-		<AddLWO Name="MoonHiRes"	FileName="lwo/Moon_medres.LWO"						UseModelsNormalData="0"/>
+		<AddLWO Name="MoonHiRes"	FileName="lwo/Moon_medress.LWO"						UseModelsNormalData="0"/>
 		<AddLWO Name="WiiMote"		FileName="lwo/wiimote.lwo" 						 	UseModelsNormalData="1"/>
 		<AddLWO Name="Rock1"		FileName="lwo/Asteroid01_Epimetheus_medress.lwo" 	UseModelsNormalData="0"/>
 		<AddLWO Name="Rock2"		FileName="lwo/Asteroid01_Epimetheus_lowress.lwo"	UseModelsNormalData="0"/>
