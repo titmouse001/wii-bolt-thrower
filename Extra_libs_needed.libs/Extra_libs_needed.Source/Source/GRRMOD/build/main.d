@@ -1,6 +1,6 @@
-GRRMOD_MP3.o: \
- c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/GRRMOD/GRRMOD_MP3.c \
- c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/GRRMOD/GRRMOD_internals.h \
+main.o: \
+ c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/source/main.c \
+ c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/GRRMOD/grrmod.h \
  c:/devkitPro/libogc/include/gccore.h \
  c:/devkitPro/libogc/include/ogc/dsp.h \
  c:/devkitPro/libogc/include/gctypes.h \
@@ -52,9 +52,17 @@ GRRMOD_MP3.o: \
  c:/devkitPro/libogc/include/ogc/mutex.h \
  c:/devkitPro/libogc/include/ogc/system.h \
  c:/devkitPro/libogc/include/ogc/wiilaunch.h \
- c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/GRRMOD/mpg123/mpg123.h
+ c:/devkitPro/libogc/include/wiiuse/wpad.h \
+ c:/devkitPro/libogc/include/wiiuse/wiiuse.h \
+ c:/devkitPro/libogc/include/bte/bte.h \
+ c:/devkitPro/libogc/include/bte/bd_addr.h \
+ c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/build/music_mp3.h \
+ c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/build/music_mod.h \
+ c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/build/music_xm.h \
+ c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/build/music_s3m.h \
+ c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/build/music_it.h
 
-c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/GRRMOD/GRRMOD_internals.h:
+c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/GRRMOD/grrmod.h:
 
 c:/devkitPro/libogc/include/gccore.h:
 
@@ -158,4 +166,20 @@ c:/devkitPro/libogc/include/ogc/system.h:
 
 c:/devkitPro/libogc/include/ogc/wiilaunch.h:
 
-c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/GRRMOD/mpg123/mpg123.h:
+c:/devkitPro/libogc/include/wiiuse/wpad.h:
+
+c:/devkitPro/libogc/include/wiiuse/wiiuse.h:
+
+c:/devkitPro/libogc/include/bte/bte.h:
+
+c:/devkitPro/libogc/include/bte/bd_addr.h:
+
+c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/build/music_mp3.h:
+
+c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/build/music_mod.h:
+
+c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/build/music_xm.h:
+
+c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/build/music_s3m.h:
+
+c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/build/music_it.h:

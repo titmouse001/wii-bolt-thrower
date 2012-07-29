@@ -1,6 +1,6 @@
 GRRMOD_core.o: \
- c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMod_needed_to_comiple/GRRMOD/GRRMOD/GRRMOD_core.c \
- c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMod_needed_to_comiple/GRRMOD/GRRMOD/grrmod.h \
+ c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/GRRMOD/GRRMOD_core.c \
+ c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/GRRMOD/grrmod.h \
  c:/devkitPro/libogc/include/gccore.h \
  c:/devkitPro/libogc/include/ogc/dsp.h \
  c:/devkitPro/libogc/include/gctypes.h \
@@ -52,12 +52,12 @@ GRRMOD_core.o: \
  c:/devkitPro/libogc/include/ogc/mutex.h \
  c:/devkitPro/libogc/include/ogc/system.h \
  c:/devkitPro/libogc/include/ogc/wiilaunch.h \
- c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMod_needed_to_comiple/GRRMOD/GRRMOD/GRRMOD_internals.h \
+ c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/GRRMOD/GRRMOD_internals.h \
  c:/devkitPro/libogc/include/aesndlib.h \
  c:/devkitPro/libogc/include/ogc/lwp_watchdog.h \
  c:/devkitPro/libogc/include/ogc/lwp_queue.h
 
-c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMod_needed_to_comiple/GRRMOD/GRRMOD/grrmod.h:
+c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/GRRMOD/grrmod.h:
 
 c:/devkitPro/libogc/include/gccore.h:
 
@@ -161,7 +161,7 @@ c:/devkitPro/libogc/include/ogc/system.h:
 
 c:/devkitPro/libogc/include/ogc/wiilaunch.h:
 
-c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMod_needed_to_comiple/GRRMOD/GRRMOD/GRRMOD_internals.h:
+c:/Projects/BoltThrowerProject.wii/wii-bolt-thrower/Extra_libs_needed.libs/Extra_libs_needed.Source/Source/GRRMOD/GRRMOD/GRRMOD_internals.h:
 
 c:/devkitPro/libogc/include/aesndlib.h:
 
