@@ -270,12 +270,10 @@ static void* player(void *arg) {
 u64 start;
 #endif
 
-	// return;  STILL CLICKS WITH THIS!!!
 
     LWP_InitQueue(&player_queue);
 	
-	
-	// return;  STILL CLICKS WITH THIS!!!
+
 
     u32 i;
     thr_running = true;
