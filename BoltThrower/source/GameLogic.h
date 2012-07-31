@@ -212,7 +212,7 @@ public:
 	int GetTotalEnemiesContainerSize();
 
 	// mission logic
-	bool IsBaseShieldOnline();
+	bool IsBaseShieldOnline() const { return m_IsBaseShieldOnline; }
 
 	void InitMenu();
 
@@ -230,6 +230,8 @@ public:
 	float FakLockOn_AngInc;
 
 	float	m_TerraformingCounter;	
+
+	bool IsBaseShieldOnline() { return m_IsBaseShieldOnline; }
 
 private:
 

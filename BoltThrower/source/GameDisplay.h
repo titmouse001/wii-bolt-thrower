@@ -28,6 +28,7 @@ public:
 	void DisplaySmallSimpleMessageForThread(ThreadData* pData);
 
 	void DisplayMoon(HashLabel ModelName);
+	void DisplayMoonShieldAndRocks();
 	void Display3DInfoBar(float x , float y, std::string Message, float Tilt = 0.0f);
 	void DisplayShotForGunTurret();
 	void DisplayProbMines();

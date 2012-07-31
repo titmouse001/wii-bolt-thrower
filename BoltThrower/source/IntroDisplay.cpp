@@ -48,6 +48,7 @@ void IntroDisplay::DisplayAllForIntro()
 	m_pWii->GetCamera()->SetLightOn2();
 	DisplayViper();
 	DisplayMoon(HashString::MoonHiRes);
+	DisplayMoonShieldAndRocks();
 	DisplayShotForGunTurret();
 	m_pWii->GetCamera()->SetLightOff();
 

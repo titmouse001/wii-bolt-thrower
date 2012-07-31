@@ -225,6 +225,10 @@ void GameLogic::DoControls()
 
 void GameLogic::StillAlive()
 {
+	// debug test
+	//			if (m_TerraformingCounter < 255.0f) {
+	//		m_TerraformingCounter += 0.25f;
+	//		}
 
 	if ( GetPlrVessel()->GetShieldLevel() <= 20 ) 	{
 		if (GetPlrVessel()->m_LastShieldLevel != GetPlrVessel()->GetShieldLevel()) {
@@ -2200,10 +2204,6 @@ bool GameLogic::IsJustOneShiledSatelliteLeftToSalvaged()
 	return (m_ShieldGeneratorContainer->size()==1);
 }
 
-bool GameLogic::IsBaseShieldOnline()
-{
-	return m_IsBaseShieldOnline;
-}
 
 // NOTE: Amiming for quick compile times, if any optimisitions are lost I don't care.
 // This lot here been placed here so I can forward declare 'class Vessel' and avoid using #include "Vessel.h" in the declaration

@@ -49,25 +49,36 @@ void GameDisplay::DisplayAllForIngame()
 	//m_pWii->GetCamera()->SetLightOn2();
 	// 3D section
 
-	if (m_pGameLogic->m_TerraformingCounter > 0.0f);
+	
+//	static float a=0;
+//	a+=0.015f;
+//	m_pWii->GetCamera()->SetLightAlpha( 128 - (sin(a)*128) );/
+
+
+	if (m_pGameLogic->m_TerraformingCounter < 255.0f)
 	{
 		m_pWii->GetCamera()->SetLightAlpha(255);
 		DisplayMoon(HashString::MoonHiRes);
 	}
+	//else
+	//{
+	//	printf("moon off");
+	//}
 
-//	static float a=0;
-//	a+=0.015f;
-//	m_pWii->GetCamera()->SetLightAlpha( 128 - (sin(a)*128) );/
-	if (m_pGameLogic->m_TerraformingCounter != 255.0f )
+	if (m_pGameLogic->m_TerraformingCounter > 0.0f)
 	{
 		m_pWii->GetCamera()->SetLightAlpha( m_pGameLogic->m_TerraformingCounter );
 		DisplayMoon(HashString::Earth_medres);
+
+//		printf("Terraforming %f",m_pGameLogic->m_TerraformingCounter);
 	}
 
+
 	m_pWii->GetCamera()->SetLightOn2();
+	DisplayMoonShieldAndRocks();
+
 	DisplayGunTurrets();
 	DisplayShotForGunTurret();
-
 	DisplayAsteroids();
 	DisplayShieldGenerators();
 
@@ -123,9 +134,10 @@ void GameDisplay::DisplayAllForIngame()
 //				128 , (rand()%(314*2)) * 0.01 , 0.85f  );
 
 
-		if (m_pGameLogic->m_TerraformingCounter>0) {
+		if ( (m_pGameLogic->m_TerraformingCounter>0) && m_pGameLogic->IsBaseShieldOnline() ) {
 			Util3D::Trans(m_pWii->GetCamera()->GetCamX(), m_pWii->GetCamera()->GetCamY());
 			m_pFontManager->DisplayTextCentre("Terraforming "+Util::NumberToString(m_pGameLogic->m_TerraformingCounter * 0.39215f )+"%", 0, 190,128 ,HashString::SmallFont);
+
 		}
 	}
 
@@ -319,10 +331,9 @@ void GameDisplay::DisplayHealthPickUps()
 			m_pImageManager->GetImage(Iter->GetFrame())->DrawImage(*Iter);
 		}
 	}
-
 }
 
-void GameDisplay::DisplayMoon(HashLabel ModelName)
+void GameDisplay::DisplayMoonShieldAndRocks()
 {
 	extern profiler_t profile_MoonRocks;
 	m_pWii->profiler_start(&profile_MoonRocks);
@@ -333,44 +344,9 @@ void GameDisplay::DisplayMoon(HashLabel ModelName)
 		MoonIter!= m_pGameLogic->GetCelestialBodyContainerEnd(); ++MoonIter )
 	{
 		Vec3 v( MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ() );
-		float r = m_pWii->GetRender3D()->GetDispayListModelRadius(HashString::MoonShield);  // just using MoonShield for anything inside it, i.e the moon
-		if (pFrustum->sphereInFrustum(v,r) != FrustumR::OUTSIDE)
-		{
-			// moon
-			Mtx Model; //,mat;
-			Util3D::MatrixRotateY(Model, MoonIter->GetRotateY());
-			guMtxTransApply( Model, Model , MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ() );  // distance back
-			guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
-		
-		//	if (MoonIter->GetDetailLevel() == Low)
-		//		m_pWii->GetRender3D()->RenderModel(HashString::MoonLowRes, Model);
-	//		else
-	//			m_pWii->GetRender3D()->RenderModel(HashString::MoonHiRes, Model);
 
-
-//			if (MoonIter->GetDetailLevel() == Low)
-//				m_pWii->GetRender3D()->RenderModel(HashString::Earth_lowres, Model);
-//			else
-
-			m_pWii->GetRender3D()->RenderModel( ModelName,  Model);
-
-			if (m_pGameLogic->IsBaseShieldOnline())
-			{
-				// moon shield
-				GX_SetCullMode(GX_CULL_NONE);
-				GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_FALSE);
-				Util3D::MatrixRotateY(Model, MoonIter->GetRotateY()*8);
-				guMtxTransApply(Model,Model, 0, 0, MoonIter->GetZ());
-				guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
-				m_pWii->GetRender3D()->RenderModelHardNorms(HashString::MoonShield, Model);
-				GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
-				GX_SetCullMode(GX_CULL_BACK);
-			}
-		}
-
-		// moon rocks
-		if (pFrustum->sphereInFrustum(v,m_pGameLogic->GetClippingRadiusNeededForMoonRocks()) != FrustumR::OUTSIDE)
-		{
+// moon rocks
+		if (pFrustum->sphereInFrustum(v,m_pGameLogic->GetClippingRadiusNeededForMoonRocks()) != FrustumR::OUTSIDE) {
 			m_pWii->GetRender3D()->RenderModelPreStage(HashString::Rock1);  // rock1 & rock2 use the same texture
 			std::vector<Item3D>::iterator IterEnd = m_pGameLogic->GetMoonRocksContainerBegin();
 			std::advance(IterEnd,MoonIter->GetAmountOfRocks());
@@ -407,9 +383,57 @@ void GameDisplay::DisplayMoon(HashLabel ModelName)
 				}
 			}
 		}
+
+
+		if (m_pGameLogic->IsBaseShieldOnline()) {
+			float r = m_pWii->GetRender3D()->GetDispayListModelRadius(HashString::MoonShield);  // just using MoonShield for anything inside it, i.e the moon
+			if (pFrustum->sphereInFrustum(v,r) != FrustumR::OUTSIDE) {
+				// setup same pos as each Celestial Body
+				Mtx Model; //,mat;
+				Util3D::MatrixRotateY(Model, MoonIter->GetRotateY());
+				guMtxTransApply( Model, Model , MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ() );  // distance back
+				guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
+			
+				// moon shield
+				GX_SetCullMode(GX_CULL_NONE);
+				GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_FALSE);
+				Util3D::MatrixRotateY(Model, MoonIter->GetRotateY()*8);
+				guMtxTransApply(Model,Model, 0, 0, MoonIter->GetZ());
+				guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
+				m_pWii->GetRender3D()->RenderModelHardNorms(HashString::MoonShield, Model);
+				GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
+				GX_SetCullMode(GX_CULL_BACK);
+			}
+		}
+		
 	}
 
 	m_pWii->profiler_stop(&profile_MoonRocks);
+}
+
+
+void GameDisplay::DisplayMoon(HashLabel ModelName)
+{
+//	extern profiler_t profile_MoonRocks;
+//	m_pWii->profiler_start(&profile_MoonRocks);
+
+	FrustumR* pFrustum( m_pWii->GetFrustum() );
+
+	for (std::vector<MoonItem3D>::iterator MoonIter(m_pGameLogic->GetCelestialBodyContainerBegin()); 
+		MoonIter!= m_pGameLogic->GetCelestialBodyContainerEnd(); ++MoonIter )
+	{
+		Vec3 v( MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ() );
+		float r = m_pWii->GetRender3D()->GetDispayListModelRadius(HashString::MoonShield);  // just using MoonShield for anything inside it, i.e the moon
+		if (pFrustum->sphereInFrustum(v,r) != FrustumR::OUTSIDE) {
+			Mtx Model;
+			Util3D::MatrixRotateY(Model, MoonIter->GetRotateY());
+			guMtxTransApply( Model, Model , MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ() );  // distance back
+			guMtxConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,Model);
+			m_pWii->GetRender3D()->RenderModel( ModelName,  Model);
+		}
+	}
+
+//	m_pWii->profiler_stop(&profile_MoonRocks);
 }
 
 void GameDisplay::Display3DInfoBar(float x , float y, std::string Message, float Tilt)
