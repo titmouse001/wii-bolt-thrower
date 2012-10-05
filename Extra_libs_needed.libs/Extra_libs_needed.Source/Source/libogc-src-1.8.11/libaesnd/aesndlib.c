@@ -160,6 +160,9 @@ static __inline__ void __aesndsetvoicefreq(AESNDPB *pb,u32 freq)
 }
 
 #if defined(HW_DOL)
+
+#warning *** NOTE: USING defined(HW_DOL) ***
+
 static ARQRequest arq_request[MAX_VOICES];
 static u8 stream_buffer[DSP_STREAMBUFFER_SIZE*2] ATTRIBUTE_ALIGN(32);
 
@@ -234,6 +237,9 @@ static __inline__ void __aesndhandlerequest(AESNDPB *pb)
 	pb->mram_curr += copy_len;
 }
 #elif defined(HW_RVL)
+
+#warning *** NOTE: USING defined(HW_RVL) ***
+
 static u8 stream_buffer[MAX_VOICES][DSP_STREAMBUFFER_SIZE*2] ATTRIBUTE_ALIGN(32);
 
 static void __aesndfillbuffer(AESNDPB *pb,u32 buffer)
