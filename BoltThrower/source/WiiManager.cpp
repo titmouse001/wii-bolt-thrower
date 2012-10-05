@@ -179,16 +179,15 @@ void WiiManager::PreInitManagers()
 
 	m_pMenuManager->Init();
 
+	m_InputDeviceManager->Init();	// move into pre init... debug exitprintf needs home button
+	
+
 }
 
 void WiiManager::FinalInitManagers()
 {	
-	
 	MyThread.m_Data.Message = "Initialising GameLogic...";
 	m_pGameLogic->Init();			// maybe slow
-	
-	MyThread.m_Data.Message = "Initialising InputDeviceManager...";
-	m_InputDeviceManager->Init();	// maybe slow
 	
 	MyThread.m_Data.Message = "Initialising URLManager...";
 	m_URLManager->Init();			// is slow
@@ -654,13 +653,13 @@ void WiiManager::CreateSettingsFromXmlConfiguration(std::string FileName)
 
 			//printf("XML Setttings complete");
 		}
-		//else
-		//{
-		//	if (docHandle.FirstChildElement().Element() == NULL)
-		//		printf("The root label is missing");
-		//	else
-		//		printf("The root is not labeled <Data>");
-		//}
+		else
+		{
+			if (docHandle.FirstChildElement().Element() == NULL)
+				ExitPrintf("The root label is missing");
+			else
+				ExitPrintf("The root is not labeled <Data>");
+		}
 	}
 
 	// Check the XML for any obvious mistakes

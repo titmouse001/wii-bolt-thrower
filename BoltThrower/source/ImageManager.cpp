@@ -10,7 +10,7 @@
 #include "ImageManager.h"
 #include "FontManager.h"
 #include "tga.h"
-#include "libpng/pngu/pngu.h"
+#include "pngu.h"
 
 #include "JPEGDEC.h"
 #include <string>

@@ -204,7 +204,7 @@ SoundManager::~SoundManager()
 
 void SoundManager::Init( )
 { 
-	GRRMOD_Init(true);  // this will to things like "AESND_Init"  for you
+	GRRMOD_Init(true);  // this will do things like call "AESND_Init"  for you
 	// ... AESND_Init();
 	m_FixSoundVoice = AESND_AllocateFixedVoice(NULL); // used for players looping thrusters
 	m_OggPlayer.Init();

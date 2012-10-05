@@ -11,7 +11,7 @@
 #include <string.h>  // memset
 #include <malloc.h>
 #include <dirent.h>
-#include "libpng/pngu/pngu.h"
+#include "pngu.h"
 #include "Util3D.h"
 #include "vessel.h"
 #include "HashLabel.h"

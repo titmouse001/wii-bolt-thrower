@@ -19,8 +19,6 @@ TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 MODULES     :=	source \
 				source/LWOSource \
-				source/libpng \
-				source/libpng/pngu \
 				source/TinyXML \
 				source/CullFrustum \
 				source/oggplayer 
@@ -41,7 +39,7 @@ LDFLAGS		= -g $(MACHDEP) -Wl,-Map,$(notdir $@).map
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
 ##### remove mp3 support LIBS	:=	-lpng -lz -lwiiuse -lbte -lmad -lfat -lasnd -lmodplay -logc -lm
-# Take car with the order here...
+# Take care with the order here...
 # from web LIBS    :=  -lgrrlib -lfreetype -lfat -ljpeg -lpngu -lpng -lz -lmodplay -lmxml -lwiiuse -lbte -lasnd -logc -lm 
 # -logc -lmodplay -laesnd
 #LIBS	:=	-lpng -lz -lwiiuse -lbte -lfat -lasnd -logc -lmad -lm 
@@ -49,7 +47,7 @@ LDFLAGS		= -g $(MACHDEP) -Wl,-Map,$(notdir $@).map
 
 
 #LIBS := -lfat -lvorbisidec -lpng -lz -lmodplay -lwiiuse -lbte -laesnd -logc -lm
-LIBS := -lfat -lvorbisidec -lpng -lz -lgrrmod -lwiiuse -lbte -laesnd -logc -lm
+LIBS := -lfat -lvorbisidec -lpngu -lpng -lz -lgrrmod -lwiiuse -lbte -laesnd -logc -lm
 
 
 #---------------------------------------------------------------------------------
