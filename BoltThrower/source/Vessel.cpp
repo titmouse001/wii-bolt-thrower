@@ -147,8 +147,8 @@ f32 Vessel::GetTurnDirectionForTurret(guVector* Vec)
 
 void Vessel::AddShieldLevel(int Value) 
 { 
-//	int ShieldLevelMaxLimit = Singleton<WiiManager>::GetInstanceByPtr()->GetXmlVariable(HashString::PlayerMaxShieldLevel);
-//	m_iShieldLevel = std::min(m_iShieldLevel + Value,ShieldLevelMaxLimit); 
+	int ShieldLevelMaxLimit = Singleton<WiiManager>::GetInstanceByPtr()->GetXmlVariable(HashString::PlayerMaxShieldLevel);
+	m_iShieldLevel = std::min(m_iShieldLevel + Value,ShieldLevelMaxLimit); 
 }
 
 // **************

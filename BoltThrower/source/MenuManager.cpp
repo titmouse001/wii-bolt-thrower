@@ -236,7 +236,9 @@ void MenuManager::BuildMenus(bool KeepSettings)
 	int Difficulty = 1;
 	int Language = 0;
 	int MusicVolume = 3;
-	string Group = GetMenuGroup(); 
+	string Group = GetMenuGroup();   // nasty code... GetMenuItemIndex() depends on this setting.
+
+	SetMenuGroup("OptionsMenu");
 
 	if ( KeepSettings )
 	{
@@ -258,7 +260,7 @@ void MenuManager::BuildMenus(bool KeepSettings)
 	int height=24+4;
 	float width=180;
 	
-	SetMenuGroup("MainMenu");
+	SetMenuGroup("MainMenu");     // nasty code... AddMenu() depends on this setting.
 
 	AddMenu(-width*0.10, y, width,height,"Start_Game",false,true);
 	y+=step;

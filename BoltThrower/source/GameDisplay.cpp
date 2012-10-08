@@ -24,6 +24,8 @@
 #include "Thread.h"
 #include "Timer.h"
 #include "Draw_Util.h"
+
+#include "menuscreens.h"
 using namespace std;
 
 GameDisplay::GameDisplay() : m_pWii(NULL), m_pGameLogic(NULL), m_pImageManager(NULL)
@@ -1075,15 +1077,37 @@ void GameDisplay::DisplayShotForGunTurret()
 	}
 } 
 
-
-
-void GameDisplay::DisplaySmallSimpleMessageForThread(ThreadData* pData)
-{
+void GameDisplay::DisplayLoadingTuneMessageForThread(ThreadData* pData) {
+	
 	// This section is for game startup
-
 	static float fAngle = -M_PI;
-	fAngle +=0.085f;
+	fAngle +=0.015f;
+//	if (pData->State != ThreadData::LOADING_TUNE) {
+//		ExitPrintf("Not correct state for DisplayLoadingTuneMessageForThread");
+//	}
 
+	pData->YposForLoadingTune += (pData->FinalYposForLoadingTune - pData->YposForLoadingTune)*0.04f;
+		
+
+	m_pWii->GetMenuScreens()->DoMenuScreen();
+
+	m_pWii->GetCamera()->SetCameraView( 0, 0 );	
+	Util3D::Trans(0,0);
+	Draw_Util::DrawRectangle(-320*2,-240*2,640*2,480*2,128,0,0,0);
+
+	m_pImageManager->GetImage(0)->DrawImageXYZ(0,pData->YposForLoadingTune,0,255-75,fAngle);
+	Util3D::Trans(0,pData->YposForLoadingTune);
+	m_pFontManager->DisplayTextCentre(pData->Message, 0,0 ,255 - (abs(sin(fAngle*6)*200)),HashString::SmallFont);
+
+	m_pWii->SwapScreen(GX_TRUE);  
+}
+	
+
+void GameDisplay::DisplaySmallSimpleMessageForThread(ThreadData* pData) {
+	
+	// This section is for game startup
+	static float fAngle = -M_PI;
+	fAngle +=0.085f;	
 
 	m_pWii->GetCamera()->SetCameraView( 0, 0 );
 	Util3D::Trans(0,0,250);
@@ -1100,7 +1124,8 @@ void GameDisplay::DisplaySmallSimpleMessageForThread(ThreadData* pData)
 	}
 
 	static vector<u16> NumberContainer;
-	if ( (pData->State == ThreadData::LOADING) ||  (pData->State == ThreadData::ONLINEDOWNLOAD_EXTRAFILES) ||  (pData->State == ThreadData::ONLINEDOWNLOAD_UPDATE)) {
+	if ( (pData->State == ThreadData::LOADING) ||  (pData->State == ThreadData::ONLINEDOWNLOAD_EXTRAFILES) || 
+		(pData->State == ThreadData::CHECKING_FOR_UPDATE) ||  (pData->State == ThreadData::ONLINEDOWNLOAD_UPDATE)) {
 		if (NumberContainer.empty()) {
 			for (int i=0; i<8 ; i++){
 				NumberContainer.push_back(rand()%65535);
@@ -1127,24 +1152,28 @@ void GameDisplay::DisplaySmallSimpleMessageForThread(ThreadData* pData)
 	Util3D::Trans(0,0);
 
 	
-	if (pData->State == ThreadData::LOADING) {
+	if (pData->State == ThreadData::LOADING ) {
 		m_pFontManager->DisplayTextCentre("Loading, please wait...", 0,0,255 - (abs(sin(fAngle)*200)),HashString::SmallFont);
+	} else if (pData->State == ThreadData::CHECKING_FOR_UPDATE) {
+		m_pFontManager->DisplayTextCentre("Checking for Update, please wait...", 0,0,255,HashString::SmallFont);
 	} else if (pData->State == ThreadData::UPDATE_COMPLETE_RESET) {
-		m_pFontManager->DisplayTextCentre("Upate complete, please reload...", 0,0,255,HashString::SmallFont);
+		m_pFontManager->DisplayTextCentre("Update complete, please reload...", 0,0,255,HashString::SmallFont);
 	}else if (pData->State == ThreadData::ONLINEDOWNLOAD_UPDATE) {
 		m_pFontManager->DisplayTextCentre("Downloading update, please wait...", 0,0,255 - (abs(sin(fAngle)*200)),HashString::SmallFont);
 	}else if (pData->State == ThreadData::ONLINEDOWNLOAD_EXTRAFILES) {
 		m_pFontManager->DisplayTextCentre("Downloading extra files, please wait...", 0,0,255 - (abs(sin(fAngle)*200)),HashString::SmallFont);
-	}else 	if (pData->State == ThreadData::QUESTION) {
+	}else if (pData->State == ThreadData::QUESTION) {
 		GX_SetZMode (GX_FALSE, GX_LEQUAL, GX_FALSE);
 		Util3D::Trans(m_pWii->GetScreenWidth()/2.0f, m_pWii->GetScreenHeight()/2.0f);
 		m_pWii->GetMessageBox()->DisplayMessageBox(500,300);
-	}else 	if (pData->State == ThreadData::QUIT) {
+	}else if (pData->State == ThreadData::QUIT) {
 		m_pFontManager->DisplayTextCentre("Toodeloo...", 0,0,255,HashString::SmallFont);
 	}
 
 	m_pWii->SwapScreen(GX_TRUE);  
 }
+
+
 //
 //void GameDisplay::DisplaySimpleMessage(std::string Text, float fAngle)
 //{

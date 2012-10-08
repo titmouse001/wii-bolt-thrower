@@ -316,15 +316,15 @@ void MenuScreens::DoCreditsScreen()
 	int y(0);
 
 	static float ScrollText=1.0f;
-	ScrollText += (60.0f/250.0f);
-	int i = ((int)ScrollText)/19;
+	ScrollText += 0.5f; //speed
+	int i = ((int)ScrollText)/19;  // height of font plus needed padding
 	int scroll = ( (int)ScrollText) % 19;
 
 	//printf("%d",scroll);
 
 	GX_SetScissor(0,86,m_pWii->GetScreenWidth(),m_pWii->GetScreenHeight()-230);
 
-	static const int AMOUNT(16);
+	static const int AMOUNT(16); // lines of text
 	string Message;
 	int CountItems=0;
 	while ( (++CountItems) < AMOUNT) {
@@ -337,9 +337,14 @@ void MenuScreens::DoCreditsScreen()
 		}
 		Util::Replace(Message,"%%RELEASE_VERSION%%", s_ReleaseVersion);
 		Util::Replace(Message,"%%DATE_OF_BUILT%%", s_DateOfRelease);
-		int alpha = min(127+(int)(( (y/2) / (float)AMOUNT) * (128/(AMOUNT-1)) ) , 255);
+		//int alpha = min(127+(int)(( (y/2) / (float)AMOUNT) * (128/(AMOUNT-1)) ) , 255);
+		int alpha = min( y - scroll , 255);
 	
-		m_pWii->GetFontManager()->DisplayTextCentre( Message,0, y - scroll , alpha ,HashString::SmallFont);	
+		m_pWii->GetFontManager()->SetFontColour(0,0,0,255);
+		m_pWii->GetFontManager()->DisplayTextCentre( Message,0-1, y - scroll, alpha ,HashString::SmallFont);	
+
+		m_pWii->GetFontManager()->SetFontColour(255,255,255,255);
+		m_pWii->GetFontManager()->DisplayTextCentre( Message,0, y - scroll, alpha ,HashString::SmallFont);	
 		y+=19;
 	};
 

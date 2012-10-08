@@ -25,6 +25,7 @@ public:
 
 //	void DisplaySimpleMessage(std::string Text, float fAngle = (-3.14f/12.0f));
 	
+	void DisplayLoadingTuneMessageForThread(ThreadData* pData);
 	void DisplaySmallSimpleMessageForThread(ThreadData* pData);
 
 	void DisplayMoon(HashLabel ModelName);

@@ -45,7 +45,7 @@ int main(int /* argc */, char**  argv )
 	rWiiManager.GetUpdateManager()->DoUpdate(s_MasterFileLatestVersion);
 	//-------------------------------------------------
 #endif
-#if (0)
+#if (1)
 	//-------------------------------------------------
 	// Check for any missing downloads like extra music - from DownloadFiles section in the "configurtion.xml" file
 	rWiiManager.m_MusicStillLeftToDownLoad = rWiiManager.GetUpdateManager()->DownloadFilesListedInConfiguration(true); // true so SCAN ONLY

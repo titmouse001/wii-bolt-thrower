@@ -204,14 +204,20 @@ void GameLogic::DoControls()
 
 		if (WPAD_ButtonsDown(0) & WPAD_BUTTON_DOWN)  // Mines
 		{
+				
+		
+		//for (int i=0; i<50; i++)  //NOT FOR RELEASE - A BIT OF FUN WITH MINES!!!!!
+		//{
 			Vessel ProbeMine = *GetPlrVessel();
 			ProbeMine.SetFrameGroup( m_pWii->GetFrameContainer(HashString::ProbeMine16x16x2),0.05f);   // new mine
+
 			float dir = ProbeMine.GetFacingDirection() - (((rand()%(314/16))-(314/32))*0.01);
 			float v = (rand()%10) * 0.05f;
 			ProbeMine.SetGravityFactor(0.985f);
 			ProbeMine.AddVel(sin( dir  )* -(1.75+v),-cos( dir )* -(1.75+v),0);
 			ProbeMine.SetFacingDirection(0);
 			m_ProbeMineContainer->push_back(ProbeMine);
+		//}
 
 			m_pSoundManager->PlaySound( HashString::DropMine,112,112 );
 

@@ -102,7 +102,7 @@ void  UpdateManager::UpdateApplicationFiles( ){
 
 bool UpdateManager::CheckForUpdate(string MasterUpdateFile)
 {
-	MyThread.m_Data.State = ThreadData::ONLINEDOWNLOAD_UPDATE;
+	MyThread.m_Data.State = ThreadData::CHECKING_FOR_UPDATE;
 	MyThread.m_Data.Message = "";
 
 	bool Report( false );

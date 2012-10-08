@@ -28,19 +28,42 @@ void* Thread::thread2(ThreadData* ptr)
 	ptr->Message = "";
 	ptr->PreviousMessage = "";
 
-	while (ptr->Runnning) {
-		rWiiManager.GetGameDisplay()->DisplaySmallSimpleMessageForThread(ptr);
-		Util::SleepForMilisec(5);   
+	if (ptr->State == ThreadData::LOADING_TUNE) {
+
+		ptr->YposForLoadingTune = 240+128;   // display origin is from the screen centre for this this part
+		ptr->FinalYposForLoadingTune = 0;
+		ptr->Message = "Loading Tune";
+		for (int i=0; i<60; i++) {
+			rWiiManager.GetGameDisplay()->DisplayLoadingTuneMessageForThread(ptr);
+			Util::SleepForMilisec(5);   
+		}
+
+		while (ptr->Runnning) {
+			rWiiManager.GetGameDisplay()->DisplayLoadingTuneMessageForThread(ptr);
+			Util::SleepForMilisec(5);   
+		}
+
+		ptr->Message = "Now Playing";
+		ptr->FinalYposForLoadingTune = 240;
+		for (int i=0; i<60; i++) {
+			rWiiManager.GetGameDisplay()->DisplayLoadingTuneMessageForThread(ptr);
+			Util::SleepForMilisec(5);   
+		}
+	} else {
+		while (ptr->Runnning) {
+			rWiiManager.GetGameDisplay()->DisplaySmallSimpleMessageForThread(ptr);
+			Util::SleepForMilisec(5);   
+		}
 	}
 
 	ptr->HasStopped = true;
 
 	return 0;
 }
-void Thread::Start(ThreadData::ThreadState eState, string CornerMessage )
+void Thread::Start(ThreadData::ThreadState eState, string Message )
 {
 	m_Data.State = eState;
-	m_Data.Message = CornerMessage;
+	m_Data.Message = Message;
 	m_Data.WorkingBytesDownloaded = 0;
 
 	if ( LWP_CreateThread( &h_ThreadControl,

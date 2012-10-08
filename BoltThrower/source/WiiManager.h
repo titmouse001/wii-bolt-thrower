@@ -267,7 +267,7 @@ public:
 
 private:
 
-	void LoadMusic();
+	std::string LoadMusic();
 
 
 	u32* 					m_pFrameBuffer[2];

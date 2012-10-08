@@ -5,7 +5,7 @@
 #include <string>
 
 struct ThreadData {
-	enum ThreadState { LOADING, ONLINEDOWNLOAD_UPDATE, QUESTION, ONLINEDOWNLOAD_EXTRAFILES,UPDATE_COMPLETE_RESET, QUIT} ;
+	enum ThreadState { LOADING,LOADING_TUNE, ONLINEDOWNLOAD_UPDATE,CHECKING_FOR_UPDATE, QUESTION, ONLINEDOWNLOAD_EXTRAFILES,UPDATE_COMPLETE_RESET, QUIT} ;
 	bool Runnning;
 	std::string Message;
 	std::string PreviousMessage;
@@ -15,6 +15,10 @@ struct ThreadData {
 	ThreadState State;
 		
 	bool HasStopped;
+
+	// hacks for tune loading message
+	float FinalYposForLoadingTune;
+	float YposForLoadingTune;
 };
 
 
@@ -28,7 +32,7 @@ public:
 	static void* ThreadCallingFunc(Thread* ptr);
 
 	void* thread2(ThreadData* ptr);
-	void Start(ThreadData::ThreadState eState = ThreadData::LOADING, string CornerMessage="" );
+	void Start(ThreadData::ThreadState eState = ThreadData::LOADING, string Message="" );
 	void Stop();
 
 };

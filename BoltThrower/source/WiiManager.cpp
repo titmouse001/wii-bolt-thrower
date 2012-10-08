@@ -757,7 +757,7 @@ void WiiManager::InitGameResources()
 	}
 
 	//
-	//  Display thread - safe to start we now have minimal gfx neededs
+	//  Display thread - safe to start now we have the minimal gfx needed
 	//
 	MyThread.Start(ThreadData::LOADING);  // thread drawing now uses all the fonts
 
@@ -873,7 +873,7 @@ void WiiManager::ScanMusicFolder( bool ResetPlayQue )
 	}
 }
 
-void WiiManager::LoadMusic()
+std::string WiiManager::LoadMusic()
 {
 	FileInfo* pInfo( GetCurrentMusicInfo() );
 	if (pInfo!=NULL)
@@ -898,9 +898,14 @@ void WiiManager::LoadMusic()
 			free(m_pMusicData->pData);
 		}
  
+		//MyThread.m_Data.Message = pInfo->FileName; // hack
+
 		// Load the new music
 		WiiFile::ReadFile( pInfo->FileName, m_pMusicData );  // + fillout info structure (holds... data,size)
+
+		return  pInfo->FileName;
 	}
+	return "";
 }
 
 FileInfo* WiiManager::GetCurrentMusicInfo()
@@ -988,6 +993,8 @@ void WiiManager::NextMusic()
 
 			Iter->b_ThisSlotIsBeingUsed = true;
 
+			//MyThread.m_Data.Message = LoadMusic();
+			
 			LoadMusic();
 			PlayMusic();
 
@@ -1162,20 +1169,28 @@ void WiiManager::MenusLoop()
 				}
 				else if ( Name ==  HashString::Change_Tune )
 				{
-					// The menu screen hs been set above, so now just set the message
-					Util3D::CameraIdentity();
-					Util3D::TransRot(-280,-150,0, M_PI *0.5f );
-					GetFontManager()->DisplayTextCentre("Loading...", 0,0,200,HashString::SmallFont);
-					SwapScreen();  
-					//----------------------------------------------------------------------
-					// next frame - now need to set the menu screen again before the text message
-					GetMenuScreens()->DoMenuScreen();  // draw menu screen again
-					Util3D::CameraIdentity();
-					Util3D::TransRot(-280,-150,0, M_PI *0.5f );
-					GetFontManager()->DisplayTextCentre("Loading...", 0,0,200,HashString::SmallFont);
-					SwapScreen();  
-					//---------------------------------------------------------------------
+			
+					MyThread.Start(ThreadData::LOADING_TUNE, "Loading Tune");
+
+
+					////////// The menu screen hs been set above, so now just set the message
+					////////Util3D::CameraIdentity();
+					////////Util3D::TransRot(-280,-150,0, M_PI *0.5f );
+					////////GetFontManager()->DisplayTextCentre("Loading...", 0,0,200,HashString::SmallFont);
+					////////SwapScreen();  
+					//////////----------------------------------------------------------------------
+					////////// next frame - now need to set the menu screen again before the text message
+					////////GetMenuScreens()->DoMenuScreen();  // draw menu screen again
+					////////Util3D::CameraIdentity();
+					////////Util3D::TransRot(-280,-150,0, M_PI *0.5f );
+					////////GetFontManager()->DisplayTextCentre("Loading...", 0,0,200,HashString::SmallFont);
+					////////SwapScreen();  
+					//////////---------------------------------------------------------------------
+
 					NextMusic();
+		
+
+					MyThread.Stop();
 
 					continue; // don't do the loops screen swap since its already done
 				}
