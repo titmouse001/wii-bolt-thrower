@@ -1,12 +1,13 @@
 <?xml version="1.0" standalone="yes"?>
 <Data>
-	<LatestReleaseAvailable>0.70</LatestReleaseAvailable>
+	<LatestReleaseAvailable>0.71</LatestReleaseAvailable>
 	
 	<ReleaseNotes>
     visit http://wiibrew.org/wiki/BoltThrower for release notes\n\n
 	Press (A) to install\n
     Press (B) to cancel\n\n
-    Install Release 0.70 ?\n
+    Install Release 0.71? (this is a very minor update)\n
+	I've optimised the way mines work to support far more of them!\n
 	(NOTE: Recall your mines with Dpad UP, press again to turn off protect mode)
   </ReleaseNotes>
 	
