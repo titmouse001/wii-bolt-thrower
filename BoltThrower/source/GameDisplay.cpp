@@ -347,8 +347,49 @@ void GameDisplay::DisplayMoonShieldAndRocks()
 	{
 		Vec3 v( MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ() );
 
-// moon rocks
+
+		// SLOWER !!! DONT THINK PUTTING RESULTS BACK INTO THE SAME VAR IS A GOOD IDEA!
+		//// moon rocks  - 2000-1900ms singleframe (min)
+		//if (pFrustum->sphereInFrustum(v,m_pGameLogic->GetClippingRadiusNeededForMoonRocks()) != FrustumR::OUTSIDE) {
+
+		//	m_pWii->GetRender3D()->RenderModelPreStage(HashString::Rock1);  // rock1 & rock2 use the same texture
+		//	std::vector<Item3D>::iterator IterEnd = m_pGameLogic->GetMoonRocksContainerBegin();
+		//	std::advance(IterEnd,MoonIter->GetAmountOfRocks());
+
+		//	for (std::vector<Item3D>::iterator iter(m_pGameLogic->GetMoonRocksContainerBegin());iter!=IterEnd;++iter)
+		//	{
+		//		Mtx Model,mat,m2;
+		//		Util3D::MatrixRotateZ(Model, iter->GetRotateZ());
+		//		Util3D::MatrixRotateY(mat, iter->GetRotateY());
+		//		Util3D::MatrixConcat(Model,mat, m2);
+		//		Util3D::ScaleApply(m2, iter->GetScaleX(),iter->GetScaleY(),iter->GetScaleZ());
+		//		Util3D::TransApply(m2, iter->GetX(), iter->GetY(), iter->GetZ());
+
+		//		Util3D::MatrixRotateY(mat, MoonIter->GetRotateY());  // spin around moon axis
+		//		Util3D::MatrixConcat(mat,m2,Model);
+
+		//		Util3D::TransApply(Model, MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ());  // position arround moon
+		//		Util3D::MatrixConcat(m_pWii->GetCamera()->GetcameraMatrix(),Model,m2);
+
+		//		if (MoonIter->GetDetailLevel() == Low) {
+		//			m_pWii->GetRender3D()->RenderModelMinimal(HashString::Rock2, m2);  //lowres
+		//		}
+		//		else if (MoonIter->GetDetailLevel() == High) {
+		//			m_pWii->GetRender3D()->RenderModelMinimal(HashString::Rock1, m2); 
+		//		}
+		//		else if (MoonIter->GetDetailLevel() == Auto) {
+		//			if (( fabs(iter->GetZ()) > 750)  ||( fabs(iter->GetX()) > 750))
+		//				m_pWii->GetRender3D()->RenderModelMinimal(HashString::Rock1, m2);  //hires
+		//			else
+		//				m_pWii->GetRender3D()->RenderModelMinimal(HashString::Rock2, m2);  //lowres
+		//		}
+		//	}
+		//}
+
+		
+		// moon rocks - 1800-1700ms single frame (min)
 		if (pFrustum->sphereInFrustum(v,m_pGameLogic->GetClippingRadiusNeededForMoonRocks()) != FrustumR::OUTSIDE) {
+
 			m_pWii->GetRender3D()->RenderModelPreStage(HashString::Rock1);  // rock1 & rock2 use the same texture
 			std::vector<Item3D>::iterator IterEnd = m_pGameLogic->GetMoonRocksContainerBegin();
 			std::advance(IterEnd,MoonIter->GetAmountOfRocks());
@@ -363,6 +404,7 @@ void GameDisplay::DisplayMoonShieldAndRocks()
 				guMtxTransApply(Model, Model, iter->GetX(), iter->GetY(), iter->GetZ());
 
 				Util3D::MatrixRotateY(mat, MoonIter->GetRotateY());  // spin around moon axis
+
 
 				guMtxConcat(mat,Model,m2);
 				guMtxTransApply(m2,m2, MoonIter->GetX(), MoonIter->GetY(), MoonIter->GetZ());
@@ -385,6 +427,7 @@ void GameDisplay::DisplayMoonShieldAndRocks()
 				}
 			}
 		}
+		
 
 
 		if (m_pGameLogic->IsBaseShieldOnline()) {
@@ -1222,6 +1265,7 @@ void GameDisplay::DebugInformation()
 	//extern profiler_t profile_Mission;
 	extern profiler_t profile_ShotAndGunTurret;
 	extern profiler_t profile_DyingEnemies;
+	extern profiler_t profile_MissileCollisionLogic;
 
 	//static u8 LastFPS(0);
 	static int DroppedFrames(0);
@@ -1233,7 +1277,12 @@ void GameDisplay::DebugInformation()
 
 	Printf(x,y+=32,"%02dfps %ddropped",FPS,DroppedFrames/60);
 
-	return;
+//extern map <int, vector<Vessel> > CollisionContainer;
+//	Printf(x,y+=22,"%03d %s",CollisionContainer.size(), m_pWii->profiler_output(&profile_MissileCollisionLogic).c_str());
+if (m_pGameLogic->GetMoonRocksContainerSize()!=0)
+		Printf(x,y+=22,"%03d %s",m_pGameLogic->GetMoonRocksContainerSize(), m_pWii->profiler_output(&profile_MoonRocks).c_str());
+	
+return;
 
 	if (m_pGameLogic->GetAsteroidContainerSize()!=0)
 		Printf(x,y+=22,"%03d %s",m_pGameLogic->GetAsteroidContainerSize(), m_pWii->profiler_output(&profile_Asteroid).c_str());

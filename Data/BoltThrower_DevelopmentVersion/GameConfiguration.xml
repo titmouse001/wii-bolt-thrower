@@ -269,7 +269,7 @@
       <AddText Press_PLUS_To_Play =  "Press (+) To Play" />
       <AddText Press_PLUS_To_Pause_Game = "Press (+) To Pause Game" />
       <AddText ExplanationMark = "!" />
-      <AddText RemoveGunshipsBeforeRecoveringMessage = "You need to remove the any enemy gunships before recovering this last satellite" />
+      <AddText RemoveGunshipsBeforeRecoveringMessage = "You need to remove the enemy gunships before recovering this last satellite" />
       <AddText Your_Score = "&lt;-- Your Score" />
       <AddText ScrapPartsCollected = "&lt;-- Amount of scrap parts collected" />
 

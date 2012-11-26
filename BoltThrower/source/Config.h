@@ -5,11 +5,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static const std::string s_ReleaseVersion("0.70");
-static const std::string s_DateOfRelease("July 2012");
+static const std::string s_ReleaseVersion("0.71");
+static const std::string s_DateOfRelease("Nov 2012");
 static const float s_fVersion( atof( s_ReleaseVersion.c_str() ) );
 
-#define OPTION (1)  
+#define OPTION (3)  
 
 // (1) WII SEND
 // (2) WII EMULATOR ... for the dolphin emu

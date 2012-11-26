@@ -149,6 +149,7 @@ void Vessel::AddShieldLevel(int Value)
 { 
 	int ShieldLevelMaxLimit = Singleton<WiiManager>::GetInstanceByPtr()->GetXmlVariable(HashString::PlayerMaxShieldLevel);
 	m_iShieldLevel = std::min(m_iShieldLevel + Value,ShieldLevelMaxLimit); 
+	m_iShieldLevel = std::max(0,m_iShieldLevel);
 }
 
 // **************

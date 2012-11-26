@@ -62,7 +62,7 @@ public:
 
 	void ProbeMineLogic( std::vector<Vessel>*  pVesselContainer = NULL, float ThrustPower = 0.05f, 	float ScanRange = 22.0f,float FrameSpeed = 0.05f) ;
 	void RetrieveProbeMineLogic(float ThrustPower);
-	void ProbeMineCollisionLogic(std::vector<Vessel>*  pVesselContainer, float CraftSize);
+	void ProbeMineCollisionLogic();
 	void BadShipsLogic();
 	void BadShipsLogicForIntro();
 	void ExhaustLogic();

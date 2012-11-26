@@ -39,7 +39,7 @@ int main(int /* argc */, char**  argv )
 
 	rWiiManager.FinalInitManagers();   // dependancy on call to InitWii that sets up GXRModeObj
 	
-#if (0)
+#if (1)
 	//-------------------------------------------------
 	// Downloads the "LatestVersion.XML" containing the update information
 	rWiiManager.GetUpdateManager()->DoUpdate(s_MasterFileLatestVersion);

@@ -19,6 +19,10 @@ namespace Util3D
 	void MatrixRotateY(Mtx mt,f32 rad);
 	void MatrixRotateX(Mtx mt,f32 rad);
 
+	//void MatrixConcat(Mtx a,Mtx b,Mtx ab); // unsafe - no var checking
+	//void TransApply(Mtx m,f32 x,f32 y,f32 z);  // unsafe
+	//
+	//void ScaleApply(Mtx m,f32 xS,f32 yS,f32 zS);
 }
 
 #endif
