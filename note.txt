@@ -1,5 +1,37 @@
-LatestVersion_FAKE.xml = NOT FOR RELEASE (note: replaces LatestVersion_TESTING.xml used in error)
+LatestVersion_FAKE.xml = x.xx      <--- USE THIS NOW FOR TESTING VERSIONS
+(replaces LatestVersion_TESTING.xml, fake is the new testing... yeah no idea why I named i that)
 
-LatestVersion_TESTING.xml = 0.61  
+LatestVersion_TESTING.xml = 0.61   <--- DUE TO A MISTAKE, THIS HAS TO BE LOCKED TO VERSION 0.61           
+(left this in for 0.61 rather than updaing LatestVersion.xml ... opps)
 
-LatestVersion.xml = 0.60, 0.62 & above   (NOT 0.61! see top note)
+LatestVersion.xml = 0.60, 0.62 & above     
+(but not for 0.61)
+
+*** LASTEST IS NOW 0.71 ***
+
+----
+
+imdisk GOOD for WII emulator editing image file
+
+----
+*** TEST DEPLOY, CopyData.bat ***
+REM copy to the network shared folder for the wii to read (then using say wiiexplorer to copy from the pc)
+copy data\GameConfiguration.xml C:\wii\
+REM copy to mounted SD drive for the Dolphin emulator
+copy data\GameConfiguration.xml F:\APPS\BoltThrower\
+copy LatestVersion.xml F:\APPS\BoltThrower\
+pause
+
+----
+
+COMPILER USED
+devkitPro/libogc: C Library for Wii and Gamecube homebrew
+
+( dont forget to copy any extra needed compiler libs, for example) 
+c:\libogc\lib\wii\libaesnd.a
+c:\libogc\lib\wii\libgrrmod.a
+c:\libogc\lib\wii\libpng.a
+c:\libogc\lib\wii\libvorbisidec.a
+c:\libogc\lib\wii\libz.a
+...
+
